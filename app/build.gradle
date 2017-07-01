@@ -1,0 +1,79 @@
+import org.ajoberstar.grgit.Grgit
+
+apply plugin: 'com.android.application'
+
+
+ext {
+    git = Grgit.open()
+    revision = git.head().id
+    ext.versionMajor = 0
+    ext.versionMinor = 0
+    ext.versionPatch = git.log(includes: ['HEAD']).size()
+}
+
+android {
+    compileSdkVersion 25
+    buildToolsVersion "25.0.2"
+    defaultConfig {
+        applicationId "com.anontemp.android"
+        minSdkVersion 19
+        targetSdkVersion 25
+        versionCode computeVersionCode()
+        versionName computeVersionName()
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        multiDexEnabled true
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+        debug {
+            debuggable true
+        }
+    }
+    dexOptions {
+        javaMaxHeapSize "2g"
+    }
+    lintOptions {
+        disable 'RtlSymmetry', 'ContentDescription', 'LabelFor', 'InefficientWeight'
+        abortOnError false
+    }
+}
+
+def computeVersionName() {
+    return String.format('%d.%d.%d (%s)', versionMajor, versionMinor, 0, git.head().abbreviatedId)
+}
+
+def computeVersionCode() {
+    return (versionMajor * 100000) + (versionMinor * 10000) + versionPatch
+}
+
+buildscript {
+    repositories {
+        mavenCentral()
+
+    }
+
+    dependencies {
+        classpath 'org.ajoberstar:grgit:1.7.0'
+
+
+    }
+}
+
+dependencies {
+    compile fileTree(dir: 'libs', include: ['*.jar'])
+    androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
+        exclude group: 'com.android.support', module: 'support-annotations'
+    })
+    compile 'com.android.support:appcompat-v7:25.3.1'
+    compile 'com.android.support:support-v4:25.3.1'
+    compile 'com.google.android.gms:play-services:10.0.1'
+    compile 'com.android.support:design:25.3.1'
+    compile 'com.android.support:multidex:1.0.1'
+    compile 'com.google.firebase:firebase-auth:10.0.1'
+    testCompile 'junit:junit:4.12'
+}
+
+apply plugin: 'com.google.gms.google-services'

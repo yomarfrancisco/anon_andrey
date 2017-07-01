@@ -1,0 +1,62 @@
+{
+  "project_info": {
+    "project_number": "747107256846",
+    "firebase_url": "https://anontemp-9239b.firebaseio.com",
+    "project_id": "anontemp-9239b",
+    "storage_bucket": "anontemp-9239b.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:747107256846:android:4e41d51100270f6a",
+        "android_client_info": {
+          "package_name": "com.anontemp.android"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "747107256846-utfr24qoflruhfkk8cfi9ubsq7pd4an7.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.anontemp.android",
+            "certificate_hash": "e9cdff8a006c1887f02f63b37bb7ea6815577cb0"
+          }
+        },
+        {
+          "client_id": "747107256846-hg7lups187gc7m6j6i87pp0kv4oqe9jb.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBKMprDEfOVwXehsJfRDZE2Hcq7Yum2qug"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "747107256846-hg7lups187gc7m6j6i87pp0kv4oqe9jb.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "747107256846-61aodkuuch3d5834avijsglf8sg1c21r.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.anonTemp.ios"
+              }
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
