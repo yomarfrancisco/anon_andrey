@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item>
+        <bitmap
+            android:gravity="left"
+            android:src="@mipmap/ic_inlove" />
+    </item>
+    <item android:left="40dp">
+        <bitmap
+            android:gravity="left"
+            android:src="@mipmap/ic_tears" />
+    </item>
+    <item android:left="80dp">
+        <bitmap
+            android:gravity="left"
+            android:src="@mipmap/ic_triumph" />
+    </item>
+    <item android:left="120dp">
+        <bitmap
+            android:gravity="left"
+            android:src="@mipmap/ic_sunglasses" />
+    </item>
+    <item android:left="160dp">
+        <bitmap
+            android:gravity="left"
+            android:src="@mipmap/ic_aubergine" />
+    </item>
+    <item android:left="200dp">
+        <bitmap
+            android:gravity="left"
+            android:src="@mipmap/ic_flushed" />
+    </item>
+    <item android:left="240dp">
+        <bitmap
+            android:gravity="left"
+            android:src="@mipmap/ic_hushed" />
+    </item>
+    <item android:left="280dp">
+        <bitmap
+            android:gravity="left"
+            android:src="@mipmap/ic_hands" />
+    </item>
+    <item android:left="320dp">
+        <bitmap
+            android:gravity="left"
+            android:src="@mipmap/ic_crying" />
+    </item>
+    <item android:left="360dp">
+        <bitmap
+            android:gravity="left"
+            android:src="@mipmap/ic_peach" />
+    </item>
+
+</layer-list>
