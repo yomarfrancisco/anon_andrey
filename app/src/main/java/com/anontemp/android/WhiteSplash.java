@@ -1,13 +1,12 @@
 package com.anontemp.android;
 
 import android.content.Intent;
-import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
-import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v7.app.AppCompatActivity;
-
-import static com.anontemp.android.Splash.SPLASH_TIME_OUT;
+import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.widget.ImageView;
 
 public class WhiteSplash extends AppCompatActivity {
 
@@ -17,16 +16,36 @@ public class WhiteSplash extends AppCompatActivity {
         setContentView(R.layout.activity_white_splash);
 
 
-        new Handler().postDelayed(new Runnable() {
+        final ImageView image = (ImageView) findViewById(R.id.ivHand);
+        Animation animation = AnimationUtils.loadAnimation(this, R.anim.hand);
+
+
+        animation.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+
+            }
 
             @Override
-            public void run() {
-                Intent i = new Intent(WhiteSplash.this, MainActivity.class);
-                    startActivity(i);
-
-                finish();
+            public void onAnimationEnd(Animation animation) {
+                image.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Intent intent = new Intent(WhiteSplash.this, MapsActivity.class);
+                        startActivity(intent);
+                        Helper.downToUpTransition(WhiteSplash.this);
+                    }
+                });
             }
-        }, SPLASH_TIME_OUT);
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+
+            }
+        });
+
+        image.startAnimation(animation);
+
 
     }
 }
