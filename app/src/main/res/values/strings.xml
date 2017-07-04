@@ -5,4 +5,6 @@
     <string name="title_activity_main">MainActivity</string>
     <string name="welcome_text">Be yourself.\nExpress yourself.\nNO consequences.</string>
     <string name="title_activity_maps">Map</string>
+    <string name="wits_title">WITS University</string>
+    <string name="mtv_title">MTV Base</string>
 </resources>

@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="fill_parent"
+    android:layout_height="match_parent"
+    tools:context="com.anontemp.android.MapsActivity">
 <fragment
 
     xmlns:android="http://schemas.android.com/apk/res/android"
@@ -8,5 +12,26 @@
     android:name="com.google.android.gms.maps.SupportMapFragment"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:layout_marginBottom="8dp"
+    android:layout_marginTop="8dp"
     tools:context="com.anontemp.android.MapsActivity" />
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_marginLeft="16dp"
+        android:layout_marginTop="32dp"
+        android:padding="4dp"
+        android:src="@mipmap/ic_logo" />
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_marginLeft="100dp"
+        android:layout_marginTop="220dp"
+        android:src="@mipmap/ic_lock" />
+
+</FrameLayout>
 

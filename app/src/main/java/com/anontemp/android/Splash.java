@@ -5,17 +5,20 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.ActivityOptionsCompat;
-import android.support.v7.app.AppCompatActivity;
 
-public class Splash extends AppCompatActivity {
+public class Splash extends FullscreenController {
 
     public static final int SPLASH_TIME_OUT = 3000;
+
+    @Override
+    protected int init() {
+        return R.layout.activity_splash;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_splash);
 
 
         new Handler().postDelayed(new Runnable() {
@@ -23,6 +26,7 @@ public class Splash extends AppCompatActivity {
             @Override
             public void run() {
                 Intent i = new Intent(Splash.this, WhiteSplash.class);
+                i.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
 
                     ActivityOptionsCompat options = ActivityOptionsCompat.

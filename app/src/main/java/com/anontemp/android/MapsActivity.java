@@ -2,21 +2,26 @@ package com.anontemp.android;
 
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
+import android.view.View;
 
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback, LocationListener {
@@ -24,6 +29,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     LocationManager mLocationManager;
     Location mLocation;
     private GoogleMap mMap;
+    private View decorView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,26 +44,76 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             return;
         }
         getMyLocation();
+
+        decorView = getWindow().getDecorView();
+        hideSystemUI();
+        decorView.setOnSystemUiVisibilityChangeListener
+                (new View.OnSystemUiVisibilityChangeListener() {
+                    @Override
+                    public void onSystemUiVisibilityChange(int visibility) {
+                        if ((visibility & View.SYSTEM_UI_FLAG_FULLSCREEN) == 0) {
+
+                            new Handler().postDelayed(new Runnable() {
+                                @Override
+                                public void run() {
+                                    hideSystemUI();
+                                }
+                            }, 5000);
+                        }
+                    }
+                });
+    }
+
+    private void hideSystemUI() {
+        decorView.setSystemUiVisibility(
+                View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                        | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                        | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION // hide nav bar
+                        | View.SYSTEM_UI_FLAG_IMMERSIVE);
+    }
+
+
+    @Override
+    public void onWindowFocusChanged(boolean hasFocus) {
+        super.onWindowFocusChanged(hasFocus);
+        if (hasFocus) {
+            decorView.setSystemUiVisibility(
+                    View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                            | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                            | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                            | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
+        }
     }
 
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
-        mMap.getUiSettings().setMyLocationButtonEnabled(true);
+        mMap.getUiSettings().setMyLocationButtonEnabled(false);
         if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED ||
                 ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             mMap.setMyLocationEnabled(true);
         }
-        mMap.getUiSettings().setZoomControlsEnabled(true);
-        if (mLocation != null) {
-            LatLng my = new LatLng(mLocation.getLatitude(), mLocation.getLongitude());
-            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(my, 15));
-        } else {
-            LatLng sydney = new LatLng(-26.1939231, 28.0291716);
-            mMap.addMarker(new MarkerOptions().position(sydney).title("Wits university"));
-            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(sydney, 15));
-        }
+        mMap.getUiSettings().setZoomControlsEnabled(false);
+
+        LatLng wits = new LatLng(-26.189460, 28.028117);
+        LatLng mtv = new LatLng(-26.115230, 28.032296);
+        LatLng center = new LatLng(-26.12, 28.029);
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(center, 12));
+        mMap.getUiSettings().setAllGesturesEnabled(false);
+        MarkerOptions mtvMarkerOpts = new MarkerOptions().position(mtv).title(getString(R.string.mtv_title));
+        Marker marker = mMap.addMarker(mtvMarkerOpts);
+        mMap.addMarker(new MarkerOptions().position(wits).title(getString(R.string.wits_title)));
+
+
+        CircleOptions circleOptions = new CircleOptions()
+                .center(wits)
+                .radius(1000).fillColor(Color.argb(100, 128, 128, 128)).strokeColor(Color.argb(140, 20, 0, 255)).strokeWidth(5);
+        mMap.addCircle(circleOptions);
+        mMap.addCircle(circleOptions.center(mtv).radius(300));
+        marker.showInfoWindow();
+
+
     }
 
     private void getMyLocation() {
@@ -84,9 +140,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             Log.v("Location Changed", location.getLatitude() + " and " + location.getLongitude());
 
             mLocation = location;
-            CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(
-                    new LatLng(location.getLatitude(), location.getLongitude()), 15);
-            mMap.animateCamera(cameraUpdate);
+            CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLng(
+                    new LatLng(location.getLatitude(), location.getLongitude()));
+            mMap.moveCamera(cameraUpdate);
 
         }
     }
