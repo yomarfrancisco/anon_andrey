@@ -7,4 +7,25 @@
     <string name="title_activity_maps">Map</string>
     <string name="wits_title">WITS University</string>
     <string name="mtv_title">MTV Base</string>
+    <string name="lock_info">anon. networks are only open when you are inside the area. Once inside the network, hit the key and we will log you in.</string>
+    <string name="geofence_not_available">Geofence service is not available now</string>
+    <string name="unknown_geofence_error">
+        Unknown error: the Geofence service is not available now
+    </string>
+    <string name="geofence_transition_invalid_type">
+        Geofence transition error: invalid transition type %1$d
+    </string>
+    <string name="geofence_transition_entered">Entered</string>
+    <string name="geofence_transition_exited">Exited</string>
+    <string name="unknown_geofence_transition">Unknown Transition</string>
+
+    <string name="geofence_transition_notification_text">
+        Click notification to return to app
+    </string>
+
+    <string name="insufficient_permissions">Insufficient permissions.</string>
+    <string name="permission_rationale">Location permission is needed for core functionality</string>
+    <string name="permission_denied_explanation">Permission was denied, but is needed for core
+        functionality.</string>
+    <string name="settings">Settings</string>
 </resources>
