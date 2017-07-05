@@ -32,9 +32,12 @@
         android:layout_alignParentTop="true"
         android:layout_marginLeft="60dp"
         android:layout_marginTop="220dp"
-        android:src="@mipmap/ic_lock" />
+        android:clickable="true"
+        android:src="@mipmap/ic_lock"
+        android:tag="@string/locked" />
 
     <TextView
+        android:id="@+id/tvLock"
         android:layout_width="300dp"
         android:layout_height="wrap_content"
         android:layout_marginLeft="35dp"

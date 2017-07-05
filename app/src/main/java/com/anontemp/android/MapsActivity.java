@@ -1,8 +1,10 @@
 package com.anontemp.android;
 
 import android.app.PendingIntent;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.graphics.Color;
@@ -18,8 +20,15 @@ import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.content.ContextCompat;
+import android.support.v4.content.LocalBroadcastManager;
+import android.support.v7.app.AlertDialog;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import com.google.android.gms.location.Geofence;
 import com.google.android.gms.location.GeofencingClient;
@@ -42,7 +51,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class MapsActivity extends FragmentActivity implements OnMapReadyCallback, LocationListener, OnCompleteListener<Void> {
+public class MapsActivity extends FragmentActivity implements OnMapReadyCallback, LocationListener, OnCompleteListener<Void>, View.OnClickListener {
 
     public static final LatLng WITS = new LatLng(-26.189460, 28.028117);
     public static final LatLng MTV = new LatLng(-26.115230, 28.032296);
@@ -57,6 +66,30 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private List<Geofence> mGeofenceList;
     private PendingIntent mGeofencePendingIntent;
     private PendingGeofenceTask mPendingGeofenceTask = PendingGeofenceTask.NONE;
+    private ImageView ivLock;
+    private TextView tvLock;
+    private BroadcastReceiver geofenceChangeReceiver = new BroadcastReceiver() {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            switch (intent.getAction()) {
+                case GeofenceTransitionsIntentService.ACTION_ENTERED:
+                    ivLock.setImageDrawable(ContextCompat.getDrawable(context, R.mipmap.ic_unlock));
+                    ivLock.setTag(getString(R.string.unlocked));
+                    String geofenceId = intent.getStringExtra(Constants.GEOFENCE_ID);
+                    if (getString(R.string.wits_title).equals(geofenceId)) {
+                        tvLock.setText(R.string.wits_enter_text);
+                    }
+
+
+                    break;
+
+
+            }
+
+
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,6 +106,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mGeofencePendingIntent = null;
         populateGeofenceList();
         mGeofencingClient = LocationServices.getGeofencingClient(this);
+        ivLock = (ImageView) findViewById(R.id.ivLock);
+        ivLock.setOnClickListener(this);
+        tvLock = (TextView) findViewById(R.id.tvLock);
 
 
         decorView = getWindow().getDecorView();
@@ -112,6 +148,20 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                             | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
                             | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
         }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        LocalBroadcastManager.getInstance(this).registerReceiver(geofenceChangeReceiver,
+                new IntentFilter(GeofenceTransitionsIntentService.ACTION_ENTERED));
+
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(geofenceChangeReceiver);
     }
 
     private void populateGeofenceList() {
@@ -232,7 +282,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
     }
 
-
     @Override
     public void onLocationChanged(Location location) {
         if (location != null) {
@@ -241,8 +290,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             mLocation = location;
             CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLng(
                     new LatLng(location.getLatitude(), location.getLongitude()));
-            if (mMap != null)
-                mMap.animateCamera(cameraUpdate);
+//            if (mMap != null)
+//                mMap.animateCamera(cameraUpdate);
 
         }
     }
@@ -327,7 +376,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 .putBoolean(Constants.GEOFENCES_ADDED_KEY, added)
                 .apply();
     }
-
 
     @Override
     public void onComplete(@NonNull Task<Void> task) {
@@ -418,12 +466,38 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
     }
 
-    private enum PendingGeofenceTask {
-        ADD, NONE
+    @Override
+    public void onClick(View v) {
+
+        switch (v.getId()) {
+            case R.id.ivLock:
+                if (v.getTag().equals(getString(R.string.locked))) {
+                    View d = LayoutInflater.from(MapsActivity.this).inflate(R.layout.c_dial, null);
+                    AlertDialog.Builder build = new AlertDialog.Builder(MapsActivity.this);
+                    build.setView(d);
+                    final AlertDialog dialog = build.create();
+
+                    LinearLayout iv = (LinearLayout) d.findViewById(R.id.dialLayout);
+                    iv.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            if (v.isShown()) {
+                                dialog.dismiss();
+                            }
+                        }
+                    });
+                    dialog.show();
+                } else {
+
+                }
+                break;
+        }
+
     }
 
-    private class GeofenceEntry {
-        private String key;
+
+    private enum PendingGeofenceTask {
+        ADD, NONE
     }
 
 

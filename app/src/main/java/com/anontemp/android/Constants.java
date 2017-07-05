@@ -12,8 +12,8 @@ final class Constants {
 
 
     static final HashMap<String, Region> REGIONS = new HashMap<>();
+    static final String GEOFENCE_ID = "geofenceId";
     private static final String PACKAGE_NAME = "com.anontemp.android";
-
     static final String GEOFENCES_ADDED_KEY = PACKAGE_NAME + ".GEOFENCES_ADDED_KEY";
 
     static {
