@@ -31,4 +31,14 @@
     <string name="locked">locked</string>
     <string name="unlocked">unlocked</string>
     <string name="wits_enter_text">You are inside the WITS Braam Campus network. Hit the key to enter this network.</string>
+    <string name="back_to_map">Return to map</string>
+    <string name="login_text">Welcome to anon. We are logging you in with temp details to check out the feed and post anonymously.</string>
+    <string name="login_rules">Code of conduct: \n\n1. Be yourself. No one here cares about followers.\n2. Post what\'s on your mind, judgement free.\n3. Don\'t fuck it up for others! If your posts are continually reported, you will be suspended.\n4. Do not post people’s private information. Ever. Not cool.\n5. Check out our <a href="com.anontemp.android.privacy://terms">terms</a> and <a href="com.anontemp.android.privacy://policy">privacy policy</a>.\n6. Click \"Let me in\" to agree to the above</string>
+    <string name="login_auth">Let me in</string>
+    <string name="login_email_hint">Enter Email</string>
+    <string name="login_pass_hint">Enter Password</string>
+    <string name="validate_err">Please check that you\'ve submitted information correctly. We\'re having trouble logging you in.</string>
+    <string name="loading">Hang tight...</string>
+    <string name="temp_mail">temp7@iamanon.com</string>
+    <string name="temp_pass">123456789</string>
 </resources>

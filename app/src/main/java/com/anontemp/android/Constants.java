@@ -11,6 +11,7 @@ import java.util.HashMap;
 final class Constants {
 
 
+    public final static String EMAIL_PATTERN = "[a-zA-Z0-9._-]+@[a-z]+\\.+[a-z]+";
     static final HashMap<String, Region> REGIONS = new HashMap<>();
     static final String GEOFENCE_ID = "geofenceId";
     private static final String PACKAGE_NAME = "com.anontemp.android";

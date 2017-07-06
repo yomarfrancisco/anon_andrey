@@ -348,12 +348,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
     }
 
-    private void showSnackbar(final String text) {
-        View container = findViewById(android.R.id.content);
-        if (container != null) {
-            Snackbar.make(container, text, Snackbar.LENGTH_LONG).show();
-        }
-    }
+
 
     private void showSnackbar(final int mainTextStringId, final int actionStringId,
                               View.OnClickListener listener) {
@@ -424,7 +419,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @SuppressWarnings("MissingPermission")
     private void addGeofences() {
         if (!checkPermissions()) {
-            showSnackbar(getString(R.string.insufficient_permissions));
+            Helper.showSnackbar(getString(R.string.insufficient_permissions), this);
             return;
         }
 
@@ -488,7 +483,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     });
                     dialog.show();
                 } else {
-
+                    Intent intent = new Intent(MapsActivity.this, Login.class);
+                    startActivity(intent);
+                    Helper.downToUpTransition(MapsActivity.this);
                 }
                 break;
         }
