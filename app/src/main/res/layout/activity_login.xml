@@ -7,61 +7,7 @@
     android:fitsSystemWindows="true"
     tools:context="com.anontemp.android.Login">
 
-
-    <android.support.constraint.Guideline
-        android:id="@+id/top_guide"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.16"
-        tools:layout_editor_absoluteX="0dp"
-        tools:layout_editor_absoluteY="99dp" />
-
-    <android.support.constraint.Guideline
-        android:id="@+id/leftIcon_guideline"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        app:layout_constraintGuide_percent="0.1"
-        tools:layout_editor_absoluteX="39dp"
-        tools:layout_editor_absoluteY="0dp" />
-
-    <android.support.constraint.Guideline
-        android:id="@+id/right_guideline"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        app:layout_constraintGuide_percent="0.85"
-        tools:layout_editor_absoluteX="327dp"
-        tools:layout_editor_absoluteY="0dp" />
-
-
-    <ImageView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="30dp"
-        android:src="@mipmap/ic_logo"
-        app:layout_constraintBottom_toTopOf="@+id/top_guide"
-        app:layout_constraintLeft_toLeftOf="@+id/leftIcon_guideline" />
-
-    <TextView
-        android:id="@+id/returnToMap"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="35dp"
-        android:clickable="true"
-        android:text="@string/back_to_map"
-        android:textColor="@android:color/holo_red_dark"
-        app:layout_constraintBottom_toTopOf="@+id/top_guide"
-        app:layout_constraintRight_toLeftOf="@+id/right_guideline" />
-
-    <View
-        android:layout_width="0dp"
-        android:layout_height="1dp"
-        android:background="#000000"
-        app:layout_constraintBottom_toTopOf="@+id/top_guide"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent" />
+    <include layout="@layout/top_merge" />
 
 
     <android.support.constraint.Guideline

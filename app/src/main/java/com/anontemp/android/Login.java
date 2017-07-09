@@ -1,5 +1,6 @@
 package com.anontemp.android;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.TextInputEditText;
@@ -49,6 +50,7 @@ public class Login extends FullscreenController implements View.OnClickListener 
             }
         };
 
+        findViewById(R.id.returnToMap).setVisibility(View.VISIBLE);
         findViewById(R.id.returnToMap).setOnClickListener(this);
         mMail = (TextInputEditText) findViewById(R.id.emailInput);
         mPass = (TextInputEditText) findViewById(R.id.passInput);
@@ -143,6 +145,8 @@ public class Login extends FullscreenController implements View.OnClickListener 
 
 
                         hideProgressDialog();
+                        Intent intent = new Intent(Login.this, DashBoard.class);
+                        startActivity(intent);
 
                         // ...
                     }

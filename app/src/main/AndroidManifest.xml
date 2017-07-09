@@ -43,7 +43,9 @@
             android:name=".GeofenceTransitionsIntentService"
             android:exported="false" />
 
-        <activity android:name=".Login"></activity>
+        <activity android:name=".Login" />
+        <activity android:name=".DashBoard" />
+        <activity android:name=".MessageBoard"></activity>
     </application>
 
 </manifest>

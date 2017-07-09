@@ -41,4 +41,12 @@
     <string name="loading">Hang tight...</string>
     <string name="temp_mail">temp7@iamanon.com</string>
     <string name="temp_pass">123456789</string>
+    <string name="msgbrd_button">Message board</string>
+    <string name="snpsht_button">Snapshot</string>
+    <string name="crtacnt_button">Create account</string>
+    <string name="board_hint">What\'s on your mind?</string>
+    <string name="q">\?</string>
+    <string name="stamp_temp">10:35</string>
+    <string name="count_temp">140</string>
+    <string name="report">Report</string>
 </resources>
