@@ -49,4 +49,22 @@
     <string name="stamp_temp">10:35</string>
     <string name="count_temp">140</string>
     <string name="report">Report</string>
+    <string name="gender_hint_disabled">Create an account to show your gender.</string>
+    <string name="gender_hint">Show gender for this post.</string>
+    <string name="mood_hint">Choose the mood for this post.</string>
+    <!--moods-->
+    <string name="in_love">in_love</string>
+    <string name="sunglasses">sunglasses</string>
+    <string name="open_mouth">open_mouth</string>
+    <string name="pray_hands">pray_hands</string>
+    <string name="tears">tears</string>
+    <string name="pouting_face">pouting_face</string>
+    <string name="no_eighteen">no_eighteen</string>
+    <string name="neutral_face">neutral_face</string>
+    <string name="frowning_face">frowning_face</string>
+    <string name="fire">fire</string>
+    <string name="clapping_hands">clapping_hands</string>
+    <string name="raising_hands">raising_hands</string>
+
+
 </resources>
