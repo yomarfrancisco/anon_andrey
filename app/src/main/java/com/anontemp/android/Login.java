@@ -175,6 +175,9 @@ public class Login extends FullscreenController implements View.OnClickListener 
                         hideProgressDialog();
                         Intent intent = new Intent(Login.this, DashBoard.class);
                         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                        if (getIntent() != null && getIntent().getStringExtra(MapsActivity.REGION_NAME) != null) {
+                            intent.putExtra(MapsActivity.REGION_NAME, getIntent().getStringExtra(MapsActivity.REGION_NAME));
+                        }
                         startActivity(intent);
 
                         // ...

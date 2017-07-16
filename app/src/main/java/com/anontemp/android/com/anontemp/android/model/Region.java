@@ -19,6 +19,12 @@ public class Region {
     private String regionId;
     private String regiontext;
 
+
+    public Region(String regionId, String regiontext) {
+        this.regionId = regionId;
+        this.regiontext = regiontext;
+    }
+
     public Region() {
     }
 

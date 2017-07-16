@@ -30,7 +30,7 @@
     <string name="settings">Settings</string>
     <string name="locked">locked</string>
     <string name="unlocked">unlocked</string>
-    <string name="wits_enter_text">You are inside the WITS Braam Campus network. Hit the key to enter this network.</string>
+    <string name="network_enter_text">You are inside %1$s. Hit the key to enter this network.</string>
     <string name="back_to_map">Return to map</string>
     <string name="login_text">Welcome to anon. We are logging you in with temp details to check out the feed and post anonymously.</string>
     <string name="login_rules">Code of conduct: \n\n1. Be yourself. No one here cares about followers.\n2. Post what\'s on your mind, judgement free.\n3. Don\'t fuck it up for others! If your posts are continually reported, you will be suspended.\n4. Do not post people’s private information. Ever. Not cool.\n5. Check out our terms and privacy policy.\n6. Click \"Let me in\" to agree to the above</string>
@@ -88,4 +88,6 @@
     <string name="signup_all">Complete all fields before signing up.</string>
     <string name="signup_gender">We need to know your gender, use the flower if you don\'t want to be specific.</string>
     <string name="signup_wrong_mail">This email address is associated to another account.</string>
+    <string name="message_long">Your message is too long. Max 140 characters allowed.</string>
+    <string name="location_default">Ex network</string>
 </resources>

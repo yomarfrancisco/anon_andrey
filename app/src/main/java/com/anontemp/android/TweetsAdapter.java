@@ -1,7 +1,6 @@
 package com.anontemp.android;
 
 import android.content.Context;
-import android.support.text.emoji.EmojiCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -11,6 +10,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.anontemp.android.com.anontemp.android.model.Tweet;
+
+import org.apache.commons.text.StringEscapeUtils;
 
 import java.util.List;
 
@@ -45,12 +46,13 @@ public class TweetsAdapter extends RecyclerView.Adapter {
         Tweet tweet = tweets.get(position);
         h.tweet = tweet;
         h.firstName.setText(tweet.getFirstName());
-        h.timestamp.setText(tweet.getDate());
+        h.timestamp.setText(tweet.getVisibleDate());
         h.body.setText(tweet.getTweetText());
         h.regionText.setText(tweet.getRegionName());
-        if (Constants.MOODS.get(EmojiCompat.get().process(tweet.getMoodText())) != null)
-            h.mood.setImageDrawable(ContextCompat.getDrawable(context, Constants.MOODS.get(EmojiCompat.get().process(tweet.getMoodText()))));
-        h.gender.setImageDrawable(ContextCompat.getDrawable(context, Constants.GENDERS.get(tweet.getUsername())));
+        if (Constants.MOODS_UNICODE.get(StringEscapeUtils.escapeJava(tweet.getMoodText())) != null)
+            h.mood.setImageDrawable(ContextCompat.getDrawable(context, Constants.MOODS_UNICODE.get(StringEscapeUtils.escapeJava(tweet.getMoodText()))));
+        if (Constants.GENDERS_UNICODE.get(StringEscapeUtils.escapeJava(tweet.getUsername())) != null)
+            h.gender.setImageDrawable(ContextCompat.getDrawable(context, Constants.GENDERS_UNICODE.get(StringEscapeUtils.escapeJava(tweet.getUsername()))));
 
 
     }

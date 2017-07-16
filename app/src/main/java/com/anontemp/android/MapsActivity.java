@@ -61,6 +61,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public static final LatLng WITS = new LatLng(-26.189460, 28.028117);
     public static final LatLng MTV = new LatLng(-26.115230, 28.032296);
     public static final LatLng CENTER = new LatLng(-26.12, 28.029);
+    public static final String REGION_NAME = "regionName";
     private static final int REQUEST_PERMISSIONS_REQUEST_CODE = 3;
     LocationManager mLocationManager;
     Location mLocation;
@@ -70,9 +71,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private GeofencingClient mGeofencingClient;
     private List<Geofence> mGeofenceList;
     private PendingIntent mGeofencePendingIntent;
-    private PendingGeofenceTask mPendingGeofenceTask = PendingGeofenceTask.NONE;
+    private Constants.PendingGeofenceTask mPendingGeofenceTask = Constants.PendingGeofenceTask.NONE;
     private ImageView ivLock;
     private TextView tvLock;
+    private String regionName;
     private FirebaseAuth.AuthStateListener mAuthListener;
     private BroadcastReceiver geofenceChangeReceiver = new BroadcastReceiver() {
 
@@ -82,10 +84,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 case GeofenceTransitionsIntentService.ACTION_ENTERED:
                     ivLock.setImageDrawable(ContextCompat.getDrawable(context, R.mipmap.ic_unlock));
                     ivLock.setTag(getString(R.string.unlocked));
-                    String geofenceId = intent.getStringExtra(Constants.GEOFENCE_ID);
-                    if (getString(R.string.wits_title).equals(geofenceId)) {
-                        tvLock.setText(R.string.wits_enter_text);
-                    }
+                    regionName = intent.getStringExtra(Constants.GEOFENCE_ID);
+                    tvLock.setText(getString(R.string.network_enter_text, regionName));
 
 
                     break;
@@ -305,7 +305,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     protected void onStart() {
         super.onStart();
-        mPendingGeofenceTask = PendingGeofenceTask.ADD;
+        mPendingGeofenceTask = Constants.PendingGeofenceTask.ADD;
         if (!checkPermissions()) {
             requestPermissions();
         } else {
@@ -394,7 +394,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
     private void performPendingGeofenceTask() {
-        if (mPendingGeofenceTask == PendingGeofenceTask.ADD) {
+        if (mPendingGeofenceTask == Constants.PendingGeofenceTask.ADD) {
             addGeofences();
         }
     }
@@ -408,7 +408,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     @Override
     public void onComplete(@NonNull Task<Void> task) {
-        mPendingGeofenceTask = PendingGeofenceTask.NONE;
+        mPendingGeofenceTask = Constants.PendingGeofenceTask.NONE;
         if (task.isSuccessful()) {
             updateGeofencesAdded(!getGeofencesAdded());
 
@@ -491,7 +491,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                                 startActivity(intent);
                             }
                         });
-                mPendingGeofenceTask = PendingGeofenceTask.NONE;
+                mPendingGeofenceTask = Constants.PendingGeofenceTask.NONE;
             }
         }
     }
@@ -525,6 +525,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         intent = new Intent(MapsActivity.this, Login.class);
 
                     }
+                    intent.putExtra(REGION_NAME, regionName);
                     startActivity(intent);
                     Helper.downToUpTransition(MapsActivity.this);
                 }
@@ -564,10 +565,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             }
         }).start();
 
-    }
-
-    private enum PendingGeofenceTask {
-        ADD, NONE
     }
 
 

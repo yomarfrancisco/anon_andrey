@@ -9,6 +9,12 @@ import android.util.Pair;
 import android.view.View;
 import android.widget.TextView;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Locale;
+
 /**
  * Created by jaydee on 01.07.17.
  */
@@ -65,6 +71,45 @@ public class Helper {
         AnonApp.get().getSharedPreferences().edit().putString(EMAIL, pair.first).putString(PASSWORD, pair.second).apply();
 
     }
+
+    public static Long getRealDate(String rawDate) {
+        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy hh:mm aa");
+        Date date;
+        try {
+            date = sdf.parse(rawDate);
+        } catch (ParseException e) {
+            return null;
+        }
+        return date.getTime();
+    }
+
+    public static String getVisibleDate(Long date) {
+
+        if (date == null)
+            return "";
+
+
+        Calendar cS = Calendar.getInstance();
+        Calendar cE = Calendar.getInstance();
+        cE.setTimeInMillis(date);
+        boolean sameDay = cS.get(Calendar.YEAR) == cE.get(Calendar.YEAR) &&
+                cS.get(Calendar.MONTH) == cE.get(Calendar.MONTH) && cS.get(Calendar.DAY_OF_MONTH) == cE.get(Calendar.DAY_OF_MONTH);
+        boolean sameYear = cS.get(Calendar.YEAR) == cE.get(Calendar.YEAR);
+
+        SimpleDateFormat startFormat = new SimpleDateFormat("MMM d, yyyy, HH:mm", Locale.US);
+
+        if (sameDay) {
+            SimpleDateFormat onlyTime = new SimpleDateFormat("HH:mm", Locale.US);
+            return onlyTime.format(date);
+        } else if (sameYear) {
+            SimpleDateFormat woYear = new SimpleDateFormat("MMM d, HH:mm", Locale.US);
+            return woYear.format(date);
+        } else {
+            return startFormat.format(date);
+        }
+    }
+
+
 
 
 }

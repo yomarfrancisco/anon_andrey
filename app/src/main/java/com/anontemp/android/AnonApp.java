@@ -2,8 +2,6 @@ package com.anontemp.android;
 
 import android.content.SharedPreferences;
 import android.support.multidex.MultiDexApplication;
-import android.support.text.emoji.EmojiCompat;
-import android.support.text.emoji.bundled.BundledEmojiCompatConfig;
 
 import com.securepreferences.SecurePreferences;
 
@@ -27,9 +25,6 @@ public class AnonApp extends MultiDexApplication {
     @Override
     public void onCreate() {
         super.onCreate();
-        final EmojiCompat.Config config = new BundledEmojiCompatConfig(getApplicationContext());
-        config.setReplaceAll(true);
-        EmojiCompat.init(config);
 
 
     }

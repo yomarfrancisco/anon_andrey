@@ -15,6 +15,7 @@ import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
@@ -79,10 +80,14 @@ public class MessageBoard extends FullscreenController {
                 for (DataSnapshot tweetShot : dataSnapshot.getChildren()) {
                     Tweet t = tweetShot.getValue(Tweet.class);
                     t.set_id(new Random().nextLong());
+                    t.setRealDate(Helper.getRealDate(t.getDate()));
+                    t.setVisibleDate(Helper.getVisibleDate(t.getRealDate()));
                     tweetList.add(t);
                 }
                 tweetsQuery.removeEventListener(this);
                 rv.setLayoutManager(new LinearLayoutManager(MessageBoard.this));
+
+                Collections.sort(tweetList);
                 adapter = new TweetsAdapter(tweetList, MessageBoard.this);
                 rv.setAdapter(adapter);
                 rv.addItemDecoration(new MessageDivider(MessageBoard.this));

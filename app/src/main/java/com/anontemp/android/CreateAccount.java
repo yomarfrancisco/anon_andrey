@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.TextInputEditText;
-import android.support.text.emoji.EmojiCompat;
 import android.support.v4.content.ContextCompat;
 import android.text.TextUtils;
 import android.util.Log;
@@ -22,6 +21,8 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+
+import org.apache.commons.text.StringEscapeUtils;
 
 public class CreateAccount extends FullscreenController implements View.OnClickListener {
 
@@ -136,7 +137,7 @@ public class CreateAccount extends FullscreenController implements View.OnClickL
                 if (!validate()) {
                     break;
                 }
-                showProgressDialog(EmojiCompat.get().process("Account created \uD83D\uDE43"));
+                showProgressDialog(StringEscapeUtils.escapeJava("Account created \uD83D\uDE43"));
                 signUp(mMail.getText().toString(), mPass.getText().toString());
                 break;
         }
