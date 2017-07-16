@@ -14,6 +14,9 @@
         <item name="colorControlNormal">@color/colorPrimaryDark</item>
         <item name="colorControlActivated">@color/colorPrimaryDark</item>
         <item name="colorControlHighlight">@color/colorPrimaryDark</item>
+        <item name="android:typeface">serif</item>
+        <item name="android:colorBackground">@android:color/white</item>
+        <item name="android:textColorPrimary">@android:color/black</item>
     </style>
 
     <style name="SplashScreenTheme" parent="Theme.AppCompat.NoActionBar">
@@ -26,6 +29,12 @@
         <item name="android:textColor">@color/colorAccent</item>
         <item name="android:textAlignment">center</item>
         <item name="android:alpha">128</item>
+    </style>
+
+    <style name="BlackHint" parent="@style/TextAppearance.AppCompat">
+        <item name="android:textColor">@android:color/black</item>
+        <item name="android:textAlignment">textStart</item>
+        <item name="android:alpha">160</item>
     </style>
 
     <style name="MyTheme" parent="android:Theme.Holo.Dialog">
@@ -66,5 +75,6 @@
     <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
 
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
+
 
 </resources>

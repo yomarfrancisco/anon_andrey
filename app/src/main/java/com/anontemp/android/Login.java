@@ -5,9 +5,13 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.TextInputEditText;
 import android.support.v7.widget.AppCompatButton;
+import android.text.Spannable;
 import android.text.TextUtils;
+import android.text.method.LinkMovementMethod;
+import android.text.style.ClickableSpan;
 import android.util.Log;
 import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -52,10 +56,35 @@ public class Login extends FullscreenController implements View.OnClickListener 
 
         findViewById(R.id.returnToMap).setVisibility(View.VISIBLE);
         findViewById(R.id.returnToMap).setOnClickListener(this);
-        mMail = (TextInputEditText) findViewById(R.id.emailInput);
-        mPass = (TextInputEditText) findViewById(R.id.passInput);
-        bAuth = (AppCompatButton) findViewById(R.id.authenticate);
+        mMail = findViewById(R.id.emailInput);
+        mPass = findViewById(R.id.passInput);
+        bAuth = findViewById(R.id.authenticate);
         bAuth.setOnClickListener(this);
+
+        TextView links = findViewById(R.id.links);
+        links.setMovementMethod(LinkMovementMethod.getInstance());
+        Spannable spans = (Spannable) links.getText();
+        ClickableSpan termsSpan = new ClickableSpan() {
+
+            @Override
+            public void onClick(View widget) {
+                Intent intent = new Intent(Login.this, TermsAndPrivacy.class);
+                startActivity(intent);
+                Helper.downToUpTransition(Login.this);
+            }
+        };
+
+        ClickableSpan policySpan = new ClickableSpan() {
+
+            @Override
+            public void onClick(View widget) {
+                Intent intent = new Intent(Login.this, TermsAndPrivacy.class);
+                startActivity(intent);
+                Helper.downToUpTransition(Login.this);
+            }
+        };
+        spans.setSpan(termsSpan, 288, 293, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        spans.setSpan(policySpan, 298, 312, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 
     }
 
@@ -78,10 +107,9 @@ public class Login extends FullscreenController implements View.OnClickListener 
         switch (v.getId()) {
             case R.id.returnToMap:
                 onBackPressed();
-                Helper.upToDownTransition(this);
                 break;
             case R.id.authenticate:
-                showProgressDialog();
+                showProgressDialog(R.string.loading);
                 if (!validate()) {
                     Helper.showSnackbar(getString(R.string.validate_err), this);
                     hideProgressDialog();
@@ -133,7 +161,7 @@ public class Login extends FullscreenController implements View.OnClickListener 
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         Log.d(Helper.TAG, "signInWithEmail:onComplete:" + task.isSuccessful());
 
-                        // If sign in fails, display a message to the user. If sign in succeeds
+                        // If sign in fails, display a tweet to the user. If sign in succeeds
                         // the auth state listener will be notified and logic to handle the
                         // signed in user can be handled in the listener.
                         if (!task.isSuccessful()) {
@@ -146,6 +174,7 @@ public class Login extends FullscreenController implements View.OnClickListener 
 
                         hideProgressDialog();
                         Intent intent = new Intent(Login.this, DashBoard.class);
+                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                         startActivity(intent);
 
                         // ...

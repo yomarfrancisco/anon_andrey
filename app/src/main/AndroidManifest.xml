@@ -45,7 +45,14 @@
 
         <activity android:name=".Login" />
         <activity android:name=".DashBoard" />
-        <activity android:name=".MessageBoard"></activity>
+        <activity android:name=".MessageBoard" />
+        <activity android:name=".TermsAndPrivacy" />
+        <activity android:name=".CreateAccount" />
+
+        <service
+            android:name=".AuthService"
+            android:enabled="true"
+            android:exported="false"></service>
     </application>
 
 </manifest>

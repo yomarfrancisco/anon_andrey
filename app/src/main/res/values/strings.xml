@@ -33,7 +33,7 @@
     <string name="wits_enter_text">You are inside the WITS Braam Campus network. Hit the key to enter this network.</string>
     <string name="back_to_map">Return to map</string>
     <string name="login_text">Welcome to anon. We are logging you in with temp details to check out the feed and post anonymously.</string>
-    <string name="login_rules">Code of conduct: \n\n1. Be yourself. No one here cares about followers.\n2. Post what\'s on your mind, judgement free.\n3. Don\'t fuck it up for others! If your posts are continually reported, you will be suspended.\n4. Do not post people’s private information. Ever. Not cool.\n5. Check out our <a href="com.anontemp.android.privacy://terms">terms</a> and <a href="com.anontemp.android.privacy://policy">privacy policy</a>.\n6. Click \"Let me in\" to agree to the above</string>
+    <string name="login_rules">Code of conduct: \n\n1. Be yourself. No one here cares about followers.\n2. Post what\'s on your mind, judgement free.\n3. Don\'t fuck it up for others! If your posts are continually reported, you will be suspended.\n4. Do not post people’s private information. Ever. Not cool.\n5. Check out our terms and privacy policy.\n6. Click \"Let me in\" to agree to the above</string>
     <string name="login_auth">Let me in</string>
     <string name="login_email_hint">Enter Email</string>
     <string name="login_pass_hint">Enter Password</string>
@@ -50,7 +50,8 @@
     <string name="count_temp">140</string>
     <string name="report">Report</string>
     <string name="gender_hint_disabled">Create an account to show your gender.</string>
-    <string name="gender_hint">Show gender for this post.</string>
+    <string name="gender_hint_on">Show gender for this post.</string>
+    <string name="gender_hint_off">Do not show gender for this post.</string>
     <string name="mood_hint">Choose the mood for this post.</string>
     <!--moods-->
     <string name="in_love">in_love</string>
@@ -66,5 +67,25 @@
     <string name="clapping_hands">clapping_hands</string>
     <string name="raising_hands">raising_hands</string>
 
+    <string name="privacy">Privacy →</string>
+    <string name="terms_title">Terms of Service</string>
 
+
+    <string name="temp_login_link">Return to temp login</string>
+    <string name="email_info">Email: anontheapp@gmail.com</string>
+    <string name="privacy_title">Privacy policy</string>
+    <string name="terms_link">Terms →</string>
+    <string name="gender_title">Tap your gender</string>
+    <string name="gender_choose_hint">You may choose to display or hide your gender on each post.</string>
+    <string name="email_hint">we need your email to keep your account secure. It will always remain hidden.</string>
+    <string name="pass_title">Enter a password</string>
+    <string name="pass_hint">So you don\'t have to go through the temp sign-in every time. What a bore.</string>
+    <string name="sign_up">Sign Up</string>
+    <string name="email_title">Enter your email</string>
+    <string name="acc_created">Account created 🙃</string>
+    <string name="signup_mail">You need to enter an email address to create an account.</string>
+    <string name="signup_pass_long">Your password isn\'t long enough. Use at least 8 characters.</string>
+    <string name="signup_all">Complete all fields before signing up.</string>
+    <string name="signup_gender">We need to know your gender, use the flower if you don\'t want to be specific.</string>
+    <string name="signup_wrong_mail">This email address is associated to another account.</string>
 </resources>

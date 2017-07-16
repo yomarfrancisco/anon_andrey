@@ -63,7 +63,7 @@
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/separator"
-        tools:listitem="@layout/message">
+        tools:listitem="@layout/tweet">
 
     </android.support.v7.widget.RecyclerView>
 

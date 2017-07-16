@@ -14,6 +14,7 @@ import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
@@ -24,6 +25,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
+import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageView;
@@ -46,6 +48,9 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -68,6 +73,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private PendingGeofenceTask mPendingGeofenceTask = PendingGeofenceTask.NONE;
     private ImageView ivLock;
     private TextView tvLock;
+    private FirebaseAuth.AuthStateListener mAuthListener;
     private BroadcastReceiver geofenceChangeReceiver = new BroadcastReceiver() {
 
         @Override
@@ -91,6 +97,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
     };
 
+    private FirebaseUser user;
+    private FirebaseAuth mAuth;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -106,9 +116,21 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mGeofencePendingIntent = null;
         populateGeofenceList();
         mGeofencingClient = LocationServices.getGeofencingClient(this);
-        ivLock = (ImageView) findViewById(R.id.ivLock);
+        ivLock = findViewById(R.id.ivLock);
         ivLock.setOnClickListener(this);
-        tvLock = (TextView) findViewById(R.id.tvLock);
+        tvLock = findViewById(R.id.tvLock);
+        mAuth = FirebaseAuth.getInstance();
+        mAuthListener = new FirebaseAuth.AuthStateListener() {
+            @Override
+            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
+                user = firebaseAuth.getCurrentUser();
+                if (user != null) {
+                    Log.d(Helper.TAG, "onAuthStateChanged:signed_in:" + user.getUid());
+                } else {
+                    Log.d(Helper.TAG, "onAuthStateChanged:signed_out");
+                }
+            }
+        };
 
 
         decorView = getWindow().getDecorView();
@@ -155,6 +177,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         super.onResume();
         LocalBroadcastManager.getInstance(this).registerReceiver(geofenceChangeReceiver,
                 new IntentFilter(GeofenceTransitionsIntentService.ACTION_ENTERED));
+        tryAuth();
 
     }
 
@@ -165,7 +188,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
     private void populateGeofenceList() {
-        for (Map.Entry<String, Region> entry : Constants.REGIONS.entrySet()) {
+        for (Map.Entry<String, GeoRegion> entry : Constants.REGIONS.entrySet()) {
 
             mGeofenceList.add(new Geofence.Builder()
                     // Set the request ID of the geofence. This is a string to identify this
@@ -272,6 +295,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
     @Override
+    protected void onStop() {
+        super.onStop();
+        if (mAuthListener != null) {
+            mAuth.removeAuthStateListener(mAuthListener);
+        }
+    }
+
+    @Override
     protected void onStart() {
         super.onStart();
         mPendingGeofenceTask = PendingGeofenceTask.ADD;
@@ -280,6 +311,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         } else {
             performPendingGeofenceTask();
         }
+
+        mAuth.addAuthStateListener(mAuthListener);
+
+
     }
 
     @Override
@@ -349,7 +384,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
 
-
     private void showSnackbar(final int mainTextStringId, final int actionStringId,
                               View.OnClickListener listener) {
         Snackbar.make(
@@ -379,7 +413,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             updateGeofencesAdded(!getGeofencesAdded());
 
         } else {
-            // Get the status code for the error and log it using a user-friendly message.
+            // Get the status code for the error and log it using a user-friendly tweet.
             String errorMessage = GeofenceErrorMessages.getErrorString(this, task.getException());
             Log.w(Helper.TAG, errorMessage);
         }
@@ -415,6 +449,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         // Return a GeofencingRequest.
         return builder.build();
     }
+
 
     @SuppressWarnings("MissingPermission")
     private void addGeofences() {
@@ -472,7 +507,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     build.setView(d);
                     final AlertDialog dialog = build.create();
 
-                    LinearLayout iv = (LinearLayout) d.findViewById(R.id.dialLayout);
+                    LinearLayout iv = d.findViewById(R.id.dialLayout);
                     iv.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
@@ -483,7 +518,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     });
                     dialog.show();
                 } else {
-                    Intent intent = new Intent(MapsActivity.this, Login.class);
+                    Intent intent;
+                    if (user != null && user.getUid().equals(Helper.getUuid())) {
+                        intent = new Intent(MapsActivity.this, DashBoard.class);
+                    } else {
+                        intent = new Intent(MapsActivity.this, Login.class);
+
+                    }
                     startActivity(intent);
                     Helper.downToUpTransition(MapsActivity.this);
                 }
@@ -492,6 +533,38 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     }
 
+    private void tryAuth() {
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                user = mAuth.getCurrentUser();
+                if (!Helper.getUuid().isEmpty() && (user == null || user != null && !user.getUid().equals(Helper.getUuid()))) {
+                    Looper.prepare();
+                    Pair<String, String> pair = Helper.getCredentials();
+                    mAuth.signInWithEmailAndPassword(pair.first, pair.second)
+                            .addOnCompleteListener(MapsActivity.this, new OnCompleteListener<AuthResult>() {
+                                @Override
+                                public void onComplete(@NonNull Task<AuthResult> task) {
+                                    Log.d(Helper.TAG, "signInWithEmail:onComplete:" + task.isSuccessful());
+
+//                                    user = mAuth.getCurrentUser();
+                                    if (!task.isSuccessful()) {
+                                        Log.w(Helper.TAG, "signInWithEmail:failed", task.getException());
+
+
+                                    }
+
+                                    // ...
+                                }
+                            });
+                    Looper.loop();
+
+                }
+            }
+        }).start();
+
+    }
 
     private enum PendingGeofenceTask {
         ADD, NONE

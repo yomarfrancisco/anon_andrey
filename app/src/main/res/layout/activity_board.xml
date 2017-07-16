@@ -71,6 +71,7 @@
         android:layout_marginStart="5dp"
         android:layout_marginTop="46dp"
         android:background="#000000"
+        android:visibility="invisible"
         app:layout_constraintLeft_toRightOf="@+id/snapshot"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -84,6 +85,7 @@
         android:text="@string/crtacnt_button"
         android:textColor="@color/red_alpha"
         android:textSize="12sp"
+        android:visibility="invisible"
         app:layout_constraintLeft_toRightOf="@+id/separator2"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -117,6 +119,7 @@
             android:ellipsize="start"
             android:fontFamily="serif"
             android:hint="@string/board_hint"
+            android:imeOptions="actionDone"
             android:inputType="textEmailAddress"
             android:textAlignment="textStart"
             android:textColor="@android:color/black"
@@ -172,7 +175,7 @@
         app:layout_constraintTop_toBottomOf="@+id/boardInputLayout" />
 
     <ImageView
-        android:id="@+id/ivFace"
+        android:id="@+id/ivMood"
         android:layout_width="15dp"
         android:layout_height="15dp"
         android:layout_marginTop="25dp"
@@ -180,16 +183,15 @@
         app:layout_constraintLeft_toRightOf="@+id/location"
         app:layout_constraintTop_toBottomOf="@+id/boardInputLayout" />
 
-    <TextView
+    <ImageView
         android:id="@+id/gender"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="15dp"
+        android:layout_height="15dp"
         android:layout_marginLeft="15dp"
         android:layout_marginStart="15dp"
         android:layout_marginTop="25dp"
-        android:text="@string/q"
-        android:textColor="@color/black_alpha"
-        app:layout_constraintLeft_toRightOf="@+id/ivFace"
+        android:src="@mipmap/ic_question"
+        app:layout_constraintLeft_toRightOf="@+id/ivMood"
         app:layout_constraintTop_toBottomOf="@+id/boardInputLayout" />
 
     <TextClock
@@ -296,23 +298,23 @@
 
                 <ImageView
                     android:clickable="true"
-                    android:src="@mipmap/ic_inlove"
-                    android:tag="@string/in_love" />
+                    android:onClick="iconClick"
+                    android:src="@mipmap/ic_inlove" />
 
                 <ImageView
                     android:clickable="true"
-                    android:src="@mipmap/ic_sunglasses"
-                    android:tag="@string/sunglasses" />
+                    android:onClick="iconClick"
+                    android:src="@mipmap/ic_sunglasses" />
 
                 <ImageView
                     android:clickable="true"
-                    android:src="@mipmap/ic_open_mouth"
-                    android:tag="@string/open_mouth" />
+                    android:onClick="iconClick"
+                    android:src="@mipmap/ic_open_mouth" />
 
                 <ImageView
                     android:clickable="true"
-                    android:src="@mipmap/ic_hands"
-                    android:tag="@string/pray_hands" />
+                    android:onClick="iconClick"
+                    android:src="@mipmap/ic_hands" />
 
             </TableRow>
 
@@ -320,23 +322,23 @@
 
                 <ImageView
                     android:clickable="true"
-                    android:src="@mipmap/ic_tears"
-                    android:tag="@string/tears" />
+                    android:onClick="iconClick"
+                    android:src="@mipmap/ic_tears" />
 
                 <ImageView
                     android:clickable="true"
-                    android:src="@mipmap/ic_pouting_face"
-                    android:tag="@string/pouting_face" />
+                    android:onClick="iconClick"
+                    android:src="@mipmap/ic_pouting_face" />
 
                 <ImageView
                     android:clickable="true"
-                    android:src="@mipmap/ic_no_eighteen"
-                    android:tag="@string/no_eighteen" />
+                    android:onClick="iconClick"
+                    android:src="@mipmap/ic_no_eighteen" />
 
                 <ImageView
                     android:clickable="true"
-                    android:src="@mipmap/ic_neutral_face"
-                    android:tag="@string/neutral_face" />
+                    android:onClick="iconClick"
+                    android:src="@mipmap/ic_neutral_face" />
             </TableRow>
 
             <TableRow>
@@ -344,24 +346,23 @@
                 <ImageView
                     android:layout_gravity="center"
                     android:clickable="true"
-                    android:src="@mipmap/ic_frowning_face"
-                    android:tag="@string/frowning_face" />
+                    android:onClick="iconClick"
+                    android:src="@mipmap/ic_frowning_face" />
 
                 <ImageView
                     android:clickable="true"
-                    android:src="@mipmap/ic_fire"
-                    android:tag="@string/fire" />
+                    android:onClick="iconClick"
+                    android:src="@mipmap/ic_fire" />
 
                 <ImageView
                     android:clickable="true"
-                    android:src="@mipmap/ic_clapping_hands"
-                    android:tag="@string/clapping_hands" />
+                    android:onClick="iconClick"
+                    android:src="@mipmap/ic_clapping_hands" />
 
                 <ImageView
                     android:clickable="true"
-                    android:onClick=""
-                    android:src="@mipmap/ic_raising_hands"
-                    android:tag="@string/raising_hands" />
+                    android:onClick="iconClick"
+                    android:src="@mipmap/ic_raising_hands" />
             </TableRow>
 
         </TableLayout>

@@ -63,11 +63,20 @@ public abstract class FullscreenController extends AppCompatActivity {
         }
     }
 
-    public void showProgressDialog() {
+    public void showProgressDialog(int messageRes) {
+        showProgressDialog(getString(messageRes));
+    }
+
+    public void showProgressDialog(CharSequence sequence) {
+        showProgressDialog(sequence.toString());
+    }
+
+    public void showProgressDialog(String message) {
         if (mProgressDialog == null) {
             mProgressDialog = new ProgressDialog(this, R.style.MyTheme);
             mProgressDialog.setProgressStyle(android.R.style.Widget_ProgressBar_Small_Inverse);
-            mProgressDialog.setMessage(getString(R.string.loading));
+            mProgressDialog.setMessage(message);
+            mProgressDialog.setCancelable(false);
             mProgressDialog.setIndeterminate(true);
         }
 

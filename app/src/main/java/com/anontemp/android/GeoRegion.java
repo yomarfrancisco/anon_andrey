@@ -6,12 +6,12 @@ import com.google.android.gms.maps.model.LatLng;
  * Created by jaydee on 05.07.17.
  */
 
-public class Region {
+public class GeoRegion {
 
     private float radius;
     private LatLng latLng;
 
-    public Region(LatLng latLng, float radius) {
+    public GeoRegion(LatLng latLng, float radius) {
         this.radius = radius;
         this.latLng = latLng;
     }
