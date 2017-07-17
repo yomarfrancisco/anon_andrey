@@ -203,7 +203,7 @@ public class CreateAccount extends FullscreenController implements View.OnClickL
 
                                         hideProgressDialog();
                                         Intent intent = new Intent(CreateAccount.this, DashBoard.class);
-                                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                                        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NO_HISTORY);
                                         startActivity(intent);
 
                                     }

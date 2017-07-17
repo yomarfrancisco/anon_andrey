@@ -25,6 +25,9 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import static com.anontemp.android.Helper.ARG_PAGE_TYPE;
+import static com.anontemp.android.Helper.PAGE_TYPE_PRIVACY;
+
 public class Login extends FullscreenController implements View.OnClickListener {
 
     private FirebaseAuth mAuth;
@@ -75,6 +78,7 @@ public class Login extends FullscreenController implements View.OnClickListener 
             @Override
             public void onClick(View widget) {
                 Intent intent = new Intent(Login.this, TermsAndPrivacy.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
                 startActivity(intent);
                 Helper.downToUpTransition(Login.this);
             }
@@ -85,6 +89,8 @@ public class Login extends FullscreenController implements View.OnClickListener 
             @Override
             public void onClick(View widget) {
                 Intent intent = new Intent(Login.this, TermsAndPrivacy.class);
+                intent.putExtra(ARG_PAGE_TYPE, PAGE_TYPE_PRIVACY);
+                intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
                 startActivity(intent);
                 Helper.downToUpTransition(Login.this);
             }
@@ -112,7 +118,10 @@ public class Login extends FullscreenController implements View.OnClickListener 
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.returnToMap:
-                onBackPressed();
+                Intent intent = new Intent(Login.this, MapsActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                startActivity(intent);
+                Helper.downToUpTransition(Login.this);
                 break;
             case R.id.authenticate:
                 showProgressDialog(R.string.loading);
@@ -217,7 +226,7 @@ public class Login extends FullscreenController implements View.OnClickListener 
     private void completeLogin() {
         hideProgressDialog();
         Intent intent = new Intent(Login.this, DashBoard.class);
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NO_HISTORY);
         if (getIntent() != null && getIntent().getStringExtra(MapsActivity.REGION_NAME) != null) {
             intent.putExtra(MapsActivity.REGION_NAME, getIntent().getStringExtra(MapsActivity.REGION_NAME));
         }

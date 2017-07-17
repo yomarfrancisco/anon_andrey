@@ -5,8 +5,12 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.annotation.VisibleForTesting;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 
 /**
  * Created by jaydee on 04.07.17.
@@ -94,5 +98,41 @@ public abstract class FullscreenController extends AppCompatActivity {
         super.onStop();
         hideProgressDialog();
     }
+
+    public void showAlert(Object message, Object title) {
+        View d = LayoutInflater.from(this).inflate(R.layout.c_dial, null);
+        AlertDialog.Builder build = new AlertDialog.Builder(this);
+        build.setView(d);
+        final AlertDialog dialog = build.create();
+
+        LinearLayout iv = d.findViewById(R.id.dialLayout);
+        TextView tv = iv.findViewById(R.id.text);
+        if (message instanceof Integer)
+            tv.setText((Integer) message);
+        if (message instanceof String)
+            tv.setText((String) message);
+
+        if (title != null) {
+            if (title instanceof Integer)
+                dialog.setTitle((Integer) title);
+            if (title instanceof String)
+                dialog.setTitle((String) title);
+        }
+
+        iv.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (v.isShown()) {
+                    dialog.dismiss();
+                }
+            }
+        });
+        dialog.show();
+    }
+
+    public void showAlert(Object message) {
+        showAlert(message, null);
+    }
+
 
 }

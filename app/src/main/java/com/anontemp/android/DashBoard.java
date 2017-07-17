@@ -275,7 +275,7 @@ public class DashBoard extends FullscreenController implements View.OnClickListe
                 intentFilter);
         if (ivPost != null) {
             ivPost.setImageDrawable(ContextCompat.getDrawable(DashBoard.this, R.mipmap.ic_pencil));
-            ivPost.setEnabled(false);
+            ivPost.setEnabled(true);
         }
 
     }
@@ -291,7 +291,7 @@ public class DashBoard extends FullscreenController implements View.OnClickListe
         switch (v.getId()) {
             case R.id.messageBoard:
                 Intent intent = new Intent(DashBoard.this, MessageBoard.class);
-                intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
+                intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
                 startActivity(intent);
                 Helper.downToUpTransition(DashBoard.this);
                 break;
@@ -312,7 +312,7 @@ public class DashBoard extends FullscreenController implements View.OnClickListe
                 break;
             case R.id.create_account:
                 intent = new Intent(DashBoard.this, CreateAccount.class);
-                intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
+                intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
                 startActivity(intent);
                 Helper.downToUpTransition(DashBoard.this);
                 break;

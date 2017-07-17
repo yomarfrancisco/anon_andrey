@@ -17,7 +17,7 @@ public class WhiteSplash extends FullscreenController {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        final ImageView image = (ImageView) findViewById(R.id.ivHand);
+        final ImageView image = findViewById(R.id.ivHand);
         Animation animation = AnimationUtils.loadAnimation(this, R.anim.hand);
 
 
@@ -33,7 +33,7 @@ public class WhiteSplash extends FullscreenController {
                     @Override
                     public void onClick(View v) {
                         Intent intent = new Intent(WhiteSplash.this, MapsActivity.class);
-                        intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
+                        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
                         startActivity(intent);
                         Helper.downToUpTransition(WhiteSplash.this);
                     }

@@ -91,4 +91,10 @@
     <string name="message_long">Your message is too long. Max 140 characters allowed.</string>
     <string name="location_default">Ex network</string>
     <string name="user_deleted">Your account was deleted by some reason, sorry. We will redirect you to log in page once again.</string>
+    <string name="anon_mail">anontheapp@gmail.com</string>
+    <string name="mail_subject">Reporting an anon. post</string>
+    <string name="mail_body">Hi, Sorry if someone said something that offended you. We want you to be comfortable using the app so let us know what time it was posted and in which network the post was sent from.\n The Anon Team</string>
+    <string name="trash_time_alert">All these posts will disappear in %1$s.</string>
+    <string name="mail_error_title">Could Not Send Email</string>
+    <string name="mail_error_body">Your device could not send e-mail.  Please check e-mail configuration and try again.</string>
 </resources>

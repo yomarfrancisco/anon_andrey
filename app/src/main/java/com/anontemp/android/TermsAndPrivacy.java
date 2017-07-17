@@ -55,13 +55,13 @@ public class TermsAndPrivacy extends FullscreenController implements View.OnClic
                     intent.putExtra(ARG_PAGE_TYPE, PAGE_TYPE_PRIVACY);
 
                 }
-                intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
+                intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
                 startActivity(intent);
                 Helper.downToUpTransition(TermsAndPrivacy.this);
                 break;
             case R.id.tempLoginLink:
                 intent = new Intent(TermsAndPrivacy.this, Login.class);
-                intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
+                intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
                 startActivity(intent);
                 Helper.downToUpTransition(TermsAndPrivacy.this);
                 break;

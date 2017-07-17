@@ -36,7 +36,6 @@ import com.google.android.gms.location.Geofence;
 import com.google.android.gms.location.GeofencingClient;
 import com.google.android.gms.location.GeofencingRequest;
 import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -174,18 +173,44 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
     @Override
+    @SuppressWarnings("MissingPermission")
     protected void onResume() {
         super.onResume();
         LocalBroadcastManager.getInstance(this).registerReceiver(geofenceChangeReceiver,
                 new IntentFilter(GeofenceTransitionsIntentService.ACTION_ENTERED));
         tryAuth();
+        setUpMapIfNeeded();
+
+    }
+
+    @SuppressWarnings("MissingPermission")
+    private void setUpMapIfNeeded() {
+        // Do a null check to confirm that we have not already instantiated the map.
+        if (mMap == null) {
+            // Try to obtain the map from the SupportMapFragment.
+            ((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map)).getMapAsync(this);
+            // Check if we were successful in obtaining the map.
+
+
+        } else {
+            mMap.setMyLocationEnabled(true);
+        }
+    }
+
+    @Override
+    @SuppressWarnings("MissingPermission")
+    protected void onPause() {
+        super.onPause();
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(geofenceChangeReceiver);
+        mMap.setMyLocationEnabled(false);
 
     }
 
     @Override
-    protected void onPause() {
-        super.onPause();
-        LocalBroadcastManager.getInstance(this).unregisterReceiver(geofenceChangeReceiver);
+    protected void onDestroy() {
+        if (mLocationManager != null)
+            mLocationManager.removeUpdates(this);
+        super.onDestroy();
     }
 
     private void populateGeofenceList() {
@@ -301,7 +326,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         if (mAuthListener != null) {
             mAuth.removeAuthStateListener(mAuthListener);
         }
+
     }
+
 
     @Override
     protected void onStart() {
@@ -322,13 +349,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public void onLocationChanged(Location location) {
         if (location != null) {
             Log.v("Location Changed", location.getLatitude() + " and " + location.getLongitude());
-
             mLocation = location;
-            CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLng(
-                    new LatLng(location.getLatitude(), location.getLongitude()));
-//            if (mMap != null)
-//                mMap.animateCamera(cameraUpdate);
-
         }
     }
 
@@ -473,7 +494,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             } else if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 Log.i(Helper.TAG, "Permission granted.");
                 getMyLocation();
-                onMapReady(mMap);
                 performPendingGeofenceTask();
 
             } else {
@@ -509,6 +529,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     final AlertDialog dialog = build.create();
 
                     LinearLayout iv = d.findViewById(R.id.dialLayout);
+                    TextView tv = iv.findViewById(R.id.text);
+                    tv.setText(R.string.lock_info);
                     iv.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
@@ -522,8 +544,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     Intent intent;
                     if (user != null && user.getUid().equals(Helper.getUuid())) {
                         intent = new Intent(MapsActivity.this, DashBoard.class);
+                        intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
                     } else {
                         intent = new Intent(MapsActivity.this, Login.class);
+                        intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
 
                     }
                     intent.putExtra(REGION_NAME, regionName);
