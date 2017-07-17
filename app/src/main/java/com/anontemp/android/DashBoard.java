@@ -41,6 +41,7 @@ import com.google.android.gms.location.GeofencingRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -146,6 +147,32 @@ public class DashBoard extends FullscreenController implements View.OnClickListe
         return R.layout.activity_board;
     }
 
+    private void deleteUser() {
+        user.delete().addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if (task.isSuccessful()) {
+
+                    AnonApp.get().getSharedPreferences().edit().remove(Helper.PASSWORD).remove(Helper.EMAIL).remove(Helper.UUID);
+
+
+                    Snackbar snackbar = Helper.getSnackBar(getString(R.string.user_deleted), DashBoard.this);
+                    snackbar.addCallback(new Snackbar.Callback() {
+                        @Override
+                        public void onDismissed(Snackbar transientBottomBar, int event) {
+                            Intent intent = new Intent(DashBoard.this, Login.class);
+                            intent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                            startActivity(intent);
+                            Helper.downToUpTransition(DashBoard.this);
+                            super.onDismissed(transientBottomBar, event);
+
+                        }
+                    }).show();
+                }
+            }
+        });
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -165,6 +192,20 @@ public class DashBoard extends FullscreenController implements View.OnClickListe
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 currentUser = dataSnapshot.getValue(User.class);
+                if (currentUser == null) {
+                    AuthCredential credential = Helper.getAuthCredential();
+
+                    user.reauthenticate(credential)
+                            .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                @Override
+                                public void onComplete(@NonNull Task<Void> task) {
+                                    Log.d(Helper.TAG, "User re-authenticated.");
+                                    deleteUser();
+                                }
+                            });
+
+                    return;
+                }
                 setPostAuthUI();
             }
 
@@ -232,6 +273,10 @@ public class DashBoard extends FullscreenController implements View.OnClickListe
         intentFilter.addAction(GeofenceTransitionsIntentService.ACTION_EXIT);
         LocalBroadcastManager.getInstance(this).registerReceiver(geofenceChangeReceiver,
                 intentFilter);
+        if (ivPost != null) {
+            ivPost.setImageDrawable(ContextCompat.getDrawable(DashBoard.this, R.mipmap.ic_pencil));
+            ivPost.setEnabled(false);
+        }
 
     }
 
@@ -246,6 +291,7 @@ public class DashBoard extends FullscreenController implements View.OnClickListe
         switch (v.getId()) {
             case R.id.messageBoard:
                 Intent intent = new Intent(DashBoard.this, MessageBoard.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
                 startActivity(intent);
                 Helper.downToUpTransition(DashBoard.this);
                 break;
@@ -266,6 +312,7 @@ public class DashBoard extends FullscreenController implements View.OnClickListe
                 break;
             case R.id.create_account:
                 intent = new Intent(DashBoard.this, CreateAccount.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
                 startActivity(intent);
                 Helper.downToUpTransition(DashBoard.this);
                 break;
@@ -312,6 +359,8 @@ public class DashBoard extends FullscreenController implements View.OnClickListe
                 if (databaseError == null) {
                     Intent intent = new Intent(DashBoard.this, MessageBoard.class);
                     startActivity(intent);
+                    Helper.downToUpTransition(DashBoard.this);
+
                 }
             }
         });

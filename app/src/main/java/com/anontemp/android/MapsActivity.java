@@ -110,8 +110,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mapFragment.getMapAsync(this);
         if (!checkPermissions()) {
             requestPermissions();
+        } else {
+            getMyLocation();
         }
-        getMyLocation();
         mGeofenceList = new ArrayList<>();
         mGeofencePendingIntent = null;
         populateGeofenceList();

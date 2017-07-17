@@ -90,4 +90,5 @@
     <string name="signup_wrong_mail">This email address is associated to another account.</string>
     <string name="message_long">Your message is too long. Max 140 characters allowed.</string>
     <string name="location_default">Ex network</string>
+    <string name="user_deleted">Your account was deleted by some reason, sorry. We will redirect you to log in page once again.</string>
 </resources>

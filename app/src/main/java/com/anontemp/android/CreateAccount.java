@@ -11,7 +11,6 @@ import android.util.Pair;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.TextView;
 
 import com.anontemp.android.com.anontemp.android.model.User;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -33,7 +32,6 @@ public class CreateAccount extends FullscreenController implements View.OnClickL
     public static final int INT_MALE = 1;
     public static final int INT_FEMALE = 2;
     public static final int INT_TRANSGENDER = 3;
-    TextView tempLoginLink;
     ImageView chosenGender;
     TextInputEditText mMail;
     TextInputEditText mPass;
@@ -86,6 +84,7 @@ public class CreateAccount extends FullscreenController implements View.OnClickL
         };
         database = FirebaseDatabase.getInstance();
         dbRef = database.getReference("users");
+
     }
 
     public void genderClick(View v) {
@@ -113,13 +112,13 @@ public class CreateAccount extends FullscreenController implements View.OnClickL
     }
 
     private void initViews() {
-        tempLoginLink = findViewById(R.id.tempLoginLink);
         chosenGender = findViewById(R.id.chosenGender);
         mMail = findViewById(R.id.emailInput);
         mPass = findViewById(R.id.passInput);
         signUp = findViewById(R.id.authenticate);
         signUp.setOnClickListener(this);
         chosenGender.setTag(INT_UNDEFINED);
+        findViewById(R.id.tempLoginLink).setOnClickListener(this);
 
     }
 

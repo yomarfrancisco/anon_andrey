@@ -1,17 +1,18 @@
 package com.anontemp.android;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.View;
+import android.widget.ImageView;
 
 import com.anontemp.android.com.anontemp.android.model.Tweet;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
@@ -19,26 +20,45 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
-public class MessageBoard extends FullscreenController {
+public class MessageBoard extends FullscreenController implements View.OnClickListener {
 
+    final List<Tweet> tweetList = new ArrayList<>();
     private FirebaseDatabase database;
-    private DatabaseReference dbRef;
     private FirebaseAuth mAuth;
-
+    private ImageView ivTweet;
     private RecyclerView rv;
     private TweetsAdapter adapter;
     private ChildEventListener childEventListener = new ChildEventListener() {
         @Override
         public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-            if (rv == null)
+            if (rv == null || adapter == null)
                 return;
+
+            Tweet tweet = dataSnapshot.getValue(Tweet.class);
+            tweet.setRealDate(Helper.getRealDate(tweet.getDate()));
+            tweet.setVisibleDate(Helper.getVisibleDate(tweet.getRealDate()));
+            tweetList.add(0, tweet);
+            adapter.notifyItemInserted(0);
+            rv.scrollToPosition(0);
+
 
         }
 
         @Override
         public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-            if (rv == null)
+            if (rv == null || adapter == null)
                 return;
+            Tweet tweet = dataSnapshot.getValue(Tweet.class);
+            for (Tweet t : tweetList) {
+                if (t.getTweetId().equals(tweet.getTweetId())) {
+                    tweet.setVisibleDate(t.getVisibleDate());
+                    tweet.setRealDate(t.getRealDate());
+                    int index = tweetList.indexOf(t);
+                    tweetList.set(index, tweet);
+                    adapter.notifyItemChanged(index);
+                    break;
+                }
+            }
 
         }
 
@@ -68,12 +88,12 @@ public class MessageBoard extends FullscreenController {
         super.onCreate(savedInstanceState);
         mAuth = FirebaseAuth.getInstance();
         database = FirebaseDatabase.getInstance();
-        dbRef = database.getReference();
+        ivTweet = findViewById(R.id.ivTweet);
+        ivTweet.setOnClickListener(this);
 
         rv = findViewById(R.id.list);
-        final List<Tweet> tweetList = new ArrayList<>();
-        final Query tweetsQuery = dbRef.child("Tweets");
-        tweetsQuery.addValueEventListener(new ValueEventListener() {
+
+        database.getReference("Tweets").addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
 
@@ -84,7 +104,6 @@ public class MessageBoard extends FullscreenController {
                     t.setVisibleDate(Helper.getVisibleDate(t.getRealDate()));
                     tweetList.add(t);
                 }
-                tweetsQuery.removeEventListener(this);
                 rv.setLayoutManager(new LinearLayoutManager(MessageBoard.this));
 
                 Collections.sort(tweetList);
@@ -105,6 +124,31 @@ public class MessageBoard extends FullscreenController {
     @Override
     protected void onResume() {
         super.onResume();
+        database.getReference("Tweets").addChildEventListener(childEventListener);
 
+    }
+
+    @Override
+    public void onClick(View view) {
+        switch (view.getId()) {
+            case R.id.ivTweet:
+                Intent intent = new Intent(MessageBoard.this, DashBoard.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
+                startActivity(intent);
+                Helper.downToUpTransition(MessageBoard.this);
+                break;
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        database.getReference("Tweets").removeEventListener(childEventListener);
     }
 }

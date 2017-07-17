@@ -9,6 +9,9 @@ import android.util.Pair;
 import android.view.View;
 import android.widget.TextView;
 
+import com.google.firebase.auth.AuthCredential;
+import com.google.firebase.auth.EmailAuthProvider;
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -39,6 +42,10 @@ public class Helper {
     }
 
     public static void showSnackbar(final String text, Activity activity) {
+        getSnackBar(text, activity).show();
+    }
+
+    public static Snackbar getSnackBar(final String text, Activity activity) {
         View container = activity.findViewById(android.R.id.content);
         if (container != null) {
             Snackbar snackbar = Snackbar.make(container, text, Snackbar.LENGTH_LONG);
@@ -48,8 +55,9 @@ public class Helper {
             TextView textView = snackbarView.findViewById(snackbarTextId);
             textView.setTextColor(Color.BLACK);
             snackbarView.setBackgroundColor(ContextCompat.getColor(activity, android.R.color.white));
-            snackbar.show();
+            return snackbar;
         }
+        return null;
     }
 
 
@@ -70,6 +78,12 @@ public class Helper {
     public static void setCredentials(Pair<String, String> pair) {
         AnonApp.get().getSharedPreferences().edit().putString(EMAIL, pair.first).putString(PASSWORD, pair.second).apply();
 
+    }
+
+    public static AuthCredential getAuthCredential() {
+        SharedPreferences s = AnonApp.get().getSharedPreferences();
+        return EmailAuthProvider
+                .getCredential(s.getString(EMAIL, ""), s.getString(PASSWORD, ""));
     }
 
     public static Long getRealDate(String rawDate) {

@@ -14,11 +14,16 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.anontemp.android.com.anontemp.android.model.User;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 public class Login extends FullscreenController implements View.OnClickListener {
 
@@ -27,7 +32,7 @@ public class Login extends FullscreenController implements View.OnClickListener 
     private TextInputEditText mMail;
     private TextInputEditText mPass;
     private AppCompatButton bAuth;
-
+    private FirebaseDatabase database;
 
     @Override
     protected int init() {
@@ -53,6 +58,7 @@ public class Login extends FullscreenController implements View.OnClickListener 
                 // ...
             }
         };
+        database = FirebaseDatabase.getInstance();
 
         findViewById(R.id.returnToMap).setVisibility(View.VISIBLE);
         findViewById(R.id.returnToMap).setOnClickListener(this);
@@ -152,7 +158,7 @@ public class Login extends FullscreenController implements View.OnClickListener 
         return valid;
     }
 
-    private void signIn(String email, String password) {
+    private void signIn(final String email, final String password) {
         bAuth.setEnabled(false);
 
         mAuth.signInWithEmailAndPassword(email, password)
@@ -169,20 +175,53 @@ public class Login extends FullscreenController implements View.OnClickListener 
                             Toast.makeText(Login.this, R.string.validate_err,
                                     Toast.LENGTH_SHORT).show();
                             bAuth.setEnabled(true);
+                            return;
                         }
 
+                        final FirebaseUser user = task.getResult().getUser();
+                        database.getReference("users").child(user.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(DataSnapshot dataSnapshot) {
+                                User currentUser = dataSnapshot.getValue(User.class);
+                                if (currentUser == null) {
+                                    currentUser = new User("?", email, user.getUid(), "Wits");
+                                    database.getReference("users").child(user.getUid()).setValue(currentUser).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                        @Override
+                                        public void onComplete(@NonNull Task<Void> task) {
+                                            completeLogin();
+                                        }
+                                    });
 
-                        hideProgressDialog();
-                        Intent intent = new Intent(Login.this, DashBoard.class);
-                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                        if (getIntent() != null && getIntent().getStringExtra(MapsActivity.REGION_NAME) != null) {
-                            intent.putExtra(MapsActivity.REGION_NAME, getIntent().getStringExtra(MapsActivity.REGION_NAME));
-                        }
-                        startActivity(intent);
+                                } else {
+                                    completeLogin();
+                                }
+
+
+                            }
+
+                            @Override
+                            public void onCancelled(DatabaseError databaseError) {
+
+                            }
+                        });
+
+
+
 
                         // ...
                     }
                 });
+
+    }
+
+    private void completeLogin() {
+        hideProgressDialog();
+        Intent intent = new Intent(Login.this, DashBoard.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        if (getIntent() != null && getIntent().getStringExtra(MapsActivity.REGION_NAME) != null) {
+            intent.putExtra(MapsActivity.REGION_NAME, getIntent().getStringExtra(MapsActivity.REGION_NAME));
+        }
+        startActivity(intent);
     }
 
 
