@@ -38,7 +38,7 @@
     <string name="login_email_hint">Enter Email</string>
     <string name="login_pass_hint">Enter Password</string>
     <string name="validate_err">Please check that you\'ve submitted information correctly. We\'re having trouble logging you in.</string>
-    <string name="loading">Hang tight...</string>
+    <string name="loading">Hang tight&#8230;</string>
     <string name="temp_mail">temp7@iamanon.com</string>
     <string name="temp_pass">123456789</string>
     <string name="msgbrd_button">Message board</string>
@@ -97,4 +97,5 @@
     <string name="trash_time_alert">All these posts will disappear in %1$s.</string>
     <string name="mail_error_title">Could Not Send Email</string>
     <string name="mail_error_body">Your device could not send e-mail.  Please check e-mail configuration and try again.</string>
+    <string name="snapshot_agenda">Snapshot of regions within Wits Braam campus</string>
 </resources>

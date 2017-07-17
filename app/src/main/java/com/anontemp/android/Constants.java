@@ -1,8 +1,15 @@
 package com.anontemp.android;
 
-import com.google.android.gms.maps.model.LatLng;
+import android.graphics.Color;
+import android.util.SparseArray;
 
+import com.google.android.gms.maps.model.CircleOptions;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
+
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import static org.apache.commons.text.StringEscapeUtils.escapeJava;
 import static org.apache.commons.text.StringEscapeUtils.unescapeJava;
@@ -32,12 +39,26 @@ final class Constants {
     public static final String MATRIX_STUDENT_UNION = "Matrix & Student Union";
     public static final String JUBILEE_HALL = "Jubilee Hall";
     public static final String MENS_RES = "Mens' Res";
+    public static final String BRAAM_CAMPUS = "Braam Campus";
+    public static final String NEIGHBOURGOODS = "Neighbourgoods";
+    public static final String MTV_BASE_HQ = "MTV Base HQ";
+    public static final String MELVILLE = "Melville";
+    public static final String FNB_BUILDING = "FNB Building";
+    public static final String COMMERCE_LAW_AND_MANAGEMENT = "Commerce Law and Management";
+    public static final String OLIVER_SHREINER_LAW_SCHOOL = "Oliver Shreiner Law School";
+    public static final String DAVID_WEBSTER_RES = "David Webster Res";
+    public static final String BARNATO_HALL = "Barnato Hall";
+    public static final String CENTRAL_BLOCK_SU = "Central Block/SU";
+    public static final String COLLEGE_HOUSE = "College House";
     static final HashMap<String, Integer> MOODS_UNICODE = new HashMap<>();
-    static final HashMap<Integer, String> MOODS_IMAGE = new HashMap<>();
+    static final SparseArray<String> MOODS_IMAGE = new SparseArray<>();
     static final HashMap<String, GeoRegion> REGIONS = new HashMap<>();
     static final HashMap<String, GeoRegion> SUB_REGIONS = new HashMap<>();
+    static final HashMap<String, GeoRegion> SNAPSHOT_REGIONS = new HashMap<>();
     static final HashMap<String, Integer> GENDERS_UNICODE = new HashMap<>();
-    static final HashMap<Integer, String> GENDERS_IMAGE = new HashMap<>();
+    static final SparseArray<String> GENDERS_IMAGE = new SparseArray<>();
+    static final List<MarkerOptions> SNAPSHOT_MARKERS = new ArrayList<>();
+    static final List<CircleOptions> SNAPSHOT_CIRCLES = new ArrayList<>();
     static final String GEOFENCE_ID = "geofenceId";
     private static final String PACKAGE_NAME = "com.anontemp.android";
     static final String GEOFENCES_ADDED_KEY = PACKAGE_NAME + ".GEOFENCES_ADDED_KEY";
@@ -111,9 +132,70 @@ final class Constants {
         SUB_REGIONS.put(JUBILEE_HALL, new GeoRegion(new LatLng(-26.188344, 28.032398), 75));
         SUB_REGIONS.put(MENS_RES, new GeoRegion(new LatLng(-26.189028, 28.030472), 75));
 
+
+        //SNAPSHOTS
+        SNAPSHOT_REGIONS.put(BRAAM_CAMPUS, new GeoRegion(new LatLng(-26.189460, 28.028117), 750));
+        SNAPSHOT_REGIONS.put(NEIGHBOURGOODS, new GeoRegion(new LatLng(-26.193872, 28.035106), 150));
+        SNAPSHOT_REGIONS.put(MTV_BASE_HQ, new GeoRegion(new LatLng(-26.115230, 28.032296), 300));
+        SNAPSHOT_REGIONS.put(MELVILLE, new GeoRegion(new LatLng(-26.175025, 28.007747), 500));
+        SNAPSHOT_REGIONS.put(ROSEBANK, new GeoRegion(new LatLng(-26.144726, 28.039409), 500));
+        SNAPSHOT_REGIONS.put(FNB_BUILDING, new GeoRegion(new LatLng(-26.188618, 28.026288), 100));
+        SNAPSHOT_REGIONS.put(COMMERCE_LAW_AND_MANAGEMENT, new GeoRegion(new LatLng(-26.189360, 28.026503), 100));
+        SNAPSHOT_REGIONS.put(OLIVER_SHREINER_LAW_SCHOOL, new GeoRegion(new LatLng(-26.188618, 28.025387), 70));
+        SNAPSHOT_REGIONS.put(DAVID_WEBSTER_RES, new GeoRegion(new LatLng(-26.186799, 28.026202), 75));
+        SNAPSHOT_REGIONS.put(BARNATO_HALL, new GeoRegion(new LatLng(-26.186972, 28.024893), 75));
+        SNAPSHOT_REGIONS.put(CHAMBER_OF_MINES, new GeoRegion(new LatLng(-26.191584, 28.027050), 100));
+        SNAPSHOT_REGIONS.put(CENTRAL_BLOCK_SU, new GeoRegion(new LatLng(-26.192507, 28.030311), 100));
+        SNAPSHOT_REGIONS.put(WARTENWEILLER_LIBRARY, new GeoRegion(new LatLng(-26.191083, 28.030816), 50));
+        SNAPSHOT_REGIONS.put(LIBRARY_LAWNS, new GeoRegion(new LatLng(-26.190717, 28.030161), 100));
+        SNAPSHOT_REGIONS.put(MATRIX_STUDENT_UNION, new GeoRegion(new LatLng(-26.189841, 28.030633), 75));
+        SNAPSHOT_REGIONS.put(JUBILEE_HALL, new GeoRegion(new LatLng(-26.188344, 28.032398), 75));
+        SNAPSHOT_REGIONS.put(COLLEGE_HOUSE, new GeoRegion(new LatLng(-26.189028, 28.030472), 75));
+
+
+        SNAPSHOT_MARKERS.add(new MarkerOptions().position(SNAPSHOT_REGIONS.get(BRAAM_CAMPUS).getLatLng()).title(WITS_UNIVERSITY).snippet(BRAAM_CAMPUS));
+        SNAPSHOT_MARKERS.add(new MarkerOptions().position(SNAPSHOT_REGIONS.get(NEIGHBOURGOODS).getLatLng()).title(NEIGHBOURGOODS));
+        SNAPSHOT_MARKERS.add(new MarkerOptions().position(SNAPSHOT_REGIONS.get(MTV_BASE_HQ).getLatLng()).title(MTV_BASE_HQ));
+        SNAPSHOT_MARKERS.add(new MarkerOptions().position(SNAPSHOT_REGIONS.get(MELVILLE).getLatLng()).title(MELVILLE));
+        SNAPSHOT_MARKERS.add(new MarkerOptions().position(SNAPSHOT_REGIONS.get(ROSEBANK).getLatLng()).title(ROSEBANK));
+        SNAPSHOT_MARKERS.add(new MarkerOptions().position(SNAPSHOT_REGIONS.get(FNB_BUILDING).getLatLng()).title(FNB_BUILDING));
+        SNAPSHOT_MARKERS.add(new MarkerOptions().position(SNAPSHOT_REGIONS.get(COMMERCE_LAW_AND_MANAGEMENT).getLatLng()).title(COMMERCE_LAW_AND_MANAGEMENT));
+        SNAPSHOT_MARKERS.add(new MarkerOptions().position(SNAPSHOT_REGIONS.get(OLIVER_SHREINER_LAW_SCHOOL).getLatLng()).title(OLIVER_SHREINER_LAW_SCHOOL));
+        SNAPSHOT_MARKERS.add(new MarkerOptions().position(SNAPSHOT_REGIONS.get(DAVID_WEBSTER_RES).getLatLng()).title(DAVID_WEBSTER_RES));
+        SNAPSHOT_MARKERS.add(new MarkerOptions().position(SNAPSHOT_REGIONS.get(BARNATO_HALL).getLatLng()).title(BARNATO_HALL));
+        SNAPSHOT_MARKERS.add(new MarkerOptions().position(SNAPSHOT_REGIONS.get(CHAMBER_OF_MINES).getLatLng()).title(CHAMBER_OF_MINES));
+        SNAPSHOT_MARKERS.add(new MarkerOptions().position(SNAPSHOT_REGIONS.get(CENTRAL_BLOCK_SU).getLatLng()).title(CENTRAL_BLOCK_SU));
+        SNAPSHOT_MARKERS.add(new MarkerOptions().position(SNAPSHOT_REGIONS.get(WARTENWEILLER_LIBRARY).getLatLng()).title(WARTENWEILLER_LIBRARY));
+        SNAPSHOT_MARKERS.add(new MarkerOptions().position(SNAPSHOT_REGIONS.get(LIBRARY_LAWNS).getLatLng()).title(LIBRARY_LAWNS));
+        SNAPSHOT_MARKERS.add(new MarkerOptions().position(SNAPSHOT_REGIONS.get(MATRIX_STUDENT_UNION).getLatLng()).title(MATRIX_STUDENT_UNION));
+        SNAPSHOT_MARKERS.add(new MarkerOptions().position(SNAPSHOT_REGIONS.get(JUBILEE_HALL).getLatLng()).title(JUBILEE_HALL));
+        SNAPSHOT_MARKERS.add(new MarkerOptions().position(SNAPSHOT_REGIONS.get(COLLEGE_HOUSE).getLatLng()).title(COLLEGE_HOUSE));
+
+
+        SNAPSHOT_CIRCLES.add(getCircleOptions().center(SNAPSHOT_REGIONS.get(NEIGHBOURGOODS).getLatLng()).radius(SNAPSHOT_REGIONS.get(NEIGHBOURGOODS).getRadius()));
+        SNAPSHOT_CIRCLES.add(getCircleOptions().center(SNAPSHOT_REGIONS.get(MELVILLE).getLatLng()).radius(SNAPSHOT_REGIONS.get(MELVILLE).getRadius()));
+        SNAPSHOT_CIRCLES.add(getCircleOptions().center(SNAPSHOT_REGIONS.get(ROSEBANK).getLatLng()).radius(SNAPSHOT_REGIONS.get(ROSEBANK).getRadius()));
+        SNAPSHOT_CIRCLES.add(getCircleOptions().center(SNAPSHOT_REGIONS.get(FNB_BUILDING).getLatLng()).radius(SNAPSHOT_REGIONS.get(FNB_BUILDING).getRadius()));
+        SNAPSHOT_CIRCLES.add(getCircleOptions().center(SNAPSHOT_REGIONS.get(COMMERCE_LAW_AND_MANAGEMENT).getLatLng()).radius(SNAPSHOT_REGIONS.get(COMMERCE_LAW_AND_MANAGEMENT).getRadius()));
+        SNAPSHOT_CIRCLES.add(getCircleOptions().center(SNAPSHOT_REGIONS.get(OLIVER_SHREINER_LAW_SCHOOL).getLatLng()).radius(SNAPSHOT_REGIONS.get(OLIVER_SHREINER_LAW_SCHOOL).getRadius()));
+        SNAPSHOT_CIRCLES.add(getCircleOptions().center(SNAPSHOT_REGIONS.get(DAVID_WEBSTER_RES).getLatLng()).radius(SNAPSHOT_REGIONS.get(DAVID_WEBSTER_RES).getRadius()));
+        SNAPSHOT_CIRCLES.add(getCircleOptions().center(SNAPSHOT_REGIONS.get(BARNATO_HALL).getLatLng()).radius(SNAPSHOT_REGIONS.get(BARNATO_HALL).getRadius()));
+        SNAPSHOT_CIRCLES.add(getCircleOptions().center(SNAPSHOT_REGIONS.get(CHAMBER_OF_MINES).getLatLng()).radius(SNAPSHOT_REGIONS.get(CHAMBER_OF_MINES).getRadius()));
+        SNAPSHOT_CIRCLES.add(getCircleOptions().center(SNAPSHOT_REGIONS.get(CENTRAL_BLOCK_SU).getLatLng()).radius(SNAPSHOT_REGIONS.get(CENTRAL_BLOCK_SU).getRadius()));
+        SNAPSHOT_CIRCLES.add(getCircleOptions().center(SNAPSHOT_REGIONS.get(WARTENWEILLER_LIBRARY).getLatLng()).radius(SNAPSHOT_REGIONS.get(WARTENWEILLER_LIBRARY).getRadius()));
+        SNAPSHOT_CIRCLES.add(getCircleOptions().center(SNAPSHOT_REGIONS.get(LIBRARY_LAWNS).getLatLng()).radius(SNAPSHOT_REGIONS.get(LIBRARY_LAWNS).getRadius()));
+        SNAPSHOT_CIRCLES.add(getCircleOptions().center(SNAPSHOT_REGIONS.get(MATRIX_STUDENT_UNION).getLatLng()).radius(SNAPSHOT_REGIONS.get(MATRIX_STUDENT_UNION).getRadius()));
+        SNAPSHOT_CIRCLES.add(getCircleOptions().center(SNAPSHOT_REGIONS.get(JUBILEE_HALL).getLatLng()).radius(SNAPSHOT_REGIONS.get(JUBILEE_HALL).getRadius()));
+        SNAPSHOT_CIRCLES.add(getCircleOptions().center(SNAPSHOT_REGIONS.get(COLLEGE_HOUSE).getLatLng()).radius(SNAPSHOT_REGIONS.get(COLLEGE_HOUSE).getRadius()));
+
+
     }
 
     private Constants() {
+    }
+
+    public static CircleOptions getCircleOptions() {
+        return new CircleOptions().fillColor(Color.argb(100, 128, 128, 128)).strokeColor(Color.argb(140, 20, 0, 255)).strokeWidth(5);
     }
 
 

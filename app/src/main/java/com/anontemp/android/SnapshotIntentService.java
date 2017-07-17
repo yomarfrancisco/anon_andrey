@@ -13,13 +13,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class GeofenceTransitionsIntentService extends IntentService {
+public class SnapshotIntentService extends IntentService {
 
-    public static final String ACTION_ENTERED = "com.anontemp.android.service.geo.entered";
-    public static final String ACTION_EXIT = "com.anontemp.android.service.geo.exit";
-    private static final String TAG = "GeofenceTransitionsIS";
+    public static final String ACTION_SNAPSHOT_ENTERED = "com.anontemp.android.service.snapshot.entered";
+    public static final String ACTION_SNAPHOT_EXIT = "com.anontemp.android.service.snapshot.exit";
+    private static final String TAG = "SnapshotIS";
 
-    public GeofenceTransitionsIntentService() {
+    public SnapshotIntentService() {
         super(TAG);
     }
 
@@ -44,7 +44,7 @@ public class GeofenceTransitionsIntentService extends IntentService {
             if (triggeringGeofences != null && triggeringGeofences.size() > 0) {
 
 
-                Intent intent1 = new Intent(ACTION_ENTERED);
+                Intent intent1 = new Intent(ACTION_SNAPSHOT_ENTERED);
                 intent1.putExtra(Constants.GEOFENCE_ID, triggeringGeofences.get(0).getRequestId());
                 manager.sendBroadcast(intent1);
             }
@@ -53,7 +53,7 @@ public class GeofenceTransitionsIntentService extends IntentService {
             Log.i(TAG, getGeofenceTransitionDetails(geofenceTransition, triggeringGeofences));
         } else if (geofenceTransition == Geofence.GEOFENCE_TRANSITION_EXIT) {
 
-            Intent intent1 = new Intent(ACTION_EXIT);
+            Intent intent1 = new Intent(ACTION_SNAPHOT_EXIT);
             manager.sendBroadcast(intent1);
         } else {
 

@@ -1,41 +1,24 @@
 package com.anontemp.android;
 
-import android.app.PendingIntent;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
-import android.graphics.Color;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Looper;
-import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
-import android.support.v4.content.ContextCompat;
-import android.support.v4.content.LocalBroadcastManager;
-import android.support.v7.app.AlertDialog;
 import android.util.Log;
-import android.util.Pair;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.TextView;
 
-import com.google.android.gms.location.Geofence;
-import com.google.android.gms.location.GeofencingClient;
-import com.google.android.gms.location.GeofencingRequest;
-import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -45,68 +28,29 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+public class Snapshot extends FragmentActivity implements OnMapReadyCallback, LocationListener, View.OnClickListener {
 
-public class MapsActivity extends FragmentActivity implements OnMapReadyCallback, LocationListener, OnCompleteListener<Void>, View.OnClickListener {
-
-    public static final LatLng WITS = new LatLng(-26.189460, 28.028117);
-    public static final LatLng MTV = new LatLng(-26.115230, 28.032296);
-    public static final LatLng CENTER = new LatLng(-26.12, 28.029);
-    public static final String REGION_NAME = "regionName";
+    public static final LatLng CENTER = new LatLng(-26.189460, 28.028117);
     private static final int REQUEST_PERMISSIONS_REQUEST_CODE = 3;
     LocationManager mLocationManager;
     Location mLocation;
     Marker lastOpenned = null;
     private GoogleMap mMap;
     private View decorView;
-    private GeofencingClient mGeofencingClient;
-    private List<Geofence> mGeofenceList;
-    private PendingIntent mGeofencePendingIntent;
-    private Constants.PendingGeofenceTask mPendingGeofenceTask = Constants.PendingGeofenceTask.NONE;
+    //    private GeofencingClient mGeofencingClient;
+//    private List<Geofence> mGeofenceList;
+//    private PendingIntent mGeofencePendingIntent;
+//    private Constants.PendingGeofenceTask mPendingGeofenceTask = Constants.PendingGeofenceTask.NONE;
     private ImageView ivLock;
-    private TextView tvLock;
-    private String regionName;
     private FirebaseAuth.AuthStateListener mAuthListener;
-    private BroadcastReceiver geofenceChangeReceiver = new BroadcastReceiver() {
-
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            switch (intent.getAction()) {
-                case GeofenceTransitionsIntentService.ACTION_ENTERED:
-                    regionName = intent.getStringExtra(Constants.GEOFENCE_ID);
-                    if (!Constants.REGIONS.keySet().contains(regionName))
-                        return;
-                    ivLock.setImageDrawable(ContextCompat.getDrawable(context, R.mipmap.ic_unlock));
-                    ivLock.setTag(getString(R.string.unlocked));
-
-                    tvLock.setText(getString(R.string.network_enter_text, regionName));
-
-
-                    break;
-
-
-            }
-
-
-        }
-    };
-
-    private FirebaseUser user;
-    private FirebaseAuth mAuth;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_maps);
+        setContentView(R.layout.activity_snapshot);
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
@@ -115,26 +59,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         } else {
             getMyLocation();
         }
-        mGeofenceList = new ArrayList<>();
-        mGeofencePendingIntent = null;
-        populateGeofenceList();
-        mGeofencingClient = LocationServices.getGeofencingClient(this);
-        ivLock = findViewById(R.id.ivLock);
-        ivLock.setOnClickListener(this);
-        tvLock = findViewById(R.id.tvLock);
-        mAuth = FirebaseAuth.getInstance();
-        mAuthListener = new FirebaseAuth.AuthStateListener() {
-            @Override
-            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-                user = firebaseAuth.getCurrentUser();
-                if (user != null) {
-                    Log.d(Helper.TAG, "onAuthStateChanged:signed_in:" + user.getUid());
-                } else {
-                    Log.d(Helper.TAG, "onAuthStateChanged:signed_out");
-                }
-            }
-        };
-
+//        mGeofenceList = new ArrayList<>();
+//        mGeofencePendingIntent = null;
+//        populateGeofenceList();
+//        mGeofencingClient = LocationServices.getGeofencingClient(this);
+        findViewById(R.id.ivPencil).setOnClickListener(this);
 
         decorView = getWindow().getDecorView();
         hideSystemUI();
@@ -179,9 +108,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @SuppressWarnings("MissingPermission")
     protected void onResume() {
         super.onResume();
-        LocalBroadcastManager.getInstance(this).registerReceiver(geofenceChangeReceiver,
-                new IntentFilter(GeofenceTransitionsIntentService.ACTION_ENTERED));
-        tryAuth();
         setUpMapIfNeeded();
 
     }
@@ -204,7 +130,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @SuppressWarnings("MissingPermission")
     protected void onPause() {
         super.onPause();
-        LocalBroadcastManager.getInstance(this).unregisterReceiver(geofenceChangeReceiver);
         mMap.setMyLocationEnabled(false);
 
     }
@@ -216,27 +141,28 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         super.onDestroy();
     }
 
-    private void populateGeofenceList() {
-        for (Map.Entry<String, GeoRegion> entry : Constants.REGIONS.entrySet()) {
+//    private void populateGeofenceList() {
+//        for (Map.Entry<String, GeoRegion> entry : Constants.SNAPSHOT_REGIONS.entrySet()) {
+//
+//            mGeofenceList.add(new Geofence.Builder()
+//                    // Set the request ID of the geofence. This is a string to identify this
+//                    // geofence.
+//                    .setRequestId(entry.getKey())
+//
+//                    // Set the circular region of this geofence.
+//                    .setCircularRegion(
+//                            entry.getValue().getLatLng().latitude,
+//                            entry.getValue().getLatLng().longitude,
+//                            entry.getValue().getRadius()
+//                    )
+//                    .setExpirationDuration(86400000)
+//                    .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER |
+//                            Geofence.GEOFENCE_TRANSITION_EXIT)
+//
+//                    .build());
+//        }
+//    }
 
-            mGeofenceList.add(new Geofence.Builder()
-                    // Set the request ID of the geofence. This is a string to identify this
-                    // geofence.
-                    .setRequestId(entry.getKey())
-
-                    // Set the circular region of this geofence.
-                    .setCircularRegion(
-                            entry.getValue().getLatLng().latitude,
-                            entry.getValue().getLatLng().longitude,
-                            entry.getValue().getRadius()
-                    )
-                    .setExpirationDuration(86400000)
-                    .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER |
-                            Geofence.GEOFENCE_TRANSITION_EXIT)
-
-                    .build());
-        }
-    }
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
@@ -248,19 +174,23 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
         mMap.getUiSettings().setZoomControlsEnabled(false);
 
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(CENTER, 12));
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(CENTER, 16));
         mMap.getUiSettings().setAllGesturesEnabled(false);
-        MarkerOptions mtvMarkerOpts = new MarkerOptions().position(MTV).title(getString(R.string.mtv_title));
-        Marker marker = mMap.addMarker(mtvMarkerOpts);
-        mMap.addMarker(new MarkerOptions().position(WITS).title(getString(R.string.wits_title)));
+        mMap.getUiSettings().setScrollGesturesEnabled(true);
 
+        for (MarkerOptions markerOptions : Constants.SNAPSHOT_MARKERS) {
+            if (markerOptions.getTitle().equals(Constants.BRAAM_CAMPUS)) {
+                Marker marker = mMap.addMarker(markerOptions);
+                marker.showInfoWindow();
+            } else {
+                mMap.addMarker(markerOptions);
+            }
+        }
 
-        CircleOptions circleOptions = new CircleOptions()
-                .center(WITS)
-                .radius(1000).fillColor(Color.argb(100, 128, 128, 128)).strokeColor(Color.argb(140, 20, 0, 255)).strokeWidth(5);
-        mMap.addCircle(circleOptions);
-        mMap.addCircle(circleOptions.center(MTV).radius(300));
-        marker.showInfoWindow();
+        for (CircleOptions circleOptions : Constants.SNAPSHOT_CIRCLES) {
+            mMap.addCircle(circleOptions);
+        }
+
 
         try {
             boolean success = googleMap.setMapStyle(
@@ -323,27 +253,16 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 //        }
     }
 
-    @Override
-    protected void onStop() {
-        super.onStop();
-        if (mAuthListener != null) {
-            mAuth.removeAuthStateListener(mAuthListener);
-        }
-
-    }
-
 
     @Override
     protected void onStart() {
         super.onStart();
-        mPendingGeofenceTask = Constants.PendingGeofenceTask.ADD;
+//        mPendingGeofenceTask = Constants.PendingGeofenceTask.ADD;
         if (!checkPermissions()) {
             requestPermissions();
         } else {
-            performPendingGeofenceTask();
+//            performPendingGeofenceTask();
         }
-
-        mAuth.addAuthStateListener(mAuthListener);
 
 
     }
@@ -392,7 +311,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         @Override
                         public void onClick(View view) {
                             // Request permission
-                            ActivityCompat.requestPermissions(MapsActivity.this,
+                            ActivityCompat.requestPermissions(Snapshot.this,
                                     new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},
                                     REQUEST_PERMISSIONS_REQUEST_CODE);
                         }
@@ -402,7 +321,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             // Request permission. It's possible this can be auto answered if device policy
             // sets the permission in a given state or the user denied the permission
             // previously and checked "Never ask again".
-            ActivityCompat.requestPermissions(MapsActivity.this,
+            ActivityCompat.requestPermissions(Snapshot.this,
                     new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},
                     REQUEST_PERMISSIONS_REQUEST_CODE);
         }
@@ -418,74 +337,74 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 .setAction(getString(actionStringId), listener).show();
     }
 
-    private void performPendingGeofenceTask() {
-        if (mPendingGeofenceTask == Constants.PendingGeofenceTask.ADD) {
-            addGeofences();
-        }
-    }
-
-    private void updateGeofencesAdded(boolean added) {
-        PreferenceManager.getDefaultSharedPreferences(this)
-                .edit()
-                .putBoolean(Constants.GEOFENCES_ADDED_KEY, added)
-                .apply();
-    }
-
-    @Override
-    public void onComplete(@NonNull Task<Void> task) {
-        mPendingGeofenceTask = Constants.PendingGeofenceTask.NONE;
-        if (task.isSuccessful()) {
-            updateGeofencesAdded(!getGeofencesAdded());
-
-        } else {
-            // Get the status code for the error and log it using a user-friendly tweet.
-            String errorMessage = GeofenceErrorMessages.getErrorString(this, task.getException());
-            Log.w(Helper.TAG, errorMessage);
-        }
-    }
-
-    private PendingIntent getGeofencePendingIntent() {
-        // Reuse the PendingIntent if we already have it.
-        if (mGeofencePendingIntent != null) {
-            return mGeofencePendingIntent;
-        }
-        Intent intent = new Intent(this, GeofenceTransitionsIntentService.class);
-        // We use FLAG_UPDATE_CURRENT so that we get the same pending intent back when calling
-        // addGeofences() and removeGeofences().
-        return PendingIntent.getService(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-    }
-
-    private boolean getGeofencesAdded() {
-        return PreferenceManager.getDefaultSharedPreferences(this).getBoolean(
-                Constants.GEOFENCES_ADDED_KEY, false);
-    }
-
-    private GeofencingRequest getGeofencingRequest() {
-        GeofencingRequest.Builder builder = new GeofencingRequest.Builder();
-
-        // The INITIAL_TRIGGER_ENTER flag indicates that geofencing service should trigger a
-        // GEOFENCE_TRANSITION_ENTER notification when the geofence is added and if the device
-        // is already inside that geofence.
-        builder.setInitialTrigger(GeofencingRequest.INITIAL_TRIGGER_ENTER);
-
-        // Add the geofences to be monitored by geofencing service.
-        builder.addGeofences(mGeofenceList);
-
-        // Return a GeofencingRequest.
-        return builder.build();
-    }
-
-
-    @SuppressWarnings("MissingPermission")
-    private void addGeofences() {
-        if (!checkPermissions()) {
-            Helper.showSnackbar(getString(R.string.insufficient_permissions), this);
-            return;
-        }
-
-        mGeofencingClient.addGeofences(getGeofencingRequest(), getGeofencePendingIntent())
-                .addOnCompleteListener(this);
-    }
+//    private void performPendingGeofenceTask() {
+//        if (mPendingGeofenceTask == Constants.PendingGeofenceTask.ADD) {
+//            addGeofences();
+//        }
+//    }
+//
+//    private void updateGeofencesAdded(boolean added) {
+//        PreferenceManager.getDefaultSharedPreferences(this)
+//                .edit()
+//                .putBoolean(Constants.GEOFENCES_ADDED_KEY, added)
+//                .apply();
+//    }
+//
+//    @Override
+//    public void onComplete(@NonNull Task<Void> task) {
+//        mPendingGeofenceTask = Constants.PendingGeofenceTask.NONE;
+//        if (task.isSuccessful()) {
+//            updateGeofencesAdded(!getGeofencesAdded());
+//
+//        } else {
+//            // Get the status code for the error and log it using a user-friendly tweet.
+//            String errorMessage = GeofenceErrorMessages.getErrorString(this, task.getException());
+//            Log.w(Helper.TAG, errorMessage);
+//        }
+//    }
+//
+//    private PendingIntent getGeofencePendingIntent() {
+//        // Reuse the PendingIntent if we already have it.
+//        if (mGeofencePendingIntent != null) {
+//            return mGeofencePendingIntent;
+//        }
+//        Intent intent = new Intent(this, SnapshotIntentService.class);
+//        // We use FLAG_UPDATE_CURRENT so that we get the same pending intent back when calling
+//        // addGeofences() and removeGeofences().
+//        return PendingIntent.getService(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+//    }
+//
+//    private boolean getGeofencesAdded() {
+//        return PreferenceManager.getDefaultSharedPreferences(this).getBoolean(
+//                Constants.GEOFENCES_ADDED_KEY, false);
+//    }
+//
+//    private GeofencingRequest getGeofencingRequest() {
+//        GeofencingRequest.Builder builder = new GeofencingRequest.Builder();
+//
+//        // The INITIAL_TRIGGER_ENTER flag indicates that geofencing service should trigger a
+//        // GEOFENCE_TRANSITION_ENTER notification when the geofence is added and if the device
+//        // is already inside that geofence.
+//        builder.setInitialTrigger(GeofencingRequest.INITIAL_TRIGGER_ENTER);
+//
+//        // Add the geofences to be monitored by geofencing service.
+//        builder.addGeofences(mGeofenceList);
+//
+//        // Return a GeofencingRequest.
+//        return builder.build();
+//    }
+//
+//
+//    @SuppressWarnings("MissingPermission")
+//    private void addGeofences() {
+//        if (!checkPermissions()) {
+//            Helper.showSnackbar(getString(R.string.insufficient_permissions), this);
+//            return;
+//        }
+//
+//        mGeofencingClient.addGeofences(getGeofencingRequest(), getGeofencePendingIntent())
+//                .addOnCompleteListener(this);
+//    }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
@@ -497,7 +416,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             } else if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 Log.i(Helper.TAG, "Permission granted.");
                 getMyLocation();
-                performPendingGeofenceTask();
+//                performPendingGeofenceTask();
 
             } else {
                 showSnackbar(R.string.permission_denied_explanation, R.string.settings,
@@ -515,7 +434,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                                 startActivity(intent);
                             }
                         });
-                mPendingGeofenceTask = Constants.PendingGeofenceTask.NONE;
+//                mPendingGeofenceTask = Constants.PendingGeofenceTask.NONE;
             }
         }
     }
@@ -524,74 +443,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public void onClick(View v) {
 
         switch (v.getId()) {
-            case R.id.ivLock:
-                if (v.getTag().equals(getString(R.string.locked))) {
-                    View d = LayoutInflater.from(MapsActivity.this).inflate(R.layout.c_dial, null);
-                    AlertDialog.Builder build = new AlertDialog.Builder(MapsActivity.this);
-                    build.setView(d);
-                    final AlertDialog dialog = build.create();
-
-                    LinearLayout iv = d.findViewById(R.id.dialLayout);
-                    TextView tv = iv.findViewById(R.id.text);
-                    tv.setText(R.string.lock_info);
-                    iv.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            if (v.isShown()) {
-                                dialog.dismiss();
-                            }
-                        }
-                    });
-                    dialog.show();
-                } else {
-                    Intent intent;
-                    if (user != null && user.getUid().equals(Helper.getUuid())) {
-                        intent = new Intent(MapsActivity.this, DashBoard.class);
-                        intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
-                    } else {
-                        intent = new Intent(MapsActivity.this, Login.class);
-                        intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
-
-                    }
-                    intent.putExtra(REGION_NAME, regionName);
-                    startActivity(intent);
-                    Helper.downToUpTransition(MapsActivity.this);
-                }
+            case R.id.ivPencil:
+                Intent intent = new Intent(Snapshot.this, DashBoard.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
+                startActivity(intent);
+                Helper.downToUpTransition(Snapshot.this);
                 break;
         }
 
-    }
-
-    private void tryAuth() {
-
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                user = mAuth.getCurrentUser();
-                if (!Helper.getUuid().isEmpty() && (user == null || user != null && !user.getUid().equals(Helper.getUuid()))) {
-                    Looper.prepare();
-                    Pair<String, String> pair = Helper.getCredentials();
-                    mAuth.signInWithEmailAndPassword(pair.first, pair.second)
-                            .addOnCompleteListener(MapsActivity.this, new OnCompleteListener<AuthResult>() {
-                                @Override
-                                public void onComplete(@NonNull Task<AuthResult> task) {
-                                    Log.d(Helper.TAG, "signInWithEmail:onComplete:" + task.isSuccessful());
-
-//                                    user = mAuth.getCurrentUser();
-                                    if (!task.isSuccessful()) {
-                                        Log.w(Helper.TAG, "signInWithEmail:failed", task.getException());
-
-
-                                    }
-
-                                    // ...
-                                }
-                            });
-                    Looper.loop();
-
-                }
-            }
-        }).start();
 
     }
 

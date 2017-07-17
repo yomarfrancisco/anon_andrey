@@ -54,6 +54,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
 
@@ -153,7 +154,7 @@ public class DashBoard extends FullscreenController implements View.OnClickListe
             public void onComplete(@NonNull Task<Void> task) {
                 if (task.isSuccessful()) {
 
-                    AnonApp.get().getSharedPreferences().edit().remove(Helper.PASSWORD).remove(Helper.EMAIL).remove(Helper.UUID);
+                    AnonApp.get().getSharedPreferences().edit().remove(Helper.PASSWORD).remove(Helper.EMAIL).remove(Helper.UUID).apply();
 
 
                     Snackbar snackbar = Helper.getSnackBar(getString(R.string.user_deleted), DashBoard.this);
@@ -320,6 +321,13 @@ public class DashBoard extends FullscreenController implements View.OnClickListe
                 genderHint.setText(genderSwitch.isChecked() ? R.string.gender_hint_on : R.string.gender_hint_off);
                 setGenderImage();
                 break;
+            case R.id.snapshot:
+            case R.id.ivGlobe:
+                intent = new Intent(DashBoard.this, Snapshot.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                startActivity(intent);
+                Helper.downToUpTransition(DashBoard.this);
+                break;
 
         }
     }
@@ -334,7 +342,7 @@ public class DashBoard extends FullscreenController implements View.OnClickListe
         showProgressDialog(R.string.loading);
         ivPost.setImageDrawable(ContextCompat.getDrawable(DashBoard.this, R.mipmap.ic_lock));
 
-        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy hh:mm aa");
+        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy hh:mm aa", Locale.US);
         String dateString = sdf.format(new Date());
 
 
@@ -342,7 +350,7 @@ public class DashBoard extends FullscreenController implements View.OnClickListe
         String regionText = tvLocation.getText().toString();
         tweet.setRegionName(regionText);
         tweet.setRegionId(getRegionId(regionText));
-        tweet.setMoodText(Constants.MOODS_IMAGE.get(ivMood.getTag()));
+        tweet.setMoodText(Constants.MOODS_IMAGE.get((Integer) ivMood.getTag()));
         tweet.setTweetId(UUID.randomUUID().toString());
         tweet.setUserId(currentUser.getUid());
         tweet.setUsername(genderSwitch.isChecked() ? currentUser.getUsername() : "?");
@@ -350,6 +358,9 @@ public class DashBoard extends FullscreenController implements View.OnClickListe
         tweet.setTweetText(boardInput.getText().toString());
         tweet.setTweetVotes(0);
         tweet.setDate(dateString);
+        tweet.setCountDown(1800);
+        tweet.setLocation("-26.1829922153333,28.1404067522872");
+        tweet.setAllowComment(false);
 
         DatabaseReference tweetRef = database.getReference("Tweets").push();
         tweetRef.setValue(tweet.toMap(), new DatabaseReference.CompletionListener() {
@@ -381,7 +392,7 @@ public class DashBoard extends FullscreenController implements View.OnClickListe
             @Override
             public void onComplete(@NonNull Task<Void> task) {
                 if (!task.isSuccessful()) {
-                    Log.d(Helper.TAG, task.getException().getLocalizedMessage());
+                    Log.e(Helper.TAG, task.getException().getLocalizedMessage());
                 }
             }
         });
@@ -475,6 +486,7 @@ public class DashBoard extends FullscreenController implements View.OnClickListe
         if (getIntent() != null && getIntent().getStringExtra(MapsActivity.REGION_NAME) != null) {
             tvLocation.setText(getIntent().getStringExtra(MapsActivity.REGION_NAME));
         }
+        findViewById(R.id.snapshot).setOnClickListener(this);
 
 
     }
