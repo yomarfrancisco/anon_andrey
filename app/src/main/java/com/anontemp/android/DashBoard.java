@@ -487,6 +487,7 @@ public class DashBoard extends FullscreenController implements View.OnClickListe
             tvLocation.setText(getIntent().getStringExtra(MapsActivity.REGION_NAME));
         }
         findViewById(R.id.snapshot).setOnClickListener(this);
+        findViewById(R.id.ivGlobe).setOnClickListener(this);
 
 
     }
