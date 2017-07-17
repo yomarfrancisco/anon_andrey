@@ -292,7 +292,7 @@ public class DashBoard extends FullscreenController implements View.OnClickListe
         switch (v.getId()) {
             case R.id.messageBoard:
                 Intent intent = new Intent(DashBoard.this, MessageBoard.class);
-                intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 startActivity(intent);
                 Helper.downToUpTransition(DashBoard.this);
                 break;

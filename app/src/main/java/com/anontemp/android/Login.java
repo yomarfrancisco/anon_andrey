@@ -119,7 +119,7 @@ public class Login extends FullscreenController implements View.OnClickListener 
         switch (v.getId()) {
             case R.id.returnToMap:
                 Intent intent = new Intent(Login.this, MapsActivity.class);
-                intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
                 startActivity(intent);
                 Helper.downToUpTransition(Login.this);
                 break;
