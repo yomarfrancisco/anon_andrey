@@ -82,8 +82,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             switch (intent.getAction()) {
                 case GeofenceTransitionsIntentService.ACTION_ENTERED:
                     regionName = intent.getStringExtra(Constants.GEOFENCE_ID);
-                    if (!Constants.REGIONS.keySet().contains(regionName))
-                        return;
                     ivLock.setImageDrawable(ContextCompat.getDrawable(context, R.mipmap.ic_unlock));
                     ivLock.setTag(getString(R.string.unlocked));
 
@@ -329,7 +327,23 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         if (mAuthListener != null) {
             mAuth.removeAuthStateListener(mAuthListener);
         }
+        if (!checkPermissions()) {
+            mPendingGeofenceTask = Constants.PendingGeofenceTask.REMOVE;
+            requestPermissions();
+            return;
+        }
+        removeGeofences();
 
+    }
+
+    @SuppressWarnings("MissingPermission")
+    private void removeGeofences() {
+        if (!checkPermissions()) {
+            Helper.showSnackbar(getString(R.string.insufficient_permissions), MapsActivity.this);
+            return;
+        }
+
+        mGeofencingClient.removeGeofences(getGeofencePendingIntent()).addOnCompleteListener(this);
     }
 
 
@@ -421,6 +435,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private void performPendingGeofenceTask() {
         if (mPendingGeofenceTask == Constants.PendingGeofenceTask.ADD) {
             addGeofences();
+        } else if (mPendingGeofenceTask == Constants.PendingGeofenceTask.REMOVE) {
+            removeGeofences();
         }
     }
 

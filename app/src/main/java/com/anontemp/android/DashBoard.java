@@ -144,6 +144,27 @@ public class DashBoard extends FullscreenController implements View.OnClickListe
     }
 
     @Override
+    public void onStop() {
+        super.onStop();
+        if (!checkPermissions()) {
+            mPendingGeofenceTask = Constants.PendingGeofenceTask.REMOVE;
+            requestPermissions();
+            return;
+        }
+        removeGeofences();
+    }
+
+    @SuppressWarnings("MissingPermission")
+    private void removeGeofences() {
+        if (!checkPermissions()) {
+            Helper.showSnackbar(getString(R.string.insufficient_permissions), DashBoard.this);
+            return;
+        }
+
+        mGeofencingClient.removeGeofences(getGeofencePendingIntent()).addOnCompleteListener(this);
+    }
+
+    @Override
     protected int init() {
         return R.layout.activity_board;
     }
@@ -585,6 +606,8 @@ public class DashBoard extends FullscreenController implements View.OnClickListe
     private void performPendingGeofenceTask() {
         if (mPendingGeofenceTask == Constants.PendingGeofenceTask.ADD) {
             addGeofences();
+        } else if (mPendingGeofenceTask == PendingGeofenceTask.REMOVE) {
+            removeGeofences();
         }
     }
 

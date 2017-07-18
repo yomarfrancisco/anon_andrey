@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fitsSystemWindows="true"
+    android:fitsSystemWindows="false"
     tools:context="com.anontemp.android.MessageBoard">
 
 
@@ -55,17 +55,27 @@
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/list"
+    <android.support.v4.widget.NestedScrollView
+        android:id="@+id/listLayout"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        app:layout_constraintBottom_toTopOf="@+id/footer"
+        android:layout_marginBottom="40dp"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/separator"
-        tools:listitem="@layout/tweet">
+        app:layout_constraintTop_toBottomOf="@+id/separator">
 
-    </android.support.v7.widget.RecyclerView>
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/list"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            tools:listitem="@layout/tweet">
+
+        </android.support.v7.widget.RecyclerView>
+
+
+    </android.support.v4.widget.NestedScrollView>
+
 
     <android.support.constraint.Guideline
         android:id="@+id/bottom_main_guide"
@@ -83,7 +93,7 @@
         android:background="#50000000"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/list" />
+        app:layout_constraintTop_toBottomOf="@+id/listLayout" />
 
 
     <RelativeLayout
@@ -91,9 +101,10 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:background="#f5f5f5"
-        app:layout_constraintBottom_toBottomOf="@+id/bottom_main_guide"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent">
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/listLayout">
 
         <TextView
             android:id="@+id/report"

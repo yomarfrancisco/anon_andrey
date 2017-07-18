@@ -200,6 +200,6 @@ final class Constants {
 
 
     public enum PendingGeofenceTask {
-        ADD, NONE
+        ADD, REMOVE, NONE
     }
 }

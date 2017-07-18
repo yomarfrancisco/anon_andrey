@@ -454,5 +454,9 @@ public class Snapshot extends FragmentActivity implements OnMapReadyCallback, Lo
 
     }
 
+    @Override
+    protected void onStop() {
+        super.onStop();
 
+    }
 }

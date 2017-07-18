@@ -21,8 +21,6 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
-import org.apache.commons.text.StringEscapeUtils;
-
 public class CreateAccount extends FullscreenController implements View.OnClickListener {
 
     public static final String MALE = "male";
@@ -136,7 +134,7 @@ public class CreateAccount extends FullscreenController implements View.OnClickL
                 if (!validate()) {
                     break;
                 }
-                showProgressDialog(StringEscapeUtils.escapeJava("Account created \uD83D\uDE43"));
+                showProgressDialog(("Account created"));
                 signUp(mMail.getText().toString(), mPass.getText().toString());
                 break;
         }

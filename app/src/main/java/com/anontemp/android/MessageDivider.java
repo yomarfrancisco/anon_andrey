@@ -30,7 +30,7 @@ public class MessageDivider extends RecyclerView.ItemDecoration {
             Drawable mDivider;
 
             Drawable solid = ContextCompat.getDrawable(context, R.drawable.line_divider);
-            left = parent.getPaddingLeft() + 10;
+            left = parent.getPaddingLeft() + 20;
             right = parent.getWidth() - parent.getPaddingRight();
 
             mDivider = solid;
