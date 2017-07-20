@@ -9,7 +9,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.anontemp.android.com.anontemp.android.model.Tweet;
+import com.anontemp.android.model.Tweet;
 
 import org.apache.commons.text.StringEscapeUtils;
 

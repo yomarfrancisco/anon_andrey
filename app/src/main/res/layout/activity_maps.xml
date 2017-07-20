@@ -36,7 +36,7 @@
         android:src="@mipmap/ic_lock"
         android:tag="@string/locked" />
 
-    <TextView
+    <com.anontemp.android.view.AnonTView
         android:id="@+id/tvLock"
         android:layout_width="300dp"
         android:layout_height="wrap_content"

@@ -10,7 +10,7 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.anontemp.android.com.anontemp.android.model.Tweet;
+import com.anontemp.android.model.Tweet;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
@@ -43,6 +43,7 @@ public class MessageBoard extends FullscreenController implements View.OnClickLi
             Tweet tweet = dataSnapshot.getValue(Tweet.class);
             tweet.setRealDate(Helper.getRealDate(tweet.getDate()));
             tweet.setVisibleDate(Helper.getVisibleDate(tweet.getRealDate()));
+            tweet.set_id(new Random().nextLong());
             tweetList.add(0, tweet);
             adapter.notifyItemInserted(0);
             rv.scrollToPosition(0);

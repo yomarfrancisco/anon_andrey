@@ -22,7 +22,7 @@
         android:orientation="horizontal"
         app:layout_constraintGuide_percent=".1" />
 
-    <TextView
+    <com.anontemp.android.view.AnonTView
         android:id="@+id/tvLogo"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

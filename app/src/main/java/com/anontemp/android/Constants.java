@@ -23,6 +23,7 @@ final class Constants {
 
     public final static String EMAIL_PATTERN = "[a-zA-Z0-9._-]+@[a-z]+\\.+[a-z]+";
     public static final String WITS_UNIVERSITY = "WITS University";
+    public static final String WITS_UNIVERSITY_LOWCASE = "Wits University";
     public static final String MTV_BASE = "MTV Base";
     public static final String TOTAL_GAS_STATION = "Total gas station";
     public static final String VIRGIN_ALICE_LANE = "Virgin Alice Lane";

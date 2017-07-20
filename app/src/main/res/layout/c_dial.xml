@@ -7,7 +7,7 @@
     android:clickable="true"
     android:orientation="vertical">
 
-    <TextView
+    <com.anontemp.android.view.AnonTView
         android:id="@+id/text"
         android:layout_width="247dp"
         android:layout_height="wrap_content"

@@ -30,7 +30,7 @@
             android:padding="4dp"
             android:src="@mipmap/ic_logo" />
 
-        <TextView
+        <com.anontemp.android.view.AnonTView
             android:id="@+id/tvAgenda"
             android:layout_width="300dp"
             android:layout_height="wrap_content"

@@ -16,7 +16,7 @@
         android:layout_centerHorizontal="true"
         android:src="@mipmap/ic_pushpin" />
 
-    <TextView
+    <com.anontemp.android.view.AnonTView
         android:id="@+id/firstName"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -27,7 +27,7 @@
         android:textSize="12sp"
         android:textStyle="bold" />
 
-    <TextView
+    <com.anontemp.android.view.AnonTView
         android:id="@+id/timestamp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -55,7 +55,7 @@
         android:layout_marginTop="10dp"
         android:src="@mipmap/ic_face" />
 
-    <TextView
+    <com.anontemp.android.view.AnonTView
         android:id="@+id/body"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -72,7 +72,7 @@
         android:layout_alignParentBottom="true"
         android:src="@mipmap/ic_aubergine" />
 
-    <TextView
+    <com.anontemp.android.view.AnonTView
         android:id="@+id/button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -83,7 +83,7 @@
         android:text="Button"
         android:textStyle="bold" />
 
-    <TextView
+    <com.anontemp.android.view.AnonTView
         android:id="@+id/regionText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

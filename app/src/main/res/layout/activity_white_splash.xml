@@ -41,7 +41,7 @@
         app:layout_constraintLeft_toLeftOf="@id/leftIcon_guideline"
         app:layout_constraintTop_toTopOf="@id/topIcon_guideline" />
 
-    <TextView
+    <com.anontemp.android.view.AnonTView
         android:id="@+id/tvLogo"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -52,7 +52,7 @@
         app:layout_constraintLeft_toLeftOf="@+id/leftText_guideline"
         app:layout_constraintTop_toTopOf="@+id/topText_guideline" />
 
-    <TextView
+    <com.anontemp.android.view.AnonTView
         android:id="@+id/tvDesc"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

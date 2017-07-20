@@ -106,7 +106,7 @@
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/listLayout">
 
-        <TextView
+        <com.anontemp.android.view.AnonTView
             android:id="@+id/report"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -136,7 +136,7 @@
                 android:layout_height="25dp"
                 android:src="@mipmap/ic_basket" />
 
-            <TextView
+            <com.anontemp.android.view.AnonTView
                 android:id="@+id/trashTime"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

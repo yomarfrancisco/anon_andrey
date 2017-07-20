@@ -1,6 +1,6 @@
 package com.anontemp.android;
 
-import android.app.ProgressDialog;
+import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
@@ -12,16 +12,25 @@ import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.anontemp.android.view.AnonProgress;
+
+import cn.nekocode.emojix.Emojix;
+
 /**
  * Created by jaydee on 04.07.17.
  */
 
 public abstract class FullscreenController extends AppCompatActivity {
     @VisibleForTesting
-    public ProgressDialog mProgressDialog;
+    public AnonProgress mProgressDialog;
     private View decorView;
 
     protected abstract int init();
+
+    @Override
+    protected void attachBaseContext(Context newBase) {
+        super.attachBaseContext(Emojix.wrap(newBase));
+    }
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -77,11 +86,12 @@ public abstract class FullscreenController extends AppCompatActivity {
 
     public void showProgressDialog(String message) {
         if (mProgressDialog == null) {
-            mProgressDialog = new ProgressDialog(this, R.style.MyTheme);
+            mProgressDialog = new AnonProgress(this, R.style.MyTheme);
             mProgressDialog.setProgressStyle(android.R.style.Widget_ProgressBar_Small_Inverse);
             mProgressDialog.setMessage(message);
             mProgressDialog.setCancelable(false);
             mProgressDialog.setIndeterminate(true);
+
         }
 
         mProgressDialog.show();

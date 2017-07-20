@@ -1,4 +1,4 @@
-package com.anontemp.android.com.anontemp.android.model;
+package com.anontemp.android.model;
 
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.IgnoreExtraProperties;
@@ -17,12 +17,12 @@ public class Region {
     private String key;
 
     private String regionId;
-    private String regiontext;
+    private String regionText;
 
 
-    public Region(String regionId, String regiontext) {
+    public Region(String regionId, String regionText) {
         this.regionId = regionId;
-        this.regiontext = regiontext;
+        this.regionText = regionText;
     }
 
     public Region() {
@@ -40,14 +40,14 @@ public class Region {
         return regionId;
     }
 
-    public String getRegiontext() {
-        return regiontext;
+    public String getRegionText() {
+        return regionText;
     }
 
     public Map<String, Object> toMap() {
         HashMap<String, Object> result = new HashMap<>();
 
-        result.put("regiontext", regiontext);
+        result.put("regionText", regionText);
         result.put("regionId", regionId);
 
 

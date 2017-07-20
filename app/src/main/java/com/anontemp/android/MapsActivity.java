@@ -569,7 +569,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
 
                     }
-                    intent.putExtra(REGION_NAME, regionName);
+                    intent.putExtra(REGION_NAME, Constants.WITS_UNIVERSITY_LOWCASE);
                     startActivity(intent);
                     Helper.downToUpTransition(MapsActivity.this);
                 }

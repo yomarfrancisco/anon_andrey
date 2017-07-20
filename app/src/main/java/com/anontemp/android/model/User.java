@@ -1,4 +1,4 @@
-package com.anontemp.android.com.anontemp.android.model;
+package com.anontemp.android.model;
 
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseReference;

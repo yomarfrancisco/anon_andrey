@@ -32,9 +32,9 @@ import android.widget.Switch;
 import android.widget.TextView;
 
 import com.anontemp.android.Constants.PendingGeofenceTask;
-import com.anontemp.android.com.anontemp.android.model.Region;
-import com.anontemp.android.com.anontemp.android.model.Tweet;
-import com.anontemp.android.com.anontemp.android.model.User;
+import com.anontemp.android.model.Region;
+import com.anontemp.android.model.Tweet;
+import com.anontemp.android.model.User;
 import com.google.android.gms.location.Geofence;
 import com.google.android.gms.location.GeofencingClient;
 import com.google.android.gms.location.GeofencingRequest;
@@ -402,7 +402,7 @@ public class DashBoard extends FullscreenController implements View.OnClickListe
 
     private String getRegionId(String regionName) {
         for (Region region : regions) {
-            if (regionName.equals(region.getRegiontext())) {
+            if (regionName.equals(region.getRegionText())) {
                 return region.getRegionId();
             }
         }
