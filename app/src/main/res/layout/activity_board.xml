@@ -121,7 +121,7 @@
             android:fontFamily="serif"
             android:hint="@string/board_hint"
             android:imeOptions="actionDone"
-            android:inputType="textEmailAddress"
+            android:inputType="textMultiLine|textShortMessage"
             android:textAlignment="textStart"
             android:textColor="@android:color/black"
             android:textColorHint="@android:color/black"
