@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
@@ -24,6 +25,8 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.view.inputmethod.InputMethodManager;
@@ -109,6 +112,26 @@ public class DashBoard extends FullscreenController implements View.OnClickListe
         }
     };
     private List<Region> regions;
+    private boolean keyboardListenersAttached = false;
+    private ViewGroup rootLayout;
+    private Snackbar snackbar;
+    private ViewTreeObserver.OnGlobalLayoutListener keyboardLayoutListener = new ViewTreeObserver.OnGlobalLayoutListener() {
+        @Override
+        public void onGlobalLayout() {
+
+            Rect r = new Rect();
+            rootLayout.getWindowVisibleDisplayFrame(r);
+
+            int screenHeight = rootLayout.getRootView().getHeight();
+            int heightDifference = screenHeight - (r.bottom - r.top);
+
+            if (heightDifference < 300) {
+                onHideKeyboard();
+            } else {
+                onShowKeyboard();
+            }
+        }
+    };
 
     private void populateGeofenceList() {
         for (Map.Entry<String, GeoRegion> entry : Constants.SUB_REGIONS.entrySet()) {
@@ -198,6 +221,7 @@ public class DashBoard extends FullscreenController implements View.OnClickListe
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        attachKeyboardListeners();
 
         mGeofenceList = new ArrayList<>();
         mGeofencePendingIntent = null;
@@ -308,6 +332,42 @@ public class DashBoard extends FullscreenController implements View.OnClickListe
         LocalBroadcastManager.getInstance(this).unregisterReceiver(geofenceChangeReceiver);
     }
 
+    protected void onShowKeyboard() {
+        showSnackbar(R.string.empty, R.string.done,
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        inputMethodManager.hideSoftInputFromWindow(boardInput.getWindowToken(), 0);
+                    }
+                });
+    }
+
+    protected void onHideKeyboard() {
+        if (snackbar != null && snackbar.isShown()) {
+            snackbar.dismiss();
+        }
+    }
+
+    protected void attachKeyboardListeners() {
+        if (keyboardListenersAttached) {
+            return;
+        }
+
+        rootLayout = findViewById(R.id.rootLayout);
+        rootLayout.getViewTreeObserver().addOnGlobalLayoutListener(keyboardLayoutListener);
+
+        keyboardListenersAttached = true;
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        if (keyboardListenersAttached) {
+            rootLayout.getViewTreeObserver().removeGlobalOnLayoutListener(keyboardLayoutListener);
+        }
+    }
+
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
@@ -319,6 +379,7 @@ public class DashBoard extends FullscreenController implements View.OnClickListe
                 break;
             case R.id.boardInput:
                 animatePost();
+
                 break;
             case R.id.ivPost:
 
@@ -328,7 +389,7 @@ public class DashBoard extends FullscreenController implements View.OnClickListe
                     boardInput.requestFocus();
                     inputMethodManager.showSoftInput(boardInput, InputMethodManager.SHOW_IMPLICIT);
                 } else {
-                    inputMethodManager.hideSoftInputFromWindow(v.getWindowToken(), 0);
+
                     saveAndPost();
                 }
                 break;
@@ -422,7 +483,6 @@ public class DashBoard extends FullscreenController implements View.OnClickListe
 
 
     }
-
 
     private boolean validate() {
         if (boardInput.getText().length() > 140) {
@@ -593,14 +653,26 @@ public class DashBoard extends FullscreenController implements View.OnClickListe
         }
     }
 
-
     private void showSnackbar(final int mainTextStringId, final int actionStringId,
                               View.OnClickListener listener) {
-        Snackbar.make(
-                findViewById(android.R.id.content),
-                getString(mainTextStringId),
-                Snackbar.LENGTH_INDEFINITE)
-                .setAction(getString(actionStringId), listener).show();
+        View container = findViewById(android.R.id.content);
+        if (container != null && snackbar == null) {
+
+            snackbar = Snackbar.make(
+                    findViewById(android.R.id.content),
+                    getString(mainTextStringId),
+                    Snackbar.LENGTH_INDEFINITE)
+                    .setAction(getString(actionStringId), listener);
+            snackbar.setActionTextColor(Color.BLUE);
+            View snackbarView = snackbar.getView();
+            int snackbarTextId = android.support.design.R.id.snackbar_text;
+            TextView textView = snackbarView.findViewById(snackbarTextId);
+            textView.setTextColor(Color.BLACK);
+            snackbarView.setBackgroundColor(ContextCompat.getColor(DashBoard.this, android.R.color.white));
+            snackbar.show();
+        } else if (snackbar != null && !snackbar.isShown()) {
+            snackbar.show();
+        }
     }
 
     private void performPendingGeofenceTask() {

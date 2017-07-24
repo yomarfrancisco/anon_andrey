@@ -52,7 +52,9 @@
             android:exported="false" />
 
         <activity android:name=".Login" />
-        <activity android:name=".DashBoard" />
+        <activity
+            android:name=".DashBoard"
+            android:windowSoftInputMode="adjustResize|stateHidden" />
         <activity android:name=".MessageBoard" />
         <activity android:name=".TermsAndPrivacy" />
         <activity android:name=".CreateAccount" />
