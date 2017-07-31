@@ -125,7 +125,7 @@ public class CreateAccount extends FullscreenController implements View.OnClickL
         switch (v.getId()) {
             case R.id.tempLoginLink:
                 Intent in
-                        = new Intent(CreateAccount.this, DashBoard.class);
+                        = new Intent(CreateAccount.this, Login.class);
                 in.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
                 startActivity(in);
                 Helper.downToUpTransition(CreateAccount.this);
@@ -134,7 +134,7 @@ public class CreateAccount extends FullscreenController implements View.OnClickL
                 if (!validate()) {
                     break;
                 }
-                showProgressDialog(("Account created"));
+                showProgressDialog(R.string.acc_created);
                 signUp(mMail.getText().toString(), mPass.getText().toString());
                 break;
         }

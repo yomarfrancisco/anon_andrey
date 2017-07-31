@@ -29,7 +29,7 @@ public class AnonProgress extends ProgressDialog {
         TextView view = this.findViewById(android.R.id.message);
         if (view != null) {
             // Shouldn't be null. Just to be paranoid enough.
-            view.setTypeface(FontCache.getTypeface("helvetica-neue.ttf", getContext()));
+            view.setTypeface(FontCache.getTypeface("CFSnowboardProjectPERSONAL.ttf", getContext()));
         }
     }
 }

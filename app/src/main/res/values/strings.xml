@@ -38,7 +38,7 @@
     <string name="login_email_hint">Enter Email</string>
     <string name="login_pass_hint">Enter Password</string>
     <string name="validate_err">Please check that you\'ve submitted information correctly. We\'re having trouble logging you in.</string>
-    <string name="loading">Hang tight&#8230;</string>
+    <string name="loading">HANG TIGHT</string>
     <string name="temp_mail">temp7@iamanon.com</string>
     <string name="temp_pass">123456789</string>
     <string name="msgbrd_button">Message board</string>
@@ -82,7 +82,7 @@
     <string name="pass_hint">So you don\'t have to go through the temp sign-in every time. What a bore.</string>
     <string name="sign_up">Sign Up</string>
     <string name="email_title">Enter your email</string>
-    <string name="acc_created">Account created 🙃</string>
+    <string name="acc_created">ACCOUNT CREATED</string>
     <string name="signup_mail">You need to enter an email address to create an account.</string>
     <string name="signup_pass_long">Your password isn\'t long enough. Use at least 8 characters.</string>
     <string name="signup_all">Complete all fields before signing up.</string>

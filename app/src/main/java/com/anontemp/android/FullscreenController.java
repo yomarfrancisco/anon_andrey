@@ -1,18 +1,21 @@
 package com.anontemp.android;
 
+import android.app.ProgressDialog;
 import android.content.Context;
+import android.graphics.drawable.AnimationDrawable;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.annotation.VisibleForTesting;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-
-import com.anontemp.android.view.AnonProgress;
 
 import cn.nekocode.emojix.Emojix;
 
@@ -22,7 +25,7 @@ import cn.nekocode.emojix.Emojix;
 
 public abstract class FullscreenController extends AppCompatActivity {
     @VisibleForTesting
-    public AnonProgress mProgressDialog;
+    public ProgressDialog mProgressDialog;
     private View decorView;
 
     protected abstract int init();
@@ -86,15 +89,31 @@ public abstract class FullscreenController extends AppCompatActivity {
 
     public void showProgressDialog(String message) {
         if (mProgressDialog == null) {
-            mProgressDialog = new AnonProgress(this, R.style.MyTheme);
-            mProgressDialog.setProgressStyle(android.R.style.Widget_ProgressBar_Small_Inverse);
-            mProgressDialog.setMessage(message);
+            mProgressDialog = new ProgressDialog(this, R.style.MyTheme);
+            mProgressDialog.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
             mProgressDialog.setCancelable(false);
             mProgressDialog.setIndeterminate(true);
+
 
         }
 
         mProgressDialog.show();
+        mProgressDialog.setContentView(R.layout.progress_bar);
+
+        final ImageView img_loading_frame = mProgressDialog.findViewById(R.id.iv_frame_loading);
+        final AnimationDrawable frameAnimation = (AnimationDrawable) img_loading_frame.getBackground();
+        img_loading_frame.post(new Runnable() {
+            @Override
+            public void run() {
+                frameAnimation.start();
+            }
+        });
+
+        TextView tv_progress_message = mProgressDialog.findViewById(R.id.tv_progress_message);
+        tv_progress_message.setTypeface(FontCache.getTypeface("CFSnowboardProjectPERSONAL.ttf", this));
+        if (!TextUtils.isEmpty(message)) {
+            tv_progress_message.setText(message);
+        }
     }
 
     public void hideProgressDialog() {
