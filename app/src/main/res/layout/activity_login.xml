@@ -37,7 +37,7 @@
         tools:layout_editor_absoluteX="327dp"
         tools:layout_editor_absoluteY="0dp" />
 
-    <com.anontemp.android.view.AnonTView
+    <com.anontemp.android.view.AnonTVTroublemaker
         android:layout_width="270dp"
         android:layout_height="wrap_content"
         android:text="@string/login_text"

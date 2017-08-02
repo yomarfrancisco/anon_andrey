@@ -134,7 +134,7 @@ public class CreateAccount extends FullscreenController implements View.OnClickL
                 if (!validate()) {
                     break;
                 }
-                showProgressDialog(R.string.acc_created);
+                showProgressSnowboard(R.string.acc_created);
                 signUp(mMail.getText().toString(), mPass.getText().toString());
                 break;
         }

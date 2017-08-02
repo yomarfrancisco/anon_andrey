@@ -17,8 +17,8 @@
     tools:context="com.anontemp.android.MapsActivity" />
 
     <ImageView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
         android:layout_alignParentTop="true"
         android:layout_marginLeft="16dp"
         android:layout_marginTop="32dp"
@@ -30,20 +30,33 @@
         android:layout_width="60dp"
         android:layout_height="60dp"
         android:layout_alignParentTop="true"
-        android:layout_marginLeft="60dp"
+        android:layout_marginStart="60dp"
         android:layout_marginTop="220dp"
         android:clickable="true"
         android:src="@mipmap/ic_lock"
         android:tag="@string/locked" />
 
-    <com.anontemp.android.view.AnonTView
+    <ImageView
+        android:id="@+id/ivKey"
+        android:layout_width="65dp"
+        android:layout_height="65dp"
+        android:layout_alignParentTop="true"
+        android:layout_marginStart="55dp"
+        android:layout_marginTop="285dp"
+        android:clickable="true"
+        android:src="@mipmap/ic_old_key"
+        android:tag="@string/locked"
+        android:visibility="gone" />
+
+
+    <com.anontemp.android.view.AnonTVTroublemaker
         android:id="@+id/tvLock"
         android:layout_width="300dp"
         android:layout_height="wrap_content"
         android:layout_marginLeft="35dp"
         android:layout_marginTop="120dp"
         android:text="@string/lock_info"
-        android:textSize="18sp"
+        android:textSize="14sp"
         android:textStyle="bold" />
 
 

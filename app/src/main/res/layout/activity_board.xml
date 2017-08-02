@@ -112,7 +112,7 @@
         app:layout_constraintRight_toLeftOf="@+id/right_guideline"
         app:layout_constraintTop_toBottomOf="@id/top_guide">
 
-        <com.anontemp.android.view.AnonTEditText
+        <com.anontemp.android.view.AnonTETTroublemaker
             android:id="@+id/boardInput"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -125,7 +125,7 @@
             android:textAlignment="textStart"
             android:textColor="@android:color/black"
             android:textColorHint="@android:color/black"
-            android:textSize="21sp"
+            android:textSize="14sp"
 
             />
 

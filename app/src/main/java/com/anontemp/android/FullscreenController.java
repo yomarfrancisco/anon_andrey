@@ -2,6 +2,7 @@ package com.anontemp.android;
 
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.graphics.Typeface;
 import android.graphics.drawable.AnimationDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
@@ -14,7 +15,6 @@ import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import cn.nekocode.emojix.Emojix;
@@ -79,15 +79,15 @@ public abstract class FullscreenController extends AppCompatActivity {
         }
     }
 
-    public void showProgressDialog(int messageRes) {
-        showProgressDialog(getString(messageRes));
+    public void showProgressSnowboard(int messageRes) {
+        showProgressSnowboard(getString(messageRes));
     }
 
-    public void showProgressDialog(CharSequence sequence) {
-        showProgressDialog(sequence.toString());
+    public void showProgressSnowboard(CharSequence sequence) {
+        showProgressSnowboard(sequence.toString());
     }
 
-    public void showProgressDialog(String message) {
+    public void showProgressSnowboard(String message) {
         if (mProgressDialog == null) {
             mProgressDialog = new ProgressDialog(this, R.style.MyTheme);
             mProgressDialog.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
@@ -128,36 +128,38 @@ public abstract class FullscreenController extends AppCompatActivity {
         hideProgressDialog();
     }
 
-    public void showAlert(Object message, Object title) {
-        View d = LayoutInflater.from(this).inflate(R.layout.c_dial, null);
+    public AlertDialog.Builder getAlertBuilder(Object message, Object title) {
+        View d = LayoutInflater.from(this).inflate(R.layout.c_alert, null);
         AlertDialog.Builder build = new AlertDialog.Builder(this);
         build.setView(d);
-        final AlertDialog dialog = build.create();
-
-        LinearLayout iv = d.findViewById(R.id.dialLayout);
-        TextView tv = iv.findViewById(R.id.text);
+        if (title != null) {
+            TextView tvTitle = new TextView(this);
+            Typeface bold = FontCache.getTypeface("helvetica-neue-bold.ttf", this);
+            tvTitle.setTypeface(bold);
+            build.setCustomTitle(tvTitle);
+            if (title instanceof Integer)
+                tvTitle.setText((Integer) title);
+            if (title instanceof String)
+                tvTitle.setText((String) title);
+        }
+        TextView tv = d.findViewById(R.id.text);
+        Typeface thin = FontCache.getTypeface("HelveticaNeue-Thin.otf", this);
+        tv.setTypeface(thin);
         if (message instanceof Integer)
             tv.setText((Integer) message);
         if (message instanceof String)
             tv.setText((String) message);
 
-        if (title != null) {
-            if (title instanceof Integer)
-                dialog.setTitle((Integer) title);
-            if (title instanceof String)
-                dialog.setTitle((String) title);
-        }
+        return build;
 
-        iv.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (v.isShown()) {
-                    dialog.dismiss();
-                }
-            }
-        });
+    }
+
+
+    public void showAlert(Object message, Object title) {
+        final AlertDialog dialog = getAlertBuilder(message, title).setCancelable(true).create();
         dialog.show();
     }
+
 
     public void showAlert(Object message) {
         showAlert(message, null);

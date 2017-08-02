@@ -28,6 +28,8 @@ import android.util.Log;
 import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -59,7 +61,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     public static final LatLng WITS = new LatLng(-26.189460, 28.028117);
     public static final LatLng MTV = new LatLng(-26.115230, 28.032296);
-    public static final LatLng CENTER = new LatLng(-26.12, 28.029);
+    public static final LatLng CENTER = new LatLng(-26.107430, 28.033587);
     public static final String REGION_NAME = "regionName";
     private static final int REQUEST_PERMISSIONS_REQUEST_CODE = 3;
     LocationManager mLocationManager;
@@ -73,6 +75,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private Constants.PendingGeofenceTask mPendingGeofenceTask = Constants.PendingGeofenceTask.NONE;
     private ImageView ivLock;
     private TextView tvLock;
+    private ImageView ivKey;
     private String regionName;
     private FirebaseAuth.AuthStateListener mAuthListener;
     private BroadcastReceiver geofenceChangeReceiver = new BroadcastReceiver() {
@@ -84,6 +87,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     regionName = intent.getStringExtra(Constants.GEOFENCE_ID);
                     ivLock.setImageDrawable(ContextCompat.getDrawable(context, R.mipmap.ic_unlock));
                     ivLock.setTag(getString(R.string.unlocked));
+                    ivKey.setVisibility(View.VISIBLE);
+
 
                     tvLock.setText(getString(R.string.network_enter_text, regionName));
 
@@ -120,6 +125,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         ivLock = findViewById(R.id.ivLock);
         ivLock.setOnClickListener(this);
         tvLock = findViewById(R.id.tvLock);
+        ivKey = findViewById(R.id.ivKey);
+        ivKey.setOnClickListener(this);
         mAuth = FirebaseAuth.getInstance();
         mAuthListener = new FirebaseAuth.AuthStateListener() {
             @Override
@@ -560,19 +567,24 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     });
                     dialog.show();
                 } else {
-                    Intent intent;
-                    if (user != null && user.getUid().equals(Helper.getUuid())) {
-                        intent = new Intent(MapsActivity.this, DashBoard.class);
-                        intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
-                    } else {
-                        intent = new Intent(MapsActivity.this, Login.class);
-                        intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
-
-                    }
-                    intent.putExtra(REGION_NAME, Constants.WITS_UNIVERSITY_LOWCASE);
-                    startActivity(intent);
-                    Helper.downToUpTransition(MapsActivity.this);
+                    ivKey.performClick();
                 }
+                break;
+            case R.id.ivKey:
+                Intent intent;
+                if (user != null && user.getUid().equals(Helper.getUuid())) {
+                    intent = new Intent(MapsActivity.this, DashBoard.class);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
+                } else {
+                    intent = new Intent(MapsActivity.this, Login.class);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+
+                }
+                intent.putExtra(REGION_NAME, Constants.WITS_UNIVERSITY_LOWCASE);
+                startActivity(intent);
+                Helper.downToUpTransition(MapsActivity.this);
+                Animation gone = AnimationUtils.loadAnimation(MapsActivity.this, R.anim.rotate_and_gone);
+                ivKey.startAnimation(gone);
                 break;
         }
 

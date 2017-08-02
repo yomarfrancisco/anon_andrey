@@ -1,16 +1,20 @@
 package com.anontemp.android;
 
 import android.content.Intent;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.TextInputEditText;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.AppCompatButton;
 import android.text.Spannable;
 import android.text.TextUtils;
 import android.text.method.LinkMovementMethod;
 import android.text.style.ClickableSpan;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -30,6 +34,7 @@ import static com.anontemp.android.Helper.PAGE_TYPE_PRIVACY;
 
 public class Login extends FullscreenController implements View.OnClickListener {
 
+    AlertDialog dialog;
     private FirebaseAuth mAuth;
     private FirebaseAuth.AuthStateListener mAuthListener;
     private TextInputEditText mMail;
@@ -118,13 +123,24 @@ public class Login extends FullscreenController implements View.OnClickListener 
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.returnToMap:
-                Intent intent = new Intent(Login.this, MapsActivity.class);
-                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-                startActivity(intent);
-                Helper.downToUpTransition(Login.this);
+
+
+                showAlertDialog(R.string.logout_desc, R.string.sure, R.string.logout_ok, android.R.string.cancel,
+                        new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                dialog.dismiss();
+                                Intent intent = new Intent(Login.this, MapsActivity.class);
+                                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                                startActivity(intent);
+                                Helper.downToUpTransition(Login.this);
+                            }
+                        });
+
+
                 break;
             case R.id.authenticate:
-                showProgressDialog(R.string.loading);
+                showProgressSnowboard(R.string.loading);
                 if (!validate()) {
                     Helper.showSnackbar(getString(R.string.validate_err), this);
                     hideProgressDialog();
@@ -134,6 +150,59 @@ public class Login extends FullscreenController implements View.OnClickListener 
 
                 break;
         }
+    }
+
+    private void showAlertDialog(Object message, Object title, Object ok, Object cancel, View.OnClickListener okListener) {
+        View d = LayoutInflater.from(this).inflate(R.layout.c_dial, null);
+        final AlertDialog.Builder build = new AlertDialog.Builder(this);
+        build.setView(d);
+        if (title != null) {
+            TextView tvTitle = d.findViewById(R.id.title);
+            Typeface bold = FontCache.getTypeface("helvetica-neue-bold.ttf", this);
+            tvTitle.setTypeface(bold);
+            if (title instanceof Integer)
+                tvTitle.setText((Integer) title);
+            if (title instanceof String)
+                tvTitle.setText((String) title);
+        }
+        TextView tv = d.findViewById(R.id.text);
+        Typeface thin = FontCache.getTypeface("HelveticaNeue-Thin.otf", this);
+        Typeface normal = FontCache.getTypeface("helvetica-neue.otf", this);
+        tv.setTypeface(thin);
+        if (message instanceof Integer)
+            tv.setText((Integer) message);
+        if (message instanceof String)
+            tv.setText((String) message);
+
+
+        Button btnOk = d.findViewById(R.id.btnOk);
+        btnOk.setTypeface(normal);
+        if (ok instanceof Integer)
+            btnOk.setText((Integer) ok);
+        if (ok instanceof String)
+            btnOk.setText((String) ok);
+        btnOk.setOnClickListener(okListener);
+
+        Button btnCancel = d.findViewById(R.id.btnCancel);
+        btnCancel.setTypeface(normal);
+        if (cancel instanceof Integer)
+            btnCancel.setText((Integer) cancel);
+        if (cancel instanceof String)
+            btnCancel.setText((String) cancel);
+
+
+        dialog = build.setCancelable(false).create();
+
+        btnCancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                dialog.dismiss();
+            }
+        });
+
+
+        dialog.show();
+
     }
 
     private boolean validate() {
@@ -213,8 +282,6 @@ public class Login extends FullscreenController implements View.OnClickListener 
 
                             }
                         });
-
-
 
 
                         // ...

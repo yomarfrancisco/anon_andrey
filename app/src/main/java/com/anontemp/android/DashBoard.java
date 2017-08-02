@@ -421,7 +421,7 @@ public class DashBoard extends FullscreenController implements View.OnClickListe
         }
 
         ivPost.setEnabled(false);
-        showProgressDialog(R.string.loading);
+        showProgressSnowboard(R.string.loading);
         ivPost.setImageDrawable(ContextCompat.getDrawable(DashBoard.this, R.mipmap.ic_lock));
 
         SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy hh:mm aa", Locale.US);

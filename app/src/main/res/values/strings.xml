@@ -24,7 +24,7 @@
     </string>
 
     <string name="insufficient_permissions">Insufficient permissions.</string>
-    <string name="permission_rationale">Location permission is needed for core functionality</string>
+    <string name="permission_rationale">Enable location services to see posts around you within the Wits network.</string>
     <string name="permission_denied_explanation">Permission was denied, but is needed for core
         functionality.</string>
     <string name="settings">Settings</string>
@@ -100,4 +100,7 @@
     <string name="snapshot_agenda">Snapshot of regions within Wits Braam campus</string>
     <string name="empty" />
     <string name="done">Done</string>
+    <string name="logout_desc">You will be logged out and have no access to posts if you are not in the network area.</string>
+    <string name="sure">Are you sure?</string>
+    <string name="logout_ok">Log me out</string>
 </resources>

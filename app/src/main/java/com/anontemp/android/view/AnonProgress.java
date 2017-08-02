@@ -1,8 +1,8 @@
 package com.anontemp.android.view;
 
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.os.Bundle;
+import android.support.v7.app.AlertDialog;
 import android.widget.TextView;
 
 import com.anontemp.android.FontCache;
@@ -11,7 +11,7 @@ import com.anontemp.android.FontCache;
  * Created by jaydee on 20.07.17.
  */
 
-public class AnonProgress extends ProgressDialog {
+public class AnonProgress extends AlertDialog {
 
 
     public AnonProgress(Context context) {
@@ -29,7 +29,11 @@ public class AnonProgress extends ProgressDialog {
         TextView view = this.findViewById(android.R.id.message);
         if (view != null) {
             // Shouldn't be null. Just to be paranoid enough.
-            view.setTypeface(FontCache.getTypeface("CFSnowboardProjectPERSONAL.ttf", getContext()));
+            view.setTypeface(FontCache.getTypeface("helvetica-neue-bold.ttf", getContext()));
         }
+
+
     }
+
+
 }
