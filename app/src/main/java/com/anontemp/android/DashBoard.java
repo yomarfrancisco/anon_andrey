@@ -1,6 +1,5 @@
 package com.anontemp.android;
 
-import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -9,11 +8,8 @@ import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
-import android.preference.PreferenceManager;
-import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.constraint.ConstraintLayout;
 import android.support.design.widget.Snackbar;
@@ -34,14 +30,9 @@ import android.widget.ImageView;
 import android.widget.Switch;
 import android.widget.TextView;
 
-import com.anontemp.android.Constants.PendingGeofenceTask;
 import com.anontemp.android.model.Region;
 import com.anontemp.android.model.Tweet;
 import com.anontemp.android.model.User;
-import com.google.android.gms.location.Geofence;
-import com.google.android.gms.location.GeofencingClient;
-import com.google.android.gms.location.GeofencingRequest;
-import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthCredential;
@@ -58,11 +49,10 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.UUID;
 
 
-public class DashBoard extends FullscreenController implements View.OnClickListener, OnCompleteListener<Void> {
+public class DashBoard extends FullscreenController implements View.OnClickListener {
 
     public static final int EDIT = 0;
     public static final int POST = 1;
@@ -88,10 +78,6 @@ public class DashBoard extends FullscreenController implements View.OnClickListe
     private TextView genderHint;
     private TextView tvCount;
     private TextView tvLocation;
-    private GeofencingClient mGeofencingClient;
-    private List<Geofence> mGeofenceList;
-    private PendingIntent mGeofencePendingIntent;
-    private PendingGeofenceTask mPendingGeofenceTask = PendingGeofenceTask.NONE;
     private BroadcastReceiver geofenceChangeReceiver = new BroadcastReceiver() {
 
         @Override
@@ -133,59 +119,17 @@ public class DashBoard extends FullscreenController implements View.OnClickListe
         }
     };
 
-    private void populateGeofenceList() {
-        for (Map.Entry<String, GeoRegion> entry : Constants.SUB_REGIONS.entrySet()) {
-
-            mGeofenceList.add(new Geofence.Builder()
-                    // Set the request ID of the geofence. This is a string to identify this
-                    // geofence.
-                    .setRequestId(entry.getKey())
-
-                    // Set the circular region of this geofence.
-                    .setCircularRegion(
-                            entry.getValue().getLatLng().latitude,
-                            entry.getValue().getLatLng().longitude,
-                            entry.getValue().getRadius()
-                    )
-                    .setExpirationDuration(86400000)
-                    .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER |
-                            Geofence.GEOFENCE_TRANSITION_EXIT)
-
-                    .build());
-        }
-    }
 
     @Override
     protected void onStart() {
         super.onStart();
-        mPendingGeofenceTask = Constants.PendingGeofenceTask.ADD;
-        if (!checkPermissions()) {
-            requestPermissions();
-        } else {
-            performPendingGeofenceTask();
-        }
     }
 
     @Override
     public void onStop() {
         super.onStop();
-        if (!checkPermissions()) {
-            mPendingGeofenceTask = Constants.PendingGeofenceTask.REMOVE;
-            requestPermissions();
-            return;
-        }
-        removeGeofences();
     }
 
-    @SuppressWarnings("MissingPermission")
-    private void removeGeofences() {
-        if (!checkPermissions()) {
-            Helper.showSnackbar(getString(R.string.insufficient_permissions), DashBoard.this);
-            return;
-        }
-
-        mGeofencingClient.removeGeofences(getGeofencePendingIntent()).addOnCompleteListener(this);
-    }
 
     @Override
     protected int init() {
@@ -222,11 +166,6 @@ public class DashBoard extends FullscreenController implements View.OnClickListe
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         attachKeyboardListeners();
-
-        mGeofenceList = new ArrayList<>();
-        mGeofencePendingIntent = null;
-        populateGeofenceList();
-        mGeofencingClient = LocationServices.getGeofencingClient(this);
 
         inputMethodManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
         mAuth = FirebaseAuth.getInstance();
@@ -672,100 +611,6 @@ public class DashBoard extends FullscreenController implements View.OnClickListe
             snackbar.show();
         } else if (snackbar != null && !snackbar.isShown()) {
             snackbar.show();
-        }
-    }
-
-    private void performPendingGeofenceTask() {
-        if (mPendingGeofenceTask == Constants.PendingGeofenceTask.ADD) {
-            addGeofences();
-        } else if (mPendingGeofenceTask == PendingGeofenceTask.REMOVE) {
-            removeGeofences();
-        }
-    }
-
-    private void updateGeofencesAdded(boolean added) {
-        PreferenceManager.getDefaultSharedPreferences(this)
-                .edit()
-                .putBoolean(Constants.TWEET_GEOFENCES_ADDED_KEY, added)
-                .apply();
-    }
-
-    @Override
-    public void onComplete(@NonNull Task<Void> task) {
-        mPendingGeofenceTask = Constants.PendingGeofenceTask.NONE;
-        if (task.isSuccessful()) {
-            updateGeofencesAdded(!getGeofencesAdded());
-
-        } else {
-            String errorMessage = GeofenceErrorMessages.getErrorString(this, task.getException());
-            Log.w(Helper.TAG, errorMessage);
-        }
-    }
-
-    private PendingIntent getGeofencePendingIntent() {
-        if (mGeofencePendingIntent != null) {
-            return mGeofencePendingIntent;
-        }
-        Intent intent = new Intent(this, GeofenceTransitionsIntentService.class);
-        return PendingIntent.getService(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-    }
-
-    private boolean getGeofencesAdded() {
-        return PreferenceManager.getDefaultSharedPreferences(this).getBoolean(
-                Constants.TWEET_GEOFENCES_ADDED_KEY, false);
-    }
-
-    private GeofencingRequest getGeofencingRequest() {
-        GeofencingRequest.Builder builder = new GeofencingRequest.Builder();
-
-        builder.setInitialTrigger(GeofencingRequest.INITIAL_TRIGGER_ENTER);
-
-        builder.addGeofences(mGeofenceList);
-
-        return builder.build();
-    }
-
-
-    @SuppressWarnings("MissingPermission")
-    private void addGeofences() {
-        if (!checkPermissions()) {
-            Helper.showSnackbar(getString(R.string.insufficient_permissions), this);
-            return;
-        }
-
-        mGeofencingClient.addGeofences(getGeofencingRequest(), getGeofencePendingIntent())
-                .addOnCompleteListener(this);
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
-                                           @NonNull int[] grantResults) {
-        Log.i(Helper.TAG, "onRequestPermissionResult");
-        if (requestCode == REQUEST_PERMISSIONS_REQUEST_CODE) {
-            if (grantResults.length <= 0) {
-                Log.i(Helper.TAG, "User interaction was cancelled.");
-            } else if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                Log.i(Helper.TAG, "Permission granted.");
-                performPendingGeofenceTask();
-
-            } else {
-                showSnackbar(R.string.permission_denied_explanation, R.string.settings,
-                        new View.OnClickListener() {
-                            @Override
-                            public void onClick(View view) {
-                                // Build intent that displays the App settings screen.
-                                Intent intent = new Intent();
-                                intent.setAction(
-                                        Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
-                                Uri uri = Uri.fromParts("package",
-                                        BuildConfig.APPLICATION_ID, null);
-                                intent.setData(uri);
-                                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                                startActivity(intent);
-                            }
-                        });
-                mPendingGeofenceTask = Constants.PendingGeofenceTask.NONE;
-            }
         }
     }
 

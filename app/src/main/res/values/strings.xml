@@ -103,4 +103,7 @@
     <string name="logout_desc">You will be logged out and have no access to posts if you are not in the network area.</string>
     <string name="sure">Are you sure?</string>
     <string name="logout_ok">Log me out</string>
+    <string name="god_title">GOD MODE</string>
+    <string name="submit">Submit</string>
+
 </resources>

@@ -1,5 +1,6 @@
 package com.anontemp.android;
 
+import android.app.Dialog;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -7,7 +8,8 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
-import android.graphics.Color;
+import android.graphics.Typeface;
+import android.graphics.drawable.AnimationDrawable;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -20,6 +22,7 @@ import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.LocalBroadcastManager;
@@ -27,13 +30,20 @@ import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.util.Pair;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewConfiguration;
+import android.view.ViewGroup;
+import android.view.ViewParent;
+import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.anontemp.android.view.AnonTEditText;
 import com.google.android.gms.location.Geofence;
 import com.google.android.gms.location.GeofencingClient;
 import com.google.android.gms.location.GeofencingRequest;
@@ -46,7 +56,6 @@ import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.Marker;
-import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
@@ -59,14 +68,14 @@ import java.util.Map;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback, LocationListener, OnCompleteListener<Void>, View.OnClickListener {
 
-    public static final LatLng WITS = new LatLng(-26.189460, 28.028117);
-    public static final LatLng MTV = new LatLng(-26.115230, 28.032296);
-    public static final LatLng CENTER = new LatLng(-26.107430, 28.033587);
+    public static final LatLng CENTER = new LatLng(-26.184760, 28.028717);
     public static final String REGION_NAME = "regionName";
+    public static final String PASS = "fuckmtv";
     private static final int REQUEST_PERMISSIONS_REQUEST_CODE = 3;
     LocationManager mLocationManager;
     Location mLocation;
     Marker lastOpenned = null;
+    GodModeDialog dialog;
     private GoogleMap mMap;
     private View decorView;
     private GeofencingClient mGeofencingClient;
@@ -76,6 +85,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private ImageView ivLock;
     private TextView tvLock;
     private ImageView ivKey;
+    private ImageView ivSplash;
     private String regionName;
     private FirebaseAuth.AuthStateListener mAuthListener;
     private BroadcastReceiver geofenceChangeReceiver = new BroadcastReceiver() {
@@ -101,10 +111,16 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         }
     };
-
     private FirebaseUser user;
     private FirebaseAuth mAuth;
 
+    private void showAlertDialog() {
+
+
+        dialog = new GodModeDialog();
+        dialog.show(getSupportFragmentManager(), null);
+
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -127,6 +143,48 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         tvLock = findViewById(R.id.tvLock);
         ivKey = findViewById(R.id.ivKey);
         ivKey.setOnClickListener(this);
+        ivSplash = findViewById(R.id.ivSplash);
+        ivSplash.setOnTouchListener(new View.OnTouchListener() {
+
+            int numberOfTaps = 0;
+            long lastTapTimeMs = 0;
+            long touchDownMs = 0;
+
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+
+                switch (event.getAction()) {
+                    case MotionEvent.ACTION_DOWN:
+                        touchDownMs = System.currentTimeMillis();
+                        break;
+                    case MotionEvent.ACTION_UP:
+
+                        if ((System.currentTimeMillis() - touchDownMs) > ViewConfiguration.getTapTimeout()) {
+                            //it was not a tap
+
+                            numberOfTaps = 0;
+                            lastTapTimeMs = 0;
+                            break;
+                        }
+
+                        if (numberOfTaps > 0
+                                && (System.currentTimeMillis() - lastTapTimeMs) < ViewConfiguration.getDoubleTapTimeout()) {
+                            numberOfTaps += 1;
+                        } else {
+                            numberOfTaps = 1;
+                        }
+
+                        lastTapTimeMs = System.currentTimeMillis();
+
+                        if (numberOfTaps == 3) {
+                            showAlertDialog();
+                            //handle triple tap
+                        }
+                }
+
+                return true;
+            }
+        });
         mAuth = FirebaseAuth.getInstance();
         mAuthListener = new FirebaseAuth.AuthStateListener() {
             @Override
@@ -222,7 +280,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
     private void populateGeofenceList() {
-        for (Map.Entry<String, GeoRegion> entry : Constants.REGIONS.entrySet()) {
+        for (Map.Entry<String, GeoRegion> entry : Constants.LOCAL_REGIONS.entrySet()) {
 
             mGeofenceList.add(new Geofence.Builder()
                     // Set the request ID of the geofence. This is a string to identify this
@@ -255,17 +313,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(CENTER, 12));
         mMap.getUiSettings().setAllGesturesEnabled(false);
-        MarkerOptions mtvMarkerOpts = new MarkerOptions().position(MTV).title(getString(R.string.mtv_title));
-        Marker marker = mMap.addMarker(mtvMarkerOpts);
-        mMap.addMarker(new MarkerOptions().position(WITS).title(getString(R.string.wits_title)));
 
-
-        CircleOptions circleOptions = new CircleOptions()
-                .center(WITS)
-                .radius(1000).fillColor(Color.argb(100, 128, 128, 128)).strokeColor(Color.argb(140, 20, 0, 255)).strokeWidth(5);
-        mMap.addCircle(circleOptions);
-        mMap.addCircle(circleOptions.center(MTV).radius(300));
-        marker.showInfoWindow();
+        for (CircleOptions circleOptions : Constants.LOCAL_CIRCLES) {
+            mMap.addCircle(circleOptions);
+        }
 
         try {
             boolean success = googleMap.setMapStyle(
@@ -353,7 +404,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mGeofencingClient.removeGeofences(getGeofencePendingIntent()).addOnCompleteListener(this);
     }
 
-
     @Override
     protected void onStart() {
         super.onStart();
@@ -429,7 +479,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
     }
 
-
     private void showSnackbar(final int mainTextStringId, final int actionStringId,
                               View.OnClickListener listener) {
         Snackbar.make(
@@ -497,7 +546,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         // Return a GeofencingRequest.
         return builder.build();
     }
-
 
     @SuppressWarnings("MissingPermission")
     private void addGeofences() {
@@ -571,23 +619,27 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 }
                 break;
             case R.id.ivKey:
-                Intent intent;
-                if (user != null && user.getUid().equals(Helper.getUuid())) {
-                    intent = new Intent(MapsActivity.this, DashBoard.class);
-                    intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
-                } else {
-                    intent = new Intent(MapsActivity.this, Login.class);
-                    intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
-
-                }
-                intent.putExtra(REGION_NAME, Constants.WITS_UNIVERSITY_LOWCASE);
-                startActivity(intent);
-                Helper.downToUpTransition(MapsActivity.this);
+                transitToLogin();
                 Animation gone = AnimationUtils.loadAnimation(MapsActivity.this, R.anim.rotate_and_gone);
                 ivKey.startAnimation(gone);
                 break;
         }
 
+    }
+
+    public void transitToLogin() {
+        Intent intent;
+        if (user != null && user.getUid().equals(Helper.getUuid())) {
+            intent = new Intent(MapsActivity.this, DashBoard.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
+        } else {
+            intent = new Intent(MapsActivity.this, Login.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+
+        }
+        intent.putExtra(REGION_NAME, Constants.WITS_UNIVERSITY_LOWCASE);
+        startActivity(intent);
+        Helper.downToUpTransition(MapsActivity.this);
     }
 
     private void tryAuth() {
@@ -621,6 +673,106 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             }
         }).start();
 
+    }
+
+    public static class GodModeDialog extends DialogFragment {
+
+        View d;
+
+        public GodModeDialog() {
+        }
+
+        @Override
+        public Dialog onCreateDialog(Bundle savedInstanceState) {
+            // Create the dialog
+            d = LayoutInflater.from(getContext()).inflate(R.layout.godmode_dial, null);
+            final AlertDialog.Builder build = new AlertDialog.Builder(getContext(), R.style.MyTheme);
+            build.setView(d);
+            TextView tvTitle = d.findViewById(R.id.title);
+            Typeface bold = FontCache.getTypeface("CFSnowboardProjectPERSONAL.ttf", getContext());
+            tvTitle.setTypeface(bold);
+            tvTitle.setText(R.string.god_title);
+            TextView tv = d.findViewById(R.id.text);
+            Typeface normal = FontCache.getTypeface("helvetica-neue.otf", getContext());
+            tv.setTypeface(normal);
+            tv.setText(R.string.login_pass_hint);
+
+            final AnonTEditText pass = d.findViewById(R.id.pass);
+            Button btnOk = d.findViewById(R.id.btnOk);
+            btnOk.setTypeface(normal);
+            btnOk.setText(R.string.submit);
+
+            btnOk.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    if (pass.getText().toString().equals(PASS)) {
+                        MapsActivity mapsActivity = (MapsActivity) getActivity();
+                        mapsActivity.transitToLogin();
+                        dismiss();
+
+                    }
+                }
+            });
+
+            Button btnCancel = d.findViewById(R.id.btnCancel);
+            btnCancel.setTypeface(normal);
+            btnCancel.setText(android.R.string.cancel);
+            btnCancel.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    dismiss();
+                }
+            });
+
+            final ImageView img_loading_frame = d.findViewById(R.id.ivDope);
+            final AnimationDrawable frameAnimation = (AnimationDrawable) img_loading_frame.getBackground();
+            img_loading_frame.post(new Runnable() {
+                @Override
+                public void run() {
+                    frameAnimation.start();
+                }
+            });
+
+
+            AlertDialog dialog = build.setCancelable(false).create();
+            dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
+            return dialog;
+        }
+
+        @Override
+        public void onStart() {
+            super.onStart();
+
+            forceWrapContent(d);
+        }
+
+        protected void forceWrapContent(View v) {
+            // Start with the provided view
+            View current = v;
+
+            // Travel up the tree until fail, modifying the LayoutParams
+            do {
+                // Get the parent
+                ViewParent parent = current.getParent();
+
+                // Check if the parent exists
+                if (parent != null) {
+                    // Get the view
+                    try {
+                        current = (View) parent;
+                    } catch (ClassCastException e) {
+                        // This will happen when at the top view, it cannot be cast to a View
+                        break;
+                    }
+
+                    // Modify the layout
+                    current.getLayoutParams().width = ViewGroup.LayoutParams.WRAP_CONTENT;
+                }
+            } while (current.getParent() != null);
+
+            // Request a layout to be re-done
+            current.requestLayout();
+        }
     }
 
 
