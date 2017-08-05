@@ -597,7 +597,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         switch (v.getId()) {
             case R.id.ivLock:
                 if (v.getTag().equals(getString(R.string.locked))) {
-                    View d = LayoutInflater.from(MapsActivity.this).inflate(R.layout.c_dial, null);
+                    View d = LayoutInflater.from(MapsActivity.this).inflate(R.layout.c_alert, null);
                     AlertDialog.Builder build = new AlertDialog.Builder(MapsActivity.this);
                     build.setView(d);
                     final AlertDialog dialog = build.create();

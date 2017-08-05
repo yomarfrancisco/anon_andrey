@@ -105,5 +105,6 @@
     <string name="logout_ok">Log me out</string>
     <string name="god_title">GOD MODE</string>
     <string name="submit">Submit</string>
+    <string name="just_log_in">What are you doing? 🤦‍♀️ Just log in.</string>
 
 </resources>

@@ -15,6 +15,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -74,6 +75,7 @@ public class Login extends FullscreenController implements View.OnClickListener 
         mPass = findViewById(R.id.passInput);
         bAuth = findViewById(R.id.authenticate);
         bAuth.setOnClickListener(this);
+        findViewById(R.id.ivLogo).setOnClickListener(this);
 
         TextView links = findViewById(R.id.links);
         links.setMovementMethod(LinkMovementMethod.getInstance());
@@ -148,6 +150,25 @@ public class Login extends FullscreenController implements View.OnClickListener 
                 }
                 signIn(mMail.getText().toString(), mPass.getText().toString());
 
+                break;
+            case R.id.ivLogo:
+                View d = LayoutInflater.from(Login.this).inflate(R.layout.c_alert, null);
+                AlertDialog.Builder build = new AlertDialog.Builder(Login.this);
+                build.setView(d);
+                final AlertDialog dialog = build.create();
+
+                LinearLayout iv = d.findViewById(R.id.dialLayout);
+                TextView tv = iv.findViewById(R.id.text);
+                tv.setText(R.string.just_log_in);
+                iv.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        if (v.isShown()) {
+                            dialog.dismiss();
+                        }
+                    }
+                });
+                dialog.show();
                 break;
         }
     }

@@ -35,6 +35,14 @@
         android:src="@mipmap/ic_lock"
         android:tag="@string/locked" />
 
+    <ImageView
+        android:id="@+id/plackSplat"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:layout_marginStart="45dp"
+        android:layout_marginTop="205dp"
+        android:src="@drawable/black_splat_2" />
+
 
     <ImageView
         android:id="@+id/ivSplash"

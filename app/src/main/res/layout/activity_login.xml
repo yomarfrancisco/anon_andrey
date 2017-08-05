@@ -42,16 +42,26 @@
         android:layout_height="wrap_content"
         android:text="@string/login_text"
         android:textAlignment="textStart"
-        android:textSize="20sp"
+        android:textSize="16sp"
         app:layout_constraintLeft_toLeftOf="@+id/left_main_guide"
         app:layout_constraintRight_toLeftOf="@+id/right_main_guide"
+        app:layout_constraintTop_toTopOf="@+id/top_main_guide" />
+
+    <ImageView
+        android:id="@+id/blackSplash"
+        android:layout_width="50dp"
+        android:layout_height="40dp"
+        android:layout_marginTop="100dp"
+        android:scaleType="fitXY"
+        android:src="@drawable/black_splash1"
+        app:layout_constraintRight_toLeftOf="@+id/right_guideline"
         app:layout_constraintTop_toTopOf="@+id/top_main_guide" />
 
     <com.anontemp.android.view.AnonTView
         android:id="@+id/links"
         android:layout_width="270dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="120dp"
+        android:layout_marginTop="140dp"
         android:text="@string/login_rules"
         android:textSize="11sp"
         app:layout_constraintLeft_toLeftOf="@+id/left_main_guide"
@@ -67,11 +77,23 @@
         tools:layout_editor_absoluteX="0dp"
         tools:layout_editor_absoluteY="597dp" />
 
+    <ImageView
+        android:id="@+id/blackSplat"
+        android:layout_width="160dp"
+        android:layout_height="80dp"
+        android:layout_marginBottom="110dp"
+        android:layout_marginStart="30dp"
+        android:background="@android:color/white"
+        android:src="@drawable/black_smudge_2"
+        app:layout_constraintBottom_toTopOf="@+id/bottom_main_guide"
+        app:layout_constraintLeft_toLeftOf="@+id/left_main_guide"
+        app:layout_constraintRight_toLeftOf="@+id/right_main_guide" />
+
     <android.support.design.widget.TextInputLayout
 
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="120dp"
+        android:layout_marginBottom="130dp"
         android:textAlignment="center"
         app:hintEnabled="false"
         app:hintTextAppearance="@style/RedHint"
@@ -91,8 +113,8 @@
             android:inputType="textEmailAddress"
             android:text="@string/temp_mail"
             android:textAlignment="center"
-            android:textColor="@color/colorAccent"
-            android:textColorHint="#80ff4444"
+            android:textColor="#30ff4444"
+            android:textColorHint="#30ff4444"
 
             />
 
@@ -112,7 +134,7 @@
 
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="60dp"
+        android:layout_marginBottom="70dp"
         app:hintAnimationEnabled="false"
         app:hintEnabled="false"
         app:hintTextAppearance="@style/RedHint"
@@ -132,7 +154,7 @@
             android:inputType="textPassword"
             android:text="@string/temp_pass"
             android:textAlignment="center"
-            android:textColor="@color/colorAccent"
+            android:textColor="@color/red_alpha"
             android:textColorHint="#80ff4444"
 
 
