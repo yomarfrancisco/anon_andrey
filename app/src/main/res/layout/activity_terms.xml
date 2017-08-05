@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fitsSystemWindows="true"
+    android:fitsSystemWindows="false"
     tools:context="com.anontemp.android.TermsAndPrivacy">
 
     <android.support.constraint.Guideline
@@ -21,7 +21,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.3"
+        app:layout_constraintGuide_percent="0.2"
         tools:layout_editor_absoluteX="0dp"
         tools:layout_editor_absoluteY="185dp" />
 
@@ -85,17 +85,36 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.85" />
+        app:layout_constraintGuide_percent="0.75" />
 
 
-    <com.anontemp.android.view.AnonTVTroublemaker
-        android:id="@+id/tvTitle"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:id="@+id/linear"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="@string/terms_title"
-        android:textSize="22sp"
+        android:orientation="horizontal"
+        android:weightSum="1"
         app:layout_constraintLeft_toLeftOf="@+id/left_main_guide"
-        app:layout_constraintTop_toTopOf="@+id/top_main_guide" />
+        app:layout_constraintRight_toRightOf="@id/right_guideline"
+        app:layout_constraintTop_toTopOf="@+id/top_main_guide">
+
+        <com.anontemp.android.view.AnonTVTroublemaker
+            android:id="@+id/tvTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="start|center_vertical"
+            android:layout_weight="1"
+            android:text="@string/terms_title"
+            android:textSize="14sp" />
+
+        <ImageView
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_gravity="end"
+            android:src="@drawable/purple_splash_1" />
+
+
+    </LinearLayout>
 
 
     <ScrollView
@@ -103,24 +122,41 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginTop="10dp"
+        android:background="@android:color/transparent"
         android:scrollbars="vertical"
         app:layout_constraintBottom_toBottomOf="@id/bottom_main_guide"
         app:layout_constraintLeft_toRightOf="@+id/left_main_guide"
         app:layout_constraintRight_toLeftOf="@id/right_guideline"
-        app:layout_constraintTop_toBottomOf="@+id/tvTitle">
+        app:layout_constraintTop_toBottomOf="@+id/linear">
 
-        <com.anontemp.android.view.AnonTView
-            android:id="@+id/content"
+        <android.support.design.widget.CoordinatorLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="@drawable/bg_round_rect_black_border"
-            android:padding="8dp"
-            android:scrollbars="vertical"
-            android:text="@string/terms_content"
-            android:textSize="9sp"
-            android:typeface="serif" />
-    </ScrollView>
+            android:layout_height="match_parent">
 
+
+            <com.anontemp.android.view.AnonTView
+                android:id="@+id/content"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/bg_round_rect_black_border"
+                android:padding="8dp"
+                android:scrollbars="vertical"
+                android:text="@string/terms_content"
+                android:textSize="9sp"
+                android:typeface="serif" />
+
+            <ImageView
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_marginEnd="40dp"
+                android:scaleType="fitXY"
+                android:src="@drawable/black_splash1"
+                app:layout_anchor="@id/content"
+                app:layout_anchorGravity="end|top" />
+        </android.support.design.widget.CoordinatorLayout>
+
+
+    </ScrollView>
 
     <com.anontemp.android.view.AnonTView
         android:layout_width="wrap_content"
@@ -133,11 +169,21 @@
         app:layout_constraintLeft_toLeftOf="@+id/left_main_guide"
         app:layout_constraintTop_toBottomOf="@+id/termsContent" />
 
+    <ImageView
+        android:layout_width="20dp"
+        android:layout_height="25dp"
+        android:layout_marginStart="160dp"
+        android:layout_marginTop="25dp"
+        android:scaleType="fitXY"
+        android:src="@drawable/brown_splash_2"
+        app:layout_constraintLeft_toLeftOf="@+id/left_main_guide"
+        app:layout_constraintTop_toBottomOf="@+id/termsContent" />
+
     <com.anontemp.android.view.AnonTView
         android:id="@+id/tempLoginLink"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="55dp"
+        android:layout_marginTop="105dp"
         android:clickable="true"
         android:text="@string/temp_login_link"
         android:textColor="@color/red_alpha"
