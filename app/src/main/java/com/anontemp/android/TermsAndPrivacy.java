@@ -13,13 +13,22 @@ public class TermsAndPrivacy extends FullscreenController implements View.OnClic
 
     TextView upperLink;
     TextView tempLoginLink;
-    TextView content;
-    TextView tvTitle;
     private int pageType = PAGE_TYPE_TERMS;
 
     @Override
     protected int init() {
+        if (getIntent() != null && getIntent().getIntExtra(ARG_PAGE_TYPE, 0) > 0) {
+            pageType = getIntent().getIntExtra(ARG_PAGE_TYPE, 0);
+
+            if (pageType == PAGE_TYPE_PRIVACY) {
+                return R.layout.activity_privacy;
+
+            }
+
+        }
+
         return R.layout.activity_terms;
+
     }
 
     @Override
@@ -29,21 +38,7 @@ public class TermsAndPrivacy extends FullscreenController implements View.OnClic
         upperLink.setOnClickListener(this);
         tempLoginLink = findViewById(R.id.tempLoginLink);
         tempLoginLink.setOnClickListener(this);
-        content = findViewById(R.id.content);
-        tvTitle = findViewById(R.id.tvTitle);
 
-
-        if (getIntent() != null && getIntent().getIntExtra(ARG_PAGE_TYPE, 0) > 0) {
-            pageType = getIntent().getIntExtra(ARG_PAGE_TYPE, 0);
-
-            if (pageType == PAGE_TYPE_PRIVACY) {
-                upperLink.setText(getString(R.string.terms_link));
-                content.setText(getString(R.string.privacy_contents));
-                tvTitle.setText(getString(R.string.privacy_title));
-
-            }
-
-        }
     }
 
     @Override
@@ -55,7 +50,7 @@ public class TermsAndPrivacy extends FullscreenController implements View.OnClic
                     intent.putExtra(ARG_PAGE_TYPE, PAGE_TYPE_PRIVACY);
 
                 }
-                intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 startActivity(intent);
                 Helper.downToUpTransition(TermsAndPrivacy.this);
                 break;
