@@ -5,7 +5,7 @@ import android.graphics.Typeface;
 import android.support.v7.widget.AppCompatButton;
 import android.util.AttributeSet;
 
-import com.anontemp.android.FontCache;
+import com.anontemp.android.misc.FontCache;
 
 /**
  * Created by jaydee on 20.07.17.

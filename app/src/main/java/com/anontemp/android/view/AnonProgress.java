@@ -5,7 +5,7 @@ import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.widget.TextView;
 
-import com.anontemp.android.FontCache;
+import com.anontemp.android.misc.FontCache;
 
 /**
  * Created by jaydee on 20.07.17.

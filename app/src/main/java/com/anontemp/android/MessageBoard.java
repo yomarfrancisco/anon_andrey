@@ -10,6 +10,8 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.anontemp.android.misc.Helper;
+import com.anontemp.android.misc.MessageDivider;
 import com.anontemp.android.model.Tweet;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.ChildEventListener;

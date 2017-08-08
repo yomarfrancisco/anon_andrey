@@ -1,4 +1,4 @@
-package com.anontemp.android;
+package com.anontemp.android.misc;
 
 import android.app.Activity;
 import android.content.SharedPreferences;
@@ -9,6 +9,8 @@ import android.util.Pair;
 import android.view.View;
 import android.widget.TextView;
 
+import com.anontemp.android.AnonApp;
+import com.anontemp.android.R;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.EmailAuthProvider;
 

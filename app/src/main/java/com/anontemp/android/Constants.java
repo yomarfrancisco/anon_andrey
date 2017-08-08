@@ -3,6 +3,7 @@ package com.anontemp.android;
 import android.graphics.Color;
 import android.util.SparseArray;
 
+import com.anontemp.android.misc.GeoRegion;
 import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -18,7 +19,7 @@ import static org.apache.commons.text.StringEscapeUtils.unescapeJava;
  * Created by jaydee on 05.07.17.
  */
 
-final class Constants {
+public final class Constants {
 
 
     public final static String EMAIL_PATTERN = "[a-zA-Z0-9._-]+@[a-z]+\\.+[a-z]+";
@@ -51,6 +52,8 @@ final class Constants {
     public static final String BARNATO_HALL = "Barnato Hall";
     public static final String CENTRAL_BLOCK_SH = "Central Block/SH";
     public static final String COLLEGE_HOUSE = "College House";
+    public static final String[] WARN_WORDS = new String[]{"bomb"};
+    public static final String[] DANGEROUS_WORDS = new String[]{"kill", "explode", "latest1"};
     static final HashMap<String, Integer> MOODS_UNICODE = new HashMap<>();
     static final SparseArray<String> MOODS_IMAGE = new SparseArray<>();
     static final HashMap<String, GeoRegion> LOCAL_REGIONS = new HashMap<>();

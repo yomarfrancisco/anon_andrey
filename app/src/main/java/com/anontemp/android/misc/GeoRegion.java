@@ -1,4 +1,4 @@
-package com.anontemp.android;
+package com.anontemp.android.misc;
 
 import com.google.android.gms.maps.model.LatLng;
 

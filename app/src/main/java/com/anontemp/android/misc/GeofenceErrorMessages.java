@@ -1,8 +1,9 @@
-package com.anontemp.android;
+package com.anontemp.android.misc;
 
 import android.content.Context;
 import android.content.res.Resources;
 
+import com.anontemp.android.R;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.location.GeofenceStatusCodes;
 
@@ -10,7 +11,7 @@ import com.google.android.gms.location.GeofenceStatusCodes;
  * Created by jaydee on 05.07.17.
  */
 
-class GeofenceErrorMessages {
+public class GeofenceErrorMessages {
 
     private GeofenceErrorMessages() {
     }

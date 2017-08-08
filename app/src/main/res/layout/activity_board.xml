@@ -209,58 +209,115 @@
         android:id="@+id/count"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="15dp"
-        android:layout_marginTop="25dp"
+        android:layout_marginStart="11dp"
+        android:layout_marginTop="27dp"
         android:text="@string/count_temp"
         android:textColor="@android:color/holo_blue_light"
         android:textStyle="italic"
         app:layout_constraintLeft_toRightOf="@+id/timestamp"
         app:layout_constraintTop_toBottomOf="@+id/boardInputLayout" />
-
+    s
     <android.support.constraint.ConstraintLayout
         android:id="@+id/postLayout"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:visibility="gone"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintLeft_toLeftOf="@id/leftIcon_guideline"
+        app:layout_constraintRight_toRightOf="@id/count"
         app:layout_constraintTop_toBottomOf="@id/location">
 
         <com.anontemp.android.view.AnonTView
-            android:id="@+id/genderHint"
-            android:layout_width="wrap_content"
+            android:id="@+id/ttlHint"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="40dp"
-            android:enabled="false"
-            android:text="@string/gender_hint_disabled"
-            android:textColor="#50000000"
-            android:textSize="17sp"
+            android:layout_marginTop="20dp"
+            android:textAlignment="center"
+            android:textSize="14sp"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
+
+        <SeekBar
+            android:id="@+id/sliderTTL"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:max="24"
+            android:progress="12"
+            android:progressBackgroundTint="@android:color/darker_gray"
+
+            android:progressTint="@android:color/holo_blue_dark"
+            android:theme="@style/Slider"
+            android:thumb="@drawable/thumb_selector"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/ttlHint" />
+
+        <com.anontemp.android.view.AnonTView
+            android:id="@+id/genderHint"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:enabled="false"
+            android:text="@string/gender_hint_disabled"
+            android:textAlignment="center"
+            android:textColor="#50000000"
+            android:textSize="14sp"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/sliderTTL" />
 
         <Switch
             android:id="@+id/genderSwitch"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:enabled="false"
+            android:layout_marginTop="10dp"
+            android:elevation="4dp"
+            android:ellipsize="end"
             android:theme="@style/MySwitch"
+            android:thumb="@drawable/thumb_selector"
+            android:track="@drawable/track_selector"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toBottomOf="@id/genderHint" />
 
         <com.anontemp.android.view.AnonTView
-            android:id="@+id/moodHint"
-            android:layout_width="wrap_content"
+            android:id="@+id/commentHint"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:text="@string/mood_hint"
+            android:layout_marginTop="10dp"
+            android:text="@string/comments_off"
             android:textAlignment="center"
-            android:textSize="17sp"
+            android:textSize="14sp"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/genderSwitch" />
+            app:layout_constraintTop_toBottomOf="@+id/genderSwitch" />
+
+        <Switch
+            android:id="@+id/commentSwitch"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:elevation="4dp"
+            android:ellipsize="end"
+            android:theme="@style/MySwitch"
+            android:thumb="@drawable/thumb_selector"
+            android:track="@drawable/track_selector"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/commentHint" />
+
+        <com.anontemp.android.view.AnonTView
+            android:id="@+id/moodHint"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:text="@string/mood_hint"
+            android:textAlignment="center"
+            android:textSize="14sp"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/commentSwitch" />
 
         <android.support.constraint.Guideline
             android:id="@+id/table_guide_left"
@@ -278,102 +335,16 @@
             app:layout_constraintGuide_percent="0.98"
             app:layout_constraintRight_toRightOf="parent" />
 
-
-        <TableLayout
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/moodView"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:stretchColumns="*"
             app:layout_constraintLeft_toRightOf="@id/table_guide_left"
             app:layout_constraintRight_toLeftOf="@id/table_guide_right"
-            app:layout_constraintTop_toBottomOf="@id/moodHint"
+            app:layout_constraintTop_toBottomOf="@id/moodHint">
 
-            >
+        </android.support.v7.widget.RecyclerView>
 
-            <TableRow android:layout_marginBottom="20dp">
-
-                <ImageView
-                    android:clickable="true"
-                    android:onClick="iconClick"
-                    android:src="@mipmap/ic_inlove"
-                    android:tag="ic_inlove" />
-
-                <ImageView
-                    android:clickable="true"
-                    android:onClick="iconClick"
-                    android:src="@mipmap/ic_sunglasses"
-                    android:tag="ic_sunglasses" />
-
-                <ImageView
-                    android:clickable="true"
-                    android:onClick="iconClick"
-                    android:src="@mipmap/ic_open_mouth"
-                    android:tag="ic_open_mouth" />
-
-                <ImageView
-                    android:clickable="true"
-                    android:onClick="iconClick"
-                    android:src="@mipmap/ic_hands"
-                    android:tag="ic_hands" />
-
-            </TableRow>
-
-            <TableRow android:layout_marginBottom="20dp">
-
-                <ImageView
-                    android:clickable="true"
-                    android:onClick="iconClick"
-                    android:src="@mipmap/ic_tears"
-                    android:tag="ic_tears" />
-
-                <ImageView
-                    android:clickable="true"
-                    android:onClick="iconClick"
-                    android:src="@mipmap/ic_pouting_face"
-                    android:tag="ic_pouting_face" />
-
-                <ImageView
-                    android:clickable="true"
-                    android:onClick="iconClick"
-                    android:src="@mipmap/ic_no_eighteen"
-                    android:tag="ic_no_eighteen" />
-
-                <ImageView
-                    android:clickable="true"
-                    android:onClick="iconClick"
-                    android:src="@mipmap/ic_neutral_face"
-                    android:tag="ic_neutral_face" />
-            </TableRow>
-
-            <TableRow>
-
-                <ImageView
-                    android:layout_gravity="center"
-                    android:clickable="true"
-                    android:onClick="iconClick"
-                    android:src="@mipmap/ic_frowning_face"
-                    android:tag="ic_frowning_face" />
-
-                <ImageView
-                    android:clickable="true"
-                    android:onClick="iconClick"
-                    android:src="@mipmap/ic_fire"
-                    android:tag="ic_fire" />
-
-                <ImageView
-                    android:clickable="true"
-                    android:onClick="iconClick"
-                    android:src="@mipmap/ic_clapping_hands"
-                    android:tag="ic_clapping_hands" />
-
-                <ImageView
-                    android:clickable="true"
-                    android:onClick="iconClick"
-                    android:src="@mipmap/ic_raising_hands"
-                    android:tag="ic_raising_hands" />
-            </TableRow>
-
-        </TableLayout>
 
 
     </android.support.constraint.ConstraintLayout>

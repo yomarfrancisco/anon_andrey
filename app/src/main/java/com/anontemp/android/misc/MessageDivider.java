@@ -1,4 +1,4 @@
-package com.anontemp.android;
+package com.anontemp.android.misc;
 
 import android.content.Context;
 import android.graphics.Canvas;
@@ -6,6 +6,8 @@ import android.graphics.drawable.Drawable;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
+
+import com.anontemp.android.R;
 
 
 public class MessageDivider extends RecyclerView.ItemDecoration {

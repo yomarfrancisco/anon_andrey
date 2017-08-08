@@ -89,7 +89,7 @@
     <string name="signup_gender">We need to know your gender, use the flower if you don\'t want to be specific.</string>
     <string name="signup_wrong_mail">This email address is associated to another account.</string>
     <string name="message_long">Your message is too long. Max 140 characters allowed.</string>
-    <string name="location_default">Ex network</string>
+    <string name="location_default">Region not identified</string>
     <string name="user_deleted">Your account was deleted by some reason, sorry. We will redirect you to log in page once again.</string>
     <string name="anon_mail">anontheapp@gmail.com</string>
     <string name="mail_subject">Reporting an anon. post</string>
@@ -106,5 +106,12 @@
     <string name="god_title">GOD MODE</string>
     <string name="submit">Submit</string>
     <string name="just_log_in">What are you doing? 🤦‍♀️ Just log in.</string>
+    <string name="comments_off">Do not allow for live commentary.</string>
+    <string name="ttl_hint">Delete post in %1$s</string>
+    <string name="comments_on">Allow comments for this post 🗣</string>
+    <string name="create_account_dialog">Would you like to create an account to show your gender?</string>
+    <string name="no">No</string>
+    <string name="yes">Yes</string>
+
 
 </resources>

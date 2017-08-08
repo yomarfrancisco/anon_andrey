@@ -60,7 +60,7 @@
         <activity android:name=".CreateAccount" />
 
         <service
-            android:name=".AuthService"
+            android:name=".misc.AuthService"
             android:enabled="true"
             android:exported="false" />
     </application>

@@ -7,6 +7,8 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 
+import com.anontemp.android.misc.Helper;
+
 public class WhiteSplash extends FullscreenController {
     @Override
     protected int init() {

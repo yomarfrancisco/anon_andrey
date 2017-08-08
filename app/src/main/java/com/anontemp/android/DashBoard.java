@@ -17,22 +17,32 @@ import android.support.design.widget.TextInputEditText;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
+import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
+import android.view.animation.AnimationSet;
 import android.view.animation.AnimationUtils;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.ImageView;
+import android.widget.SeekBar;
 import android.widget.Switch;
 import android.widget.TextView;
 
+import com.anontemp.android.misc.AnonDialog;
+import com.anontemp.android.misc.DialogListener;
+import com.anontemp.android.misc.Helper;
+import com.anontemp.android.misc.OnSwipeTouchListener;
 import com.anontemp.android.model.Region;
 import com.anontemp.android.model.Tweet;
 import com.anontemp.android.model.User;
+import com.anontemp.android.view.AnonTView;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthCredential;
@@ -52,7 +62,7 @@ import java.util.Locale;
 import java.util.UUID;
 
 
-public class DashBoard extends FullscreenController implements View.OnClickListener {
+public class DashBoard extends FullscreenController implements View.OnClickListener, DialogListener {
 
     public static final int EDIT = 0;
     public static final int POST = 1;
@@ -78,6 +88,12 @@ public class DashBoard extends FullscreenController implements View.OnClickListe
     private TextView genderHint;
     private TextView tvCount;
     private TextView tvLocation;
+    private Switch commentSwitch;
+    private SeekBar ttlSlider;
+    private AnonTView ttlText;
+    private AnonTView commentText;
+    private RecyclerView moodView;
+
     private BroadcastReceiver geofenceChangeReceiver = new BroadcastReceiver() {
 
         @Override
@@ -339,8 +355,14 @@ public class DashBoard extends FullscreenController implements View.OnClickListe
                 Helper.downToUpTransition(DashBoard.this);
                 break;
             case R.id.genderSwitch:
-                genderHint.setText(genderSwitch.isChecked() ? R.string.gender_hint_on : R.string.gender_hint_off);
-                setGenderImage();
+                if (currentUser.getUsername().equals("?")) {
+                    commonDialog = AnonDialog.newInstance(0, R.string.create_account_dialog, R.string.yes, R.string.no);
+                    commonDialog.show(getSupportFragmentManager(), null);
+
+                } else {
+                    genderHint.setText(genderSwitch.isChecked() ? R.string.gender_hint_on : R.string.gender_hint_off);
+                    setGenderImage();
+                }
                 break;
             case R.id.snapshot:
             case R.id.ivGlobe:
@@ -508,8 +530,67 @@ public class DashBoard extends FullscreenController implements View.OnClickListe
         }
         findViewById(R.id.snapshot).setOnClickListener(this);
         findViewById(R.id.ivGlobe).setOnClickListener(this);
+        findViewById(R.id.rootLayout).setOnTouchListener(new OnSwipeTouchListener(DashBoard.this) {
+            public void onSwipeBottom() {
+                inputMethodManager.hideSoftInputFromWindow(boardInput.getWindowToken(), 0);
+            }
+        });
+
+        ttlSlider = findViewById(R.id.sliderTTL);
+        ttlText = findViewById(R.id.ttlHint);
+        commentText = findViewById(R.id.commentHint);
+        commentSwitch = findViewById(R.id.commentSwitch);
+        moodView = findViewById(R.id.moodView);
+        LinearLayoutManager layoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
+        moodView.setLayoutManager(layoutManager);
+        setProgressText(ttlSlider.getProgress());
+        ttlSlider.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
+
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                final Animation in = new AlphaAnimation(0.0f, 1.0f);
+                in.setDuration(100);
+
+                final Animation out = new AlphaAnimation(1.0f, 0.0f);
+                out.setDuration(100);
+
+                AnimationSet as = new AnimationSet(true);
+                as.addAnimation(out);
+                in.setStartOffset(100);
+                as.addAnimation(in);
+                int progress = seekBar.getProgress();
+                ttlText.startAnimation(as);
+                setProgressText(progress);
 
 
+            }
+        });
+
+
+    }
+
+    private void setProgressText(int progress) {
+        if (progress == 0) {
+            ttlText.setTextColor(Color.RED);
+            ttlText.setText(getString(R.string.ttl_hint, "30 mins"));
+        } else if (progress == 1) {
+            ttlText.setTextColor(Color.BLACK);
+            ttlText.setText(getString(R.string.ttl_hint, "1 hour"));
+
+        } else {
+            String d = String.valueOf(progress) + " hours";
+            ttlText.setTextColor(Color.BLACK);
+            ttlText.setText(getString(R.string.ttl_hint, d));
+        }
     }
 
     private void setPostAuthUI() {
@@ -614,4 +695,19 @@ public class DashBoard extends FullscreenController implements View.OnClickListe
         }
     }
 
+    @Override
+    public void onYes() {
+        commonDialog.dismiss();
+        Intent intent = new Intent(DashBoard.this, CreateAccount.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        startActivity(intent);
+        Helper.downToUpTransition(DashBoard.this);
+    }
+
+    @Override
+    public void onCancel() {
+        commonDialog.dismiss();
+        genderSwitch.setChecked(false);
+        genderHint.setText(R.string.gender_hint_disabled);
+    }
 }

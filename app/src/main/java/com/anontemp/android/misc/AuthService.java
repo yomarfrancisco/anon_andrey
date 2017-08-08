@@ -1,4 +1,4 @@
-package com.anontemp.android;
+package com.anontemp.android.misc;
 
 import android.app.Service;
 import android.content.Intent;

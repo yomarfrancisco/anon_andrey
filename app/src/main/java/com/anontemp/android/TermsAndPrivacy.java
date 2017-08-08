@@ -5,9 +5,11 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
 
-import static com.anontemp.android.Helper.ARG_PAGE_TYPE;
-import static com.anontemp.android.Helper.PAGE_TYPE_PRIVACY;
-import static com.anontemp.android.Helper.PAGE_TYPE_TERMS;
+import com.anontemp.android.misc.Helper;
+
+import static com.anontemp.android.misc.Helper.ARG_PAGE_TYPE;
+import static com.anontemp.android.misc.Helper.PAGE_TYPE_PRIVACY;
+import static com.anontemp.android.misc.Helper.PAGE_TYPE_TERMS;
 
 public class TermsAndPrivacy extends FullscreenController implements View.OnClickListener {
 

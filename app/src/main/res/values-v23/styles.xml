@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="MySwitch" parent="Theme.AppCompat.Light">
+        <!-- active thumb & track color (30% transparency) -->
+        <item name="colorControlActivated">@android:color/holo_green_dark</item>
+
+        <!-- inactive thumb color -->
+        <item name="colorSwitchThumbNormal">@android:color/white</item>
+
+        <!-- inactive track color (30% transparency) -->
+        <item name="android:colorForeground">@android:color/white</item>
+    </style>
+</resources>

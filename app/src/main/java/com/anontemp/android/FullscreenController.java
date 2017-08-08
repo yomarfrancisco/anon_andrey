@@ -17,6 +17,9 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.anontemp.android.misc.AnonDialog;
+import com.anontemp.android.misc.FontCache;
+
 import cn.nekocode.emojix.Emojix;
 
 /**
@@ -26,6 +29,7 @@ import cn.nekocode.emojix.Emojix;
 public abstract class FullscreenController extends AppCompatActivity {
     @VisibleForTesting
     public ProgressDialog mProgressDialog;
+    protected AnonDialog commonDialog;
     private View decorView;
 
     protected abstract int init();
