@@ -4,7 +4,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
@@ -14,11 +13,12 @@ import android.support.annotation.NonNull;
 import android.support.constraint.ConstraintLayout;
 import android.support.design.widget.Snackbar;
 import android.support.design.widget.TextInputEditText;
-import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.PagerSnapHelper;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.SnapHelper;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -68,15 +68,27 @@ public class DashBoard extends FullscreenController implements View.OnClickListe
     public static final int POST = 1;
     public static final int TWEET_LENGHT = 140;
     private static final int REQUEST_PERMISSIONS_REQUEST_CODE = 3;
+    private static AnimationSet as;
+
+    static {
+        final Animation in = new AlphaAnimation(0.0f, 1.0f);
+        final Animation out = new AlphaAnimation(1.0f, 0.0f);
+        in.setDuration(100);
+        out.setDuration(100);
+        as = new AnimationSet(true);
+        as.addAnimation(out);
+        in.setStartOffset(100);
+        as.addAnimation(in);
+    }
+
     private InputMethodManager inputMethodManager;
     private ImageView ivPost;
     private TextInputEditText boardInput;
     private ConstraintLayout postLayout;
-    private ImageView ivGlobe;
     private Animation popOut;
     private Animation popIn;
     private Animation popBubble;
-    private ImageView ivMood;
+    private AnonTView ivMood;
     private boolean startedOnce = false;
     private ImageView gender;
     private FirebaseUser user;
@@ -92,8 +104,8 @@ public class DashBoard extends FullscreenController implements View.OnClickListe
     private SeekBar ttlSlider;
     private AnonTView ttlText;
     private AnonTView commentText;
+    private AnonTView moodHint;
     private RecyclerView moodView;
-
     private BroadcastReceiver geofenceChangeReceiver = new BroadcastReceiver() {
 
         @Override
@@ -134,7 +146,8 @@ public class DashBoard extends FullscreenController implements View.OnClickListe
             }
         }
     };
-
+    private AnonTView timestamp;
+    private boolean onceScrolled = false;
 
     @Override
     protected void onStart() {
@@ -145,7 +158,6 @@ public class DashBoard extends FullscreenController implements View.OnClickListe
     public void onStop() {
         super.onStop();
     }
-
 
     @Override
     protected int init() {
@@ -365,7 +377,6 @@ public class DashBoard extends FullscreenController implements View.OnClickListe
                 }
                 break;
             case R.id.snapshot:
-            case R.id.ivGlobe:
                 intent = new Intent(DashBoard.this, Snapshot.class);
                 intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
                 startActivity(intent);
@@ -393,7 +404,7 @@ public class DashBoard extends FullscreenController implements View.OnClickListe
         String regionText = tvLocation.getText().toString();
         tweet.setRegionName(regionText);
         tweet.setRegionId(getRegionId(regionText));
-        tweet.setMoodText(Constants.MOODS_IMAGE.get((Integer) ivMood.getTag()));
+//        tweet.setMoodText(Constants.MOODS_IMAGE.get((Integer) ivMood.getTag()));
         tweet.setTweetId(UUID.randomUUID().toString());
         tweet.setUserId(currentUser.getUid());
         tweet.setUsername(genderSwitch.isChecked() ? currentUser.getUsername() : "?");
@@ -488,19 +499,11 @@ public class DashBoard extends FullscreenController implements View.OnClickListe
         });
         ivPost.startAnimation(popOut);
 
-        final Handler handler = new Handler();
-        Runnable runnable = new Runnable() {
-            @Override
-            public void run() {
-                ivGlobe.startAnimation(popBubble);
-                handler.postDelayed(this, 5000);
-            }
-        };
-        handler.post(runnable);
 
         postLayout.setVisibility(View.VISIBLE);
         startedOnce = true;
         ivPost.setTag(POST);
+        setTimestamp(ttlSlider.getProgress());
 
     }
 
@@ -510,7 +513,6 @@ public class DashBoard extends FullscreenController implements View.OnClickListe
         boardInput = findViewById(R.id.boardInput);
         boardInput.setFocusableInTouchMode(true);
         postLayout = findViewById(R.id.postLayout);
-        ivGlobe = findViewById(R.id.ivGlobe);
         popIn = AnimationUtils.loadAnimation(DashBoard.this, R.anim.pop_in);
         popOut = AnimationUtils.loadAnimation(DashBoard.this, R.anim.pop_out);
         popBubble = AnimationUtils.loadAnimation(DashBoard.this, R.anim.pop_bubble);
@@ -524,30 +526,66 @@ public class DashBoard extends FullscreenController implements View.OnClickListe
         ivPost.setTag(EDIT);
         tvCount = findViewById(R.id.count);
         tvLocation = findViewById(R.id.location);
-        ivMood.setTag(R.mipmap.ic_face);
         if (getIntent() != null && getIntent().getStringExtra(MapsActivity.REGION_NAME) != null) {
             tvLocation.setText(getIntent().getStringExtra(MapsActivity.REGION_NAME));
         }
         findViewById(R.id.snapshot).setOnClickListener(this);
-        findViewById(R.id.ivGlobe).setOnClickListener(this);
         findViewById(R.id.rootLayout).setOnTouchListener(new OnSwipeTouchListener(DashBoard.this) {
             public void onSwipeBottom() {
                 inputMethodManager.hideSoftInputFromWindow(boardInput.getWindowToken(), 0);
             }
         });
+        timestamp = findViewById(R.id.timestamp);
+
 
         ttlSlider = findViewById(R.id.sliderTTL);
         ttlText = findViewById(R.id.ttlHint);
         commentText = findViewById(R.id.commentHint);
         commentSwitch = findViewById(R.id.commentSwitch);
+        moodHint = findViewById(R.id.moodHint);
         moodView = findViewById(R.id.moodView);
         LinearLayoutManager layoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
         moodView.setLayoutManager(layoutManager);
+        moodView.setAdapter(new MoodsAdapter(DashBoard.this));
+        SnapHelper snapHelper = new PagerSnapHelper();
+        snapHelper.attachToRecyclerView(moodView);
+
+
+        moodView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+                super.onScrollStateChanged(recyclerView, newState);
+
+                if (newState == RecyclerView.SCROLL_STATE_IDLE) {
+                    int pos = ((LinearLayoutManager) recyclerView.getLayoutManager()).findFirstCompletelyVisibleItemPosition();
+                    RecyclerView.ViewHolder v = recyclerView.findViewHolderForLayoutPosition(pos);
+                    if (v instanceof MoodsAdapter.ViewHolder) {
+                        String text = ((MoodsAdapter.ViewHolder) v).text.getText().toString();
+                        moodHint.startAnimation(as);
+                        moodHint.setText(text + " selected as a mood");
+                    }
+
+                    if (!onceScrolled) {
+                        onceScrolled = true;
+                        ivMood.setText(R.string.ellipsis);
+                    }
+
+                }
+            }
+
+        });
         setProgressText(ttlSlider.getProgress());
         ttlSlider.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
-
+                double time = i / 2.0;
+                if (i <= 1)
+                    timestamp.setText("30m");
+                else {
+                    if (time == (long) time)
+                        timestamp.setText(String.format("%d", (long) time) + "Hrs");
+                    else timestamp.setText(String.format("%s", time) + "Hrs");
+                }
             }
 
             @Override
@@ -557,16 +595,7 @@ public class DashBoard extends FullscreenController implements View.OnClickListe
 
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
-                final Animation in = new AlphaAnimation(0.0f, 1.0f);
-                in.setDuration(100);
 
-                final Animation out = new AlphaAnimation(1.0f, 0.0f);
-                out.setDuration(100);
-
-                AnimationSet as = new AnimationSet(true);
-                as.addAnimation(out);
-                in.setStartOffset(100);
-                as.addAnimation(in);
                 int progress = seekBar.getProgress();
                 ttlText.startAnimation(as);
                 setProgressText(progress);
@@ -578,16 +607,30 @@ public class DashBoard extends FullscreenController implements View.OnClickListe
 
     }
 
+    private void setTimestamp(int i) {
+        double time = i / 2.0;
+        if (i <= 1)
+            timestamp.setText("30m");
+        else {
+            if (time == (long) time)
+                timestamp.setText(String.format("%d", (long) time) + "Hrs");
+            else timestamp.setText(String.format("%s", time) + "Hrs");
+        }
+    }
+
+
     private void setProgressText(int progress) {
-        if (progress == 0) {
+        if (progress <= 1) {
             ttlText.setTextColor(Color.RED);
             ttlText.setText(getString(R.string.ttl_hint, "30 mins"));
-        } else if (progress == 1) {
-            ttlText.setTextColor(Color.BLACK);
+        } else if (progress == 2) {
+            ttlText.setTextColor(ContextCompat.getColor(DashBoard.this, R.color.gold));
             ttlText.setText(getString(R.string.ttl_hint, "1 hour"));
-
+        } else if (progress == 3) {
+            ttlText.setTextColor(ContextCompat.getColor(DashBoard.this, R.color.gold));
+            ttlText.setText(getString(R.string.ttl_hint, "1 hour 30 mins"));
         } else {
-            String d = String.valueOf(progress) + " hours";
+            String d = String.valueOf(progress / 2) + " hours";
             ttlText.setTextColor(Color.BLACK);
             ttlText.setText(getString(R.string.ttl_hint, d));
         }
@@ -629,49 +672,6 @@ public class DashBoard extends FullscreenController implements View.OnClickListe
         gender.setImageDrawable(g);
     }
 
-    public void iconClick(View v) {
-
-        if (!(v instanceof ImageView))
-            return;
-
-        ImageView iv = (ImageView) v;
-        ivMood.setImageDrawable(iv.getDrawable());
-        String tag = (String) iv.getTag();
-        int identifier = getResources().getIdentifier(tag, "mipmap", getPackageName());
-        ivMood.setTag(identifier);
-
-    }
-
-    private boolean checkPermissions() {
-        int permissionState = ActivityCompat.checkSelfPermission(this,
-                android.Manifest.permission.ACCESS_FINE_LOCATION);
-        return permissionState == PackageManager.PERMISSION_GRANTED;
-
-    }
-
-    private void requestPermissions() {
-        boolean shouldProvideRationale =
-                ActivityCompat.shouldShowRequestPermissionRationale(this,
-                        android.Manifest.permission.ACCESS_FINE_LOCATION);
-
-        if (shouldProvideRationale) {
-            Log.i(Helper.TAG, "Displaying permission rationale to provide additional context.");
-            showSnackbar(R.string.permission_rationale, android.R.string.ok,
-                    new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view) {
-                            ActivityCompat.requestPermissions(DashBoard.this,
-                                    new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},
-                                    REQUEST_PERMISSIONS_REQUEST_CODE);
-                        }
-                    });
-        } else {
-            Log.i(Helper.TAG, "Requesting permission");
-            ActivityCompat.requestPermissions(DashBoard.this,
-                    new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},
-                    REQUEST_PERMISSIONS_REQUEST_CODE);
-        }
-    }
 
     private void showSnackbar(final int mainTextStringId, final int actionStringId,
                               View.OnClickListener listener) {

@@ -12,7 +12,6 @@ import com.anontemp.android.misc.FontCache;
 
 public class AnonTView extends android.support.v7.widget.AppCompatTextView {
 
-
     public AnonTView(Context context) {
         super(context);
         applyCustomFont(context);
@@ -28,8 +27,10 @@ public class AnonTView extends android.support.v7.widget.AppCompatTextView {
         applyCustomFont(context);
     }
 
+
     private void applyCustomFont(Context context) {
         Typeface customFont = FontCache.getTypeface("helvetica-neue.ttf", context);
         setTypeface(customFont);
     }
+
 }
