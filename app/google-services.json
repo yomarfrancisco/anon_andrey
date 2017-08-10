@@ -40,15 +40,15 @@
           "status": 2,
           "other_platform_oauth_client": [
             {
-              "client_id": "747107256846-hg7lups187gc7m6j6i87pp0kv4oqe9jb.apps.googleusercontent.com",
-              "client_type": 3
-            },
-            {
               "client_id": "747107256846-61aodkuuch3d5834avijsglf8sg1c21r.apps.googleusercontent.com",
               "client_type": 2,
               "ios_info": {
                 "bundle_id": "com.anonTemp.ios"
               }
+            },
+            {
+              "client_id": "747107256846-hg7lups187gc7m6j6i87pp0kv4oqe9jb.apps.googleusercontent.com",
+              "client_type": 3
             }
           ]
         },

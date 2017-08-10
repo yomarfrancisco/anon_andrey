@@ -88,20 +88,21 @@ dependencies {
     androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
-    compile 'com.google.android.gms:play-services-maps:11.0.2'
-    compile 'com.google.android.gms:play-services-location:11.0.2'
     compile "com.android.support:appcompat-v7:$supportLibVersion"
     compile "com.android.support:support-v4:$supportLibVersion"
     compile "com.android.support:design:$supportLibVersion"
+
+    compile 'com.google.android.gms:play-services-maps:11.0.2'
+    compile 'com.google.android.gms:play-services-location:11.0.2'
     compile 'com.android.support:multidex:1.0.1'
     compile 'com.google.firebase:firebase-auth:11.0.2'
     compile 'com.android.support.constraint:constraint-layout:1.0.2'
     compile 'com.google.firebase:firebase-database:11.0.2'
     compile 'com.scottyab:secure-preferences-lib:0.1.4'
-    testCompile 'junit:junit:4.12'
     compile 'org.apache.commons:commons-text:1.1'
     compile 'com.github.nekocode:Emojix:1.2'
-
+    compile 'com.google.firebase:firebase-storage:11.0.2'
+    testCompile 'junit:junit:4.12'
 }
 
 

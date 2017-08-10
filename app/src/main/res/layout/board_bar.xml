@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@android:color/darker_gray"
+    android:orientation="horizontal">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical|end"
+        android:layout_weight="1"
+        android:ellipsize="end"
+        android:maxLines="@integer/design_snackbar_text_max_lines"
+        android:paddingBottom="@dimen/design_snackbar_padding_vertical"
+        android:paddingLeft="@dimen/design_snackbar_padding_horizontal"
+        android:paddingRight="@dimen/design_snackbar_padding_horizontal"
+        android:paddingTop="@dimen/design_snackbar_padding_vertical"
+        android:textAppearance="@style/TextAppearance.Design.Snackbar.Message" />
+
+    <ImageView
+        android:id="@+id/gif"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical|end"
+        android:layout_marginEnd="@dimen/design_snackbar_padding_horizontal"
+        android:layout_marginStart="@dimen/design_snackbar_padding_horizontal"
+        android:ellipsize="end"
+        android:src="@drawable/ic_gif" />
+
+
+    <ImageView
+        android:id="@+id/mic"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical|end"
+        android:layout_marginEnd="5dp"
+        android:layout_marginStart="@dimen/design_snackbar_padding_horizontal"
+        android:ellipsize="end"
+        android:src="@drawable/ic_mic" />
+
+    <com.anontemp.android.view.AnonTView
+        android:id="@+id/snackbar_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical|end"
+        android:ellipsize="end"
+        android:maxLines="@integer/design_snackbar_text_max_lines"
+        android:paddingBottom="@dimen/design_snackbar_padding_vertical"
+        android:paddingLeft="@dimen/design_snackbar_padding_horizontal"
+        android:paddingRight="@dimen/design_snackbar_padding_horizontal"
+        android:paddingTop="@dimen/design_snackbar_padding_vertical"
+        android:text="@string/done"
+        android:textAppearance="@style/TextAppearance.Design.Snackbar.Message"
+        android:textColor="@color/done_states" />
+
+
+</LinearLayout>

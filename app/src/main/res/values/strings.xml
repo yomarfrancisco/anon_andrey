@@ -41,8 +41,8 @@
     <string name="loading">HANG TIGHT</string>
     <string name="temp_mail">temp7@iamanon.com</string>
     <string name="temp_pass">123456789</string>
-    <string name="msgbrd_button">Message board</string>
-    <string name="snpsht_button">Snapshot</string>
+    <string name="msgbrd_button">Notice-board</string>
+    <string name="snpsht_button">Live</string>
     <string name="crtacnt_button">Create account</string>
     <string name="board_hint">What\'s on your mind?</string>
     <string name="q">\?</string>
@@ -113,6 +113,8 @@
     <string name="no">No</string>
     <string name="yes">Yes</string>
     <string name="ellipsis">…</string>
+    <string name="face">😶</string>
+    <string name="hourglass">⏳</string>
 
 
 </resources>

@@ -53,6 +53,8 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -81,6 +83,7 @@ public class DashBoard extends FullscreenController implements View.OnClickListe
         as.addAnimation(in);
     }
 
+    FirebaseStorage storage;
     private InputMethodManager inputMethodManager;
     private ImageView ivPost;
     private TextInputEditText boardInput;
@@ -148,6 +151,7 @@ public class DashBoard extends FullscreenController implements View.OnClickListe
     };
     private AnonTView timestamp;
     private boolean onceScrolled = false;
+    private StorageReference mStorageRef;
 
     @Override
     protected void onStart() {
@@ -195,11 +199,13 @@ public class DashBoard extends FullscreenController implements View.OnClickListe
         super.onCreate(savedInstanceState);
         attachKeyboardListeners();
 
+
         inputMethodManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
         mAuth = FirebaseAuth.getInstance();
         user = mAuth.getCurrentUser();
         database = FirebaseDatabase.getInstance();
         dbRef = database.getReference("users");
+        mStorageRef = FirebaseStorage.getInstance().getReference();
 
         dbRef.child(user.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
