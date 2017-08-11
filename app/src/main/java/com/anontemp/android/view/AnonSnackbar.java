@@ -5,7 +5,6 @@ package com.anontemp.android.view;
  */
 
 import android.content.Context;
-import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -79,7 +78,6 @@ public class AnonSnackbar {
                 @Override
                 public boolean onPreDraw() {
                     snackbarView.getViewTreeObserver().removeOnPreDrawListener(this);
-                    ((CoordinatorLayout.LayoutParams) snackbarView.getLayoutParams()).setBehavior(null);
                     return true;
                 }
             });

@@ -25,6 +25,7 @@
         android:layout_gravity="center_vertical|end"
         android:layout_marginEnd="@dimen/design_snackbar_padding_horizontal"
         android:layout_marginStart="@dimen/design_snackbar_padding_horizontal"
+        android:clickable="true"
         android:ellipsize="end"
         android:src="@drawable/ic_gif" />
 
@@ -36,6 +37,7 @@
         android:layout_gravity="center_vertical|end"
         android:layout_marginEnd="5dp"
         android:layout_marginStart="@dimen/design_snackbar_padding_horizontal"
+        android:clickable="true"
         android:ellipsize="end"
         android:src="@drawable/ic_mic" />
 
@@ -44,7 +46,9 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_vertical|end"
+        android:clickable="true"
         android:ellipsize="end"
+        android:enabled="false"
         android:maxLines="@integer/design_snackbar_text_max_lines"
         android:paddingBottom="@dimen/design_snackbar_padding_vertical"
         android:paddingLeft="@dimen/design_snackbar_padding_horizontal"

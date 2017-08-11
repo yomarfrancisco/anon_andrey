@@ -42,6 +42,7 @@ import com.anontemp.android.misc.OnSwipeTouchListener;
 import com.anontemp.android.model.Region;
 import com.anontemp.android.model.Tweet;
 import com.anontemp.android.model.User;
+import com.anontemp.android.view.AnonSnackbar;
 import com.anontemp.android.view.AnonTView;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -69,7 +70,6 @@ public class DashBoard extends FullscreenController implements View.OnClickListe
     public static final int EDIT = 0;
     public static final int POST = 1;
     public static final int TWEET_LENGHT = 140;
-    private static final int REQUEST_PERMISSIONS_REQUEST_CODE = 3;
     private static AnimationSet as;
 
     static {
@@ -131,7 +131,11 @@ public class DashBoard extends FullscreenController implements View.OnClickListe
     private List<Region> regions;
     private boolean keyboardListenersAttached = false;
     private ViewGroup rootLayout;
-    private Snackbar snackbar;
+    private AnonSnackbar snackbar;
+    private AnonTView timestamp;
+    private boolean onceScrolled = false;
+    private StorageReference mStorageRef;
+    private AnonTView tvDone;
     private ViewTreeObserver.OnGlobalLayoutListener keyboardLayoutListener = new ViewTreeObserver.OnGlobalLayoutListener() {
         @Override
         public void onGlobalLayout() {
@@ -149,9 +153,6 @@ public class DashBoard extends FullscreenController implements View.OnClickListe
             }
         }
     };
-    private AnonTView timestamp;
-    private boolean onceScrolled = false;
-    private StorageReference mStorageRef;
 
     @Override
     protected void onStart() {
@@ -270,6 +271,9 @@ public class DashBoard extends FullscreenController implements View.OnClickListe
             @Override
             public void afterTextChanged(Editable editable) {
                 int count = TWEET_LENGHT - editable.length();
+                if (tvDone != null) {
+                    tvDone.setEnabled(editable.length() > 0);
+                }
 
                 if (count < 0) {
                     tvCount.setText("0");
@@ -306,17 +310,11 @@ public class DashBoard extends FullscreenController implements View.OnClickListe
     }
 
     protected void onShowKeyboard() {
-        showSnackbar(R.string.empty, R.string.done,
-                new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        inputMethodManager.hideSoftInputFromWindow(boardInput.getWindowToken(), 0);
-                    }
-                });
+        showSnackbar();
     }
 
     protected void onHideKeyboard() {
-        if (snackbar != null && snackbar.isShown()) {
+        if (snackbar != null && snackbar.isShowing()) {
             snackbar.dismiss();
         }
     }
@@ -624,7 +622,6 @@ public class DashBoard extends FullscreenController implements View.OnClickListe
         }
     }
 
-
     private void setProgressText(int progress) {
         if (progress <= 1) {
             ttlText.setTextColor(Color.RED);
@@ -678,25 +675,34 @@ public class DashBoard extends FullscreenController implements View.OnClickListe
         gender.setImageDrawable(g);
     }
 
-
-    private void showSnackbar(final int mainTextStringId, final int actionStringId,
-                              View.OnClickListener listener) {
+    private void showSnackbar() {
         View container = findViewById(android.R.id.content);
         if (container != null && snackbar == null) {
 
-            snackbar = Snackbar.make(
-                    findViewById(android.R.id.content),
-                    getString(mainTextStringId),
-                    Snackbar.LENGTH_INDEFINITE)
-                    .setAction(getString(actionStringId), listener);
-            snackbar.setActionTextColor(Color.BLUE);
-            View snackbarView = snackbar.getView();
-            int snackbarTextId = android.support.design.R.id.snackbar_text;
-            TextView textView = snackbarView.findViewById(snackbarTextId);
-            textView.setTextColor(Color.BLACK);
-            snackbarView.setBackgroundColor(ContextCompat.getColor(DashBoard.this, android.R.color.white));
+            snackbar = AnonSnackbar.Builder(DashBoard.this)
+                    .layout(R.layout.board_bar)
+                    .duration(AnonSnackbar.LENGTH.INDEFINITE)
+                    .swipe(false)
+                    .build(container);
+
+            View snackbarView = snackbar.getContentView();
+            tvDone = snackbarView.findViewById(R.id.snackbar_text);
+            tvDone.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    inputMethodManager.hideSoftInputFromWindow(boardInput.getWindowToken(), 0);
+                }
+            });
+            ImageView ivMic = snackbarView.findViewById(R.id.mic);
+            ivMic.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+
+                }
+            });
+
             snackbar.show();
-        } else if (snackbar != null && !snackbar.isShown()) {
+        } else if (snackbar != null && !snackbar.isShowing()) {
             snackbar.show();
         }
     }
