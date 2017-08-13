@@ -5,6 +5,38 @@
     android:background="@android:color/darker_gray"
     android:orientation="horizontal">
 
+    <com.anontemp.android.view.AnonTView
+        android:id="@+id/timer"
+        android:layout_width="60dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical|start"
+        android:ellipsize="end"
+        android:maxLines="@integer/design_snackbar_text_max_lines"
+        android:paddingBottom="@dimen/design_snackbar_padding_vertical"
+        android:paddingLeft="@dimen/design_snackbar_padding_horizontal"
+        android:paddingRight="@dimen/design_snackbar_padding_horizontal"
+        android:paddingTop="@dimen/design_snackbar_padding_vertical"
+        android:textAppearance="@style/TextAppearance.Design.Snackbar.Message"
+        android:textColor="@color/dark_gray"
+        android:visibility="invisible" />
+
+    <com.anontemp.android.view.AnonTView
+        android:id="@+id/recordInfo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical|start"
+        android:clickable="true"
+        android:ellipsize="end"
+        android:maxLines="@integer/design_snackbar_text_max_lines"
+        android:paddingBottom="@dimen/design_snackbar_padding_vertical"
+        android:paddingLeft="@dimen/design_snackbar_padding_horizontal"
+        android:paddingRight="@dimen/design_snackbar_padding_horizontal"
+        android:paddingTop="@dimen/design_snackbar_padding_vertical"
+        android:text="@string/rec_on"
+        android:textAppearance="@style/TextAppearance.Design.Snackbar.Message"
+        android:textColor="@color/colorAccent"
+        android:visibility="invisible" />
+
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

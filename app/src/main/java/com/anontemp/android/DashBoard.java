@@ -4,15 +4,20 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
+import android.media.MediaPlayer;
+import android.media.MediaRecorder;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.SystemClock;
 import android.support.annotation.NonNull;
 import android.support.constraint.ConstraintLayout;
 import android.support.design.widget.Snackbar;
 import android.support.design.widget.TextInputEditText;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.widget.LinearLayoutManager;
@@ -22,6 +27,7 @@ import android.support.v7.widget.SnapHelper;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
@@ -57,6 +63,7 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -70,7 +77,9 @@ public class DashBoard extends FullscreenController implements View.OnClickListe
     public static final int EDIT = 0;
     public static final int POST = 1;
     public static final int TWEET_LENGHT = 140;
+    private static final int REQUEST_RECORD_AUDIO_PERMISSION = 200;
     private static AnimationSet as;
+    private static String mFileName = null;
 
     static {
         final Animation in = new AlphaAnimation(0.0f, 1.0f);
@@ -84,6 +93,11 @@ public class DashBoard extends FullscreenController implements View.OnClickListe
     }
 
     FirebaseStorage storage;
+    long timeInMilliseconds = 0L;
+    private MediaRecorder mRecorder = null;
+    private MediaPlayer mPlayer = null;
+    // Requesting permission to RECORD_AUDIO
+    private String[] permissions = {android.Manifest.permission.RECORD_AUDIO};
     private InputMethodManager inputMethodManager;
     private ImageView ivPost;
     private TextInputEditText boardInput;
@@ -136,6 +150,61 @@ public class DashBoard extends FullscreenController implements View.OnClickListe
     private boolean onceScrolled = false;
     private StorageReference mStorageRef;
     private AnonTView tvDone;
+    private long startTime = 0L;
+    private AnonTView timer;
+    private AnonTView recordInfo;
+    private Handler customHandler = new Handler();
+    private AnonTView tvSound;
+    private ImageView ivMic;
+    private RecordState recordState = RecordState.NONE;
+    private Runnable updateTimerThread = new Runnable() {
+        public void run() {
+            timeInMilliseconds = SystemClock.uptimeMillis() - startTime;
+            int secs = (int) (timeInMilliseconds / 1000);
+            int mins = secs / 60;
+            if (mins > 0) {
+                stopRecording();
+            }
+            secs = secs % 60;
+            int milliseconds = (int) (timeInMilliseconds % 100);
+            timer.setText("" + String.format("%02d", secs) + ":"
+                    + String.format("%02d", milliseconds));
+            customHandler.postDelayed(this, 2);
+        }
+    };
+    private View.OnTouchListener toucher = new View.OnTouchListener() {
+        @Override
+        public boolean onTouch(View view, MotionEvent motionEvent) {
+            switch (motionEvent.getAction()) {
+                case MotionEvent.ACTION_DOWN:
+                    if (recordState == RecordState.PREPARED)
+                        startRecording();
+                    break;
+                case MotionEvent.ACTION_UP:
+                    if (recordState == RecordState.RECORDING)
+                        stopRecording();
+                    else {
+                        view.setOnTouchListener(null);
+                        view.setOnTouchListener(new View.OnTouchListener() {
+                            @Override
+                            public boolean onTouch(View view, MotionEvent motionEvent) {
+                                switch (motionEvent.getAction()) {
+                                    case MotionEvent.ACTION_DOWN:
+                                        if (recordState == RecordState.RECORDING)
+                                            stopRecording();
+                                        break;
+                                    case MotionEvent.ACTION_UP:
+                                        break;
+                                }
+                                return false;
+                            }
+                        });
+                    }
+                    break;
+            }
+            return false;
+        }
+    };
     private ViewTreeObserver.OnGlobalLayoutListener keyboardLayoutListener = new ViewTreeObserver.OnGlobalLayoutListener() {
         @Override
         public void onGlobalLayout() {
@@ -155,6 +224,103 @@ public class DashBoard extends FullscreenController implements View.OnClickListe
     };
 
     @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
+        Log.i(Helper.TAG, "onRequestPermissionResult");
+        if (requestCode == REQUEST_RECORD_AUDIO_PERMISSION) {
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                Log.i(Helper.TAG, "Permission granted.");
+                recordState = RecordState.PREPARED;
+
+            } else {
+                recordState = RecordState.ERROR;
+            }
+        }
+    }
+
+    private boolean checkPermissions() {
+        int permissionState = ActivityCompat.checkSelfPermission(this, android.Manifest.permission.RECORD_AUDIO
+        );
+        return permissionState == PackageManager.PERMISSION_GRANTED;
+
+    }
+
+    private void prepareRecording() {
+
+        mRecorder = new MediaRecorder();
+        mRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
+        mRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
+        mRecorder.setOutputFile(mFileName);
+        mRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
+        mRecorder.setAudioChannels(1);
+        mRecorder.setAudioSamplingRate(12000);
+        mRecorder.setMaxDuration(60000);
+        mRecorder.setOnInfoListener(new MediaRecorder.OnInfoListener() {
+            @Override
+            public void onInfo(MediaRecorder mediaRecorder, int i, int i1) {
+                if (i == MediaRecorder.MEDIA_RECORDER_INFO_MAX_DURATION_REACHED) {
+                    stopRecording();
+                    timer.setText("" + String.format("%02d", 60) + ":"
+                            + String.format("%02d", 00));
+                }
+            }
+        });
+
+        try {
+            mRecorder.prepare();
+
+        } catch (IOException e) {
+            Log.e(LOG_TAG, "prepare() failed");
+            recordState = RecordState.ERROR;
+        }
+
+    }
+
+    private void startRecording() {
+        prepareRecording();
+        mRecorder.start();
+        startTime = SystemClock.uptimeMillis();
+        customHandler.postDelayed(updateTimerThread, 0);
+        recordInfo.setVisibility(View.VISIBLE);
+        recordInfo.setText(R.string.rec_on);
+        timer.setVisibility(View.VISIBLE);
+        recordState = RecordState.RECORDING;
+
+    }
+
+    private void stopRecording() {
+
+        if (mRecorder == null)
+            return;
+        try {
+            mRecorder.stop();
+
+        } catch (Exception e) {
+            Log.w(LOG_TAG, e.getMessage());
+            mRecorder.reset();
+            mRecorder.release();
+            mRecorder = null;
+            removeRecord();
+            customHandler.removeCallbacks(updateTimerThread);
+            return;
+        }
+        mRecorder.release();
+        mRecorder = null;
+
+        recordState = RecordState.COMPLETED;
+        customHandler.removeCallbacks(updateTimerThread);
+
+        tvSound.setVisibility(View.VISIBLE);
+        ivMic.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.ic_mic_disabled));
+        ivMic.setOnTouchListener(null);
+
+        recordInfo.startAnimation(as);
+        recordInfo.setText(R.string.cancel);
+
+
+    }
+
+    @Override
     protected void onStart() {
         super.onStart();
     }
@@ -162,6 +328,16 @@ public class DashBoard extends FullscreenController implements View.OnClickListe
     @Override
     public void onStop() {
         super.onStop();
+        super.onStop();
+        if (mRecorder != null) {
+            mRecorder.release();
+            mRecorder = null;
+        }
+
+        if (mPlayer != null) {
+            mPlayer.release();
+            mPlayer = null;
+        }
     }
 
     @Override
@@ -287,6 +463,22 @@ public class DashBoard extends FullscreenController implements View.OnClickListe
                 }
             }
         });
+
+
+        mFileName = getExternalCacheDir().getAbsolutePath();
+        mFileName += "/recording.m4a";
+        if (!checkPermissions()) {
+            requestPermissions();
+        } else {
+            recordState = RecordState.PREPARED;
+        }
+    }
+
+    private void requestPermissions() {
+        Log.i(Helper.TAG, "Requesting permission");
+        ActivityCompat.requestPermissions(DashBoard.this, permissions,
+                REQUEST_RECORD_AUDIO_PERMISSION);
+
     }
 
     @Override
@@ -300,6 +492,7 @@ public class DashBoard extends FullscreenController implements View.OnClickListe
             ivPost.setImageDrawable(ContextCompat.getDrawable(DashBoard.this, R.mipmap.ic_pencil));
             ivPost.setEnabled(true);
         }
+
 
     }
 
@@ -608,6 +801,8 @@ public class DashBoard extends FullscreenController implements View.OnClickListe
             }
         });
 
+        tvSound = findViewById(R.id.tvSound);
+
 
     }
 
@@ -656,6 +851,10 @@ public class DashBoard extends FullscreenController implements View.OnClickListe
 
     }
 
+    @Override
+    public void onBackPressed() {
+    }
+
     private void setGenderImage() {
         Drawable g;
         int res = R.mipmap.ic_question;
@@ -675,6 +874,13 @@ public class DashBoard extends FullscreenController implements View.OnClickListe
         gender.setImageDrawable(g);
     }
 
+    private void removeRecord() {
+        timer.setVisibility(View.INVISIBLE);
+        recordInfo.setVisibility(View.INVISIBLE);
+        tvSound.setVisibility(View.INVISIBLE);
+        recordState = RecordState.PREPARED;
+    }
+
     private void showSnackbar() {
         View container = findViewById(android.R.id.content);
         if (container != null && snackbar == null) {
@@ -687,19 +893,29 @@ public class DashBoard extends FullscreenController implements View.OnClickListe
 
             View snackbarView = snackbar.getContentView();
             tvDone = snackbarView.findViewById(R.id.snackbar_text);
-            tvDone.setOnClickListener(new View.OnClickListener() {
+            timer = snackbarView.findViewById(R.id.timer);
+            recordInfo = snackbarView.findViewById(R.id.recordInfo);
+            recordInfo.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    inputMethodManager.hideSoftInputFromWindow(boardInput.getWindowToken(), 0);
-                }
-            });
-            ImageView ivMic = snackbarView.findViewById(R.id.mic);
-            ivMic.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
+                    if (recordState == RecordState.COMPLETED) {
+                        removeRecord();
+                        ivMic.setOnTouchListener(toucher);
+                        ivMic.setImageDrawable(ContextCompat.getDrawable(DashBoard.this, R.drawable.ic_mic));
+                    }
 
                 }
             });
+            tvDone.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    if (recordState == RecordState.RECORDING)
+                        return;
+                    inputMethodManager.hideSoftInputFromWindow(boardInput.getWindowToken(), 0);
+                }
+            });
+            ivMic = snackbarView.findViewById(R.id.mic);
+            ivMic.setOnTouchListener(toucher);
 
             snackbar.show();
         } else if (snackbar != null && !snackbar.isShowing()) {
@@ -722,4 +938,9 @@ public class DashBoard extends FullscreenController implements View.OnClickListe
         genderSwitch.setChecked(false);
         genderHint.setText(R.string.gender_hint_disabled);
     }
+
+    private enum RecordState {
+        NONE, ERROR, PREPARED, RECORDING, COMPLETED
+    }
+
 }

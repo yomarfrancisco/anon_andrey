@@ -167,14 +167,26 @@
         app:layout_constraintTop_toBottomOf="@+id/boardInputLayout" />
 
     <com.anontemp.android.view.AnonTView
+        android:id="@+id/tvSound"
+        android:layout_width="15dp"
+        android:layout_height="15dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="30dp"
+        android:text="@string/speaker"
+        android:textSize="10sp"
+        android:visibility="invisible"
+        app:layout_constraintLeft_toRightOf="@+id/location"
+        app:layout_constraintTop_toBottomOf="@+id/boardInputLayout" />
+
+    <com.anontemp.android.view.AnonTView
         android:id="@+id/ivMood"
         android:layout_width="15dp"
         android:layout_height="15dp"
-        android:layout_marginStart="20dp"
+        android:layout_marginStart="10dp"
         android:layout_marginTop="30dp"
         android:text="@string/face"
         android:textSize="10sp"
-        app:layout_constraintLeft_toRightOf="@+id/location"
+        app:layout_constraintLeft_toRightOf="@+id/tvSound"
         app:layout_constraintTop_toBottomOf="@+id/boardInputLayout" />
 
     <ImageView

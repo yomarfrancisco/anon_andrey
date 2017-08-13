@@ -27,6 +27,7 @@ import cn.nekocode.emojix.Emojix;
  */
 
 public abstract class FullscreenController extends AppCompatActivity {
+    public static final String LOG_TAG = "ANON";
     @VisibleForTesting
     public ProgressDialog mProgressDialog;
     protected AnonDialog commonDialog;

@@ -635,10 +635,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         Intent intent;
         if (user != null && user.getUid().equals(Helper.getUuid())) {
             intent = new Intent(MapsActivity.this, DashBoard.class);
-            intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
         } else {
             intent = new Intent(MapsActivity.this, Login.class);
-            intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_NO_HISTORY);
 
         }
         intent.putExtra(REGION_NAME, Constants.WITS_UNIVERSITY_LOWCASE);

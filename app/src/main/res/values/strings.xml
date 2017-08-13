@@ -115,6 +115,9 @@
     <string name="ellipsis">…</string>
     <string name="face">😶</string>
     <string name="hourglass">⏳</string>
+    <string name="rec_on">Recording</string>
+    <string name="cancel">Cancel</string>
+    <string name="speaker">🔈</string>
 
 
 </resources>
