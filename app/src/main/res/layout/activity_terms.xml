@@ -98,7 +98,7 @@
         app:layout_constraintRight_toRightOf="@id/right_guideline"
         app:layout_constraintTop_toTopOf="@+id/top_main_guide">
 
-        <com.anontemp.android.view.AnonTVTroublemaker
+        <com.anontemp.android.view.AnonTVSpecial
             android:id="@+id/tvTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

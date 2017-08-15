@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<animation-list xmlns:android="http://schemas.android.com/apk/res/android"
+    android:oneshot="false">
+    <item
+        android:drawable="@drawable/balaclava_0"
+        android:duration="100" />
+    <item
+        android:drawable="@drawable/balaclava_1"
+        android:duration="100" />
+    <item
+        android:drawable="@drawable/balaclava_2"
+        android:duration="100" />
+    <item
+        android:drawable="@drawable/balaclava_3"
+        android:duration="100" />
+    <item
+        android:drawable="@drawable/balaclava_4"
+        android:duration="100" />
+    <item
+        android:drawable="@drawable/balaclava_5"
+        android:duration="100" />
+    <item
+        android:drawable="@drawable/balaclava_6"
+        android:duration="100" />
+    <item
+        android:drawable="@drawable/balaclava_7"
+        android:duration="100" />
+</animation-list>

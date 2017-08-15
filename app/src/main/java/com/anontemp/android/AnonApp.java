@@ -10,8 +10,10 @@ import com.securepreferences.SecurePreferences;
  */
 
 public class AnonApp extends MultiDexApplication {
+    public static final String ANON_PREFS = "AnonPrefs";
     protected static AnonApp instance;
     private SecurePreferences mSecurePrefs;
+    private SharedPreferences preferences;
 
     public AnonApp() {
         super();
@@ -27,6 +29,10 @@ public class AnonApp extends MultiDexApplication {
         super.onCreate();
 
 
+    }
+
+    public SharedPreferences getDefaultPrefs() {
+        return getApplicationContext().getSharedPreferences(ANON_PREFS, MODE_PRIVATE);
     }
 
 

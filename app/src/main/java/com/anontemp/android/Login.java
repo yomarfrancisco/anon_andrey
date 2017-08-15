@@ -45,6 +45,7 @@ public class Login extends FullscreenController implements View.OnClickListener,
 
     @Override
     protected int init() {
+        mAuth = FirebaseAuth.getInstance();
         return R.layout.activity_login;
     }
 
@@ -52,7 +53,7 @@ public class Login extends FullscreenController implements View.OnClickListener,
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        mAuth = FirebaseAuth.getInstance();
+
         mAuthListener = new FirebaseAuth.AuthStateListener() {
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
@@ -132,7 +133,7 @@ public class Login extends FullscreenController implements View.OnClickListener,
 
                 break;
             case R.id.authenticate:
-                showProgressSnowboard(R.string.loading);
+                showProgressSnowboard(R.string.loading, R.drawable.balaclava);
                 if (!validate()) {
                     Helper.showSnackbar(getString(R.string.validate_err), this);
                     hideProgressDialog();
@@ -197,6 +198,7 @@ public class Login extends FullscreenController implements View.OnClickListener,
 
     private void signIn(final String email, final String password) {
         bAuth.setEnabled(false);
+        bAuth.setText(R.string.load_auth);
 
         mAuth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
@@ -215,11 +217,11 @@ public class Login extends FullscreenController implements View.OnClickListener,
                             return;
                         }
 
-                        final FirebaseUser user = task.getResult().getUser();
+                        user = task.getResult().getUser();
                         database.getReference("users").child(user.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
                             @Override
                             public void onDataChange(DataSnapshot dataSnapshot) {
-                                User currentUser = dataSnapshot.getValue(User.class);
+                                currentUser = dataSnapshot.getValue(User.class);
                                 if (currentUser == null) {
                                     currentUser = new User("?", email, user.getUid(), "Wits");
                                     database.getReference("users").child(user.getUid()).setValue(currentUser).addOnCompleteListener(new OnCompleteListener<Void>() {

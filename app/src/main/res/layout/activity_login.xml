@@ -37,12 +37,13 @@
         tools:layout_editor_absoluteX="327dp"
         tools:layout_editor_absoluteY="0dp" />
 
-    <com.anontemp.android.view.AnonTVTroublemaker
+    <com.anontemp.android.view.AnonTVSpecial
         android:layout_width="270dp"
         android:layout_height="wrap_content"
         android:text="@string/login_text"
         android:textAlignment="textStart"
-        android:textSize="16sp"
+        android:textColor="@color/text_special"
+        android:textSize="21sp"
         app:layout_constraintLeft_toLeftOf="@+id/left_main_guide"
         app:layout_constraintRight_toLeftOf="@+id/right_main_guide"
         app:layout_constraintTop_toTopOf="@+id/top_main_guide" />
@@ -178,6 +179,7 @@
         android:layout_height="wrap_content"
         android:background="@drawable/bg_round_rect_black"
         android:text="@string/login_auth"
+        android:textAllCaps="false"
         android:textColor="@android:color/white"
         app:layout_constraintBottom_toTopOf="@+id/bottom_main_guide"
         app:layout_constraintLeft_toLeftOf="@+id/left_main_guide"

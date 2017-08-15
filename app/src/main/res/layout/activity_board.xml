@@ -112,7 +112,7 @@
         app:layout_constraintRight_toLeftOf="@+id/right_guideline"
         app:layout_constraintTop_toBottomOf="@id/top_guide">
 
-        <com.anontemp.android.view.AnonTETTroublemaker
+        <com.anontemp.android.view.AnonTETTSpecial
             android:id="@+id/boardInput"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -122,10 +122,11 @@
             android:hint="@string/board_hint"
             android:imeOptions="actionDone"
             android:inputType="textMultiLine|textShortMessage"
+            android:paddingEnd="10dp"
             android:textAlignment="textStart"
             android:textColor="@android:color/black"
             android:textColorHint="@android:color/black"
-            android:textSize="14sp"
+            android:textSize="19sp"
 
             />
 
@@ -146,8 +147,8 @@
         android:id="@+id/ivPost"
         android:layout_width="30dp"
         android:layout_height="30dp"
-        android:layout_marginEnd="37dp"
-        android:layout_marginTop="60dp"
+        android:layout_marginEnd="40dp"
+        android:layout_marginTop="56dp"
         android:clickable="true"
         android:src="@mipmap/ic_pencil"
         app:layout_constraintRight_toRightOf="parent"
@@ -156,7 +157,7 @@
 
     <com.anontemp.android.view.AnonTView
         android:id="@+id/location"
-        android:layout_width="130dp"
+        android:layout_width="120dp"
         android:layout_height="15dp"
         android:layout_marginStart="5dp"
         android:layout_marginTop="30dp"
@@ -167,15 +168,27 @@
         app:layout_constraintTop_toBottomOf="@+id/boardInputLayout" />
 
     <com.anontemp.android.view.AnonTView
+        android:id="@+id/tvGif"
+        android:layout_width="15dp"
+        android:layout_height="15dp"
+        android:layout_marginStart="5dp"
+        android:layout_marginTop="30dp"
+        android:text="@string/gif"
+        android:textSize="10sp"
+        android:visibility="invisible"
+        app:layout_constraintLeft_toRightOf="@+id/location"
+        app:layout_constraintTop_toBottomOf="@+id/boardInputLayout" />
+
+    <com.anontemp.android.view.AnonTView
         android:id="@+id/tvSound"
         android:layout_width="15dp"
         android:layout_height="15dp"
-        android:layout_marginStart="10dp"
+        android:layout_marginStart="5dp"
         android:layout_marginTop="30dp"
         android:text="@string/speaker"
         android:textSize="10sp"
         android:visibility="invisible"
-        app:layout_constraintLeft_toRightOf="@+id/location"
+        app:layout_constraintLeft_toRightOf="@+id/tvGif"
         app:layout_constraintTop_toBottomOf="@+id/boardInputLayout" />
 
     <com.anontemp.android.view.AnonTView

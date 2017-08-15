@@ -15,7 +15,6 @@ import android.os.Handler;
 import android.os.SystemClock;
 import android.support.annotation.NonNull;
 import android.support.constraint.ConstraintLayout;
-import android.support.design.widget.Snackbar;
 import android.support.design.widget.TextInputEditText;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -25,6 +24,7 @@ import android.support.v7.widget.PagerSnapHelper;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SnapHelper;
 import android.text.Editable;
+import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -47,14 +47,11 @@ import com.anontemp.android.misc.Helper;
 import com.anontemp.android.misc.OnSwipeTouchListener;
 import com.anontemp.android.model.Region;
 import com.anontemp.android.model.Tweet;
-import com.anontemp.android.model.User;
 import com.anontemp.android.view.AnonSnackbar;
 import com.anontemp.android.view.AnonTView;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -73,6 +70,7 @@ import java.util.UUID;
 
 
 public class DashBoard extends FullscreenController implements View.OnClickListener, DialogListener {
+
 
     public static final int EDIT = 0;
     public static final int POST = 1;
@@ -94,6 +92,7 @@ public class DashBoard extends FullscreenController implements View.OnClickListe
 
     FirebaseStorage storage;
     long timeInMilliseconds = 0L;
+    private String gifFileName;
     private MediaRecorder mRecorder = null;
     private MediaPlayer mPlayer = null;
     // Requesting permission to RECORD_AUDIO
@@ -108,9 +107,7 @@ public class DashBoard extends FullscreenController implements View.OnClickListe
     private AnonTView ivMood;
     private boolean startedOnce = false;
     private ImageView gender;
-    private FirebaseUser user;
     private FirebaseAuth mAuth;
-    private User currentUser;
     private FirebaseDatabase database;
     private DatabaseReference dbRef;
     private Switch genderSwitch;
@@ -123,6 +120,8 @@ public class DashBoard extends FullscreenController implements View.OnClickListe
     private AnonTView commentText;
     private AnonTView moodHint;
     private RecyclerView moodView;
+    private AnonTView tvGif;
+    private ImageView gifLabel;
     private BroadcastReceiver geofenceChangeReceiver = new BroadcastReceiver() {
 
         @Override
@@ -222,6 +221,17 @@ public class DashBoard extends FullscreenController implements View.OnClickListe
             }
         }
     };
+
+    private void updateSelectGifButton() {
+        if (!TextUtils.isEmpty(gifFileName)) {
+            gifLabel.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.ic_gif_loaded));
+            tvGif.setVisibility(View.VISIBLE);
+        } else {
+            gifLabel.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.ic_gif));
+            tvGif.setVisibility(View.INVISIBLE);
+        }
+
+    }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
@@ -342,34 +352,11 @@ public class DashBoard extends FullscreenController implements View.OnClickListe
 
     @Override
     protected int init() {
+        mAuth = FirebaseAuth.getInstance();
+        user = mAuth.getCurrentUser();
         return R.layout.activity_board;
     }
 
-    private void deleteUser() {
-        user.delete().addOnCompleteListener(new OnCompleteListener<Void>() {
-            @Override
-            public void onComplete(@NonNull Task<Void> task) {
-                if (task.isSuccessful()) {
-
-                    AnonApp.get().getSharedPreferences().edit().remove(Helper.PASSWORD).remove(Helper.EMAIL).remove(Helper.UUID).apply();
-
-
-                    Snackbar snackbar = Helper.getSnackBar(getString(R.string.user_deleted), DashBoard.this);
-                    snackbar.addCallback(new Snackbar.Callback() {
-                        @Override
-                        public void onDismissed(Snackbar transientBottomBar, int event) {
-                            Intent intent = new Intent(DashBoard.this, Login.class);
-                            intent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                            startActivity(intent);
-                            Helper.downToUpTransition(DashBoard.this);
-                            super.onDismissed(transientBottomBar, event);
-
-                        }
-                    }).show();
-                }
-            }
-        });
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -378,39 +365,9 @@ public class DashBoard extends FullscreenController implements View.OnClickListe
 
 
         inputMethodManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-        mAuth = FirebaseAuth.getInstance();
-        user = mAuth.getCurrentUser();
         database = FirebaseDatabase.getInstance();
         dbRef = database.getReference("users");
         mStorageRef = FirebaseStorage.getInstance().getReference();
-
-        dbRef.child(user.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                currentUser = dataSnapshot.getValue(User.class);
-                if (currentUser == null) {
-                    AuthCredential credential = Helper.getAuthCredential();
-
-                    user.reauthenticate(credential)
-                            .addOnCompleteListener(new OnCompleteListener<Void>() {
-                                @Override
-                                public void onComplete(@NonNull Task<Void> task) {
-                                    Log.d(Helper.TAG, "User re-authenticated.");
-                                    deleteUser();
-                                }
-                            });
-
-                    return;
-                }
-                setPostAuthUI();
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
-
 
         setViews();
 
@@ -579,6 +536,9 @@ public class DashBoard extends FullscreenController implements View.OnClickListe
                 startActivity(intent);
                 Helper.downToUpTransition(DashBoard.this);
                 break;
+            case R.id.commentSwitch:
+                commentText.setText(commentSwitch.isChecked() ? R.string.comments_on : R.string.comments_off);
+                break;
 
         }
     }
@@ -590,7 +550,7 @@ public class DashBoard extends FullscreenController implements View.OnClickListe
         }
 
         ivPost.setEnabled(false);
-        showProgressSnowboard(R.string.loading);
+        showProgressSnowboard(R.string.loading, R.drawable.cat);
         ivPost.setImageDrawable(ContextCompat.getDrawable(DashBoard.this, R.mipmap.ic_lock));
 
         SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy hh:mm aa", Locale.US);
@@ -739,6 +699,7 @@ public class DashBoard extends FullscreenController implements View.OnClickListe
         ttlText = findViewById(R.id.ttlHint);
         commentText = findViewById(R.id.commentHint);
         commentSwitch = findViewById(R.id.commentSwitch);
+        commentSwitch.setOnClickListener(this);
         moodHint = findViewById(R.id.moodHint);
         moodView = findViewById(R.id.moodView);
         LinearLayoutManager layoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
@@ -746,6 +707,9 @@ public class DashBoard extends FullscreenController implements View.OnClickListe
         moodView.setAdapter(new MoodsAdapter(DashBoard.this));
         SnapHelper snapHelper = new PagerSnapHelper();
         snapHelper.attachToRecyclerView(moodView);
+
+        tvGif = findViewById(R.id.tvGif);
+        gifLabel = findViewById(R.id.gif);
 
 
         moodView.addOnScrollListener(new RecyclerView.OnScrollListener() {
@@ -937,6 +901,11 @@ public class DashBoard extends FullscreenController implements View.OnClickListe
         commonDialog.dismiss();
         genderSwitch.setChecked(false);
         genderHint.setText(R.string.gender_hint_disabled);
+    }
+
+    @Override
+    public void onAuthDone() {
+        setPostAuthUI();
     }
 
     private enum RecordState {

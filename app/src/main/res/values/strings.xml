@@ -118,6 +118,10 @@
     <string name="rec_on">Recording</string>
     <string name="cancel">Cancel</string>
     <string name="speaker">🔈</string>
+    <string name="gif">🎞</string>
+    <string name="load_auth">Loading…</string>
+    <string name="gif_welcome_title">Choose a Gif</string>
+    <string name="gif_welcome_body">Scroll through; and tap a Gif if you want to include it in your post.</string>
 
 
 </resources>

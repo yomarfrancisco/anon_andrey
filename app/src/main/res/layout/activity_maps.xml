@@ -68,7 +68,7 @@
         android:visibility="gone" />
 
 
-    <com.anontemp.android.view.AnonTVTroublemaker
+    <com.anontemp.android.view.AnonTVSpecial
         android:id="@+id/tvLock"
         android:layout_width="300dp"
         android:layout_height="wrap_content"

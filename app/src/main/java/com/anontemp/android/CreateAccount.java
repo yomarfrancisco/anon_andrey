@@ -172,13 +172,13 @@ public class CreateAccount extends FullscreenController implements View.OnClickL
                                 break;
                         }
 
-                        final FirebaseUser firebaseUser = task.getResult().getUser();
+                        user = task.getResult().getUser();
 
 
                         //TODO region identifier
-                        User user = new User(username, email, firebaseUser.getUid(), "Wits");
-                        DatabaseReference userRef = dbRef.child(firebaseUser.getUid());
-                        userRef.setValue(user);
+                        currentUser = new User(username, email, user.getUid(), "Wits");
+                        DatabaseReference userRef = dbRef.child(user.getUid());
+                        userRef.setValue(currentUser);
 
 
                         mAuth.signInWithEmailAndPassword(email, password)
@@ -196,7 +196,7 @@ public class CreateAccount extends FullscreenController implements View.OnClickL
                                         }
 
                                         Pair<String, String> pair = new Pair<>(email, password);
-                                        Helper.setUuid(firebaseUser.getUid());
+                                        Helper.setUuid(user.getUid());
                                         Helper.setCredentials(pair);
 
 

@@ -2,16 +2,21 @@ package com.anontemp.android;
 
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Typeface;
 import android.graphics.drawable.AnimationDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.VisibleForTesting;
+import android.support.design.widget.Snackbar;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageView;
@@ -19,6 +24,18 @@ import android.widget.TextView;
 
 import com.anontemp.android.misc.AnonDialog;
 import com.anontemp.android.misc.FontCache;
+import com.anontemp.android.misc.Helper;
+import com.anontemp.android.model.User;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthCredential;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import cn.nekocode.emojix.Emojix;
 
@@ -27,11 +44,81 @@ import cn.nekocode.emojix.Emojix;
  */
 
 public abstract class FullscreenController extends AppCompatActivity {
+
     public static final String LOG_TAG = "ANON";
+    protected static User currentUser;
+    protected static FirebaseUser user;
     @VisibleForTesting
     public ProgressDialog mProgressDialog;
     protected AnonDialog commonDialog;
     private View decorView;
+
+    public void onAuthDone() {
+
+    }
+
+    private void getUser() {
+        if (currentUser == null) {
+            user = FirebaseAuth.getInstance().getCurrentUser();
+            if (user == null)
+                return;
+            DatabaseReference users = FirebaseDatabase.getInstance().getReference("users");
+            users.child(user.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    currentUser = dataSnapshot.getValue(User.class);
+                    if (currentUser == null) {
+                        AuthCredential credential = Helper.getAuthCredential();
+
+                        user.reauthenticate(credential)
+                                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<Void> task) {
+                                        Log.d(Helper.TAG, "User re-authenticated.");
+                                        deleteUser();
+                                    }
+                                });
+
+                        return;
+                    }
+                    onAuthDone();
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+
+                }
+            });
+
+        }
+    }
+
+    private void deleteUser() {
+        user.delete().addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if (task.isSuccessful()) {
+
+                    AnonApp.get().getSharedPreferences().edit().remove(Helper.PASSWORD).remove(Helper.EMAIL).remove(Helper.UUID).apply();
+                    user = null;
+
+
+                    Snackbar snackbar = Helper.getSnackBar(getString(R.string.user_deleted), FullscreenController.this);
+                    snackbar.addCallback(new Snackbar.Callback() {
+                        @Override
+                        public void onDismissed(Snackbar transientBottomBar, int event) {
+                            Intent intent = new Intent(FullscreenController.this, Login.class);
+                            intent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                            startActivity(intent);
+                            Helper.downToUpTransition(FullscreenController.this);
+                            super.onDismissed(transientBottomBar, event);
+
+                        }
+                    }).show();
+                }
+            }
+        });
+    }
 
     protected abstract int init();
 
@@ -44,6 +131,7 @@ public abstract class FullscreenController extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(init());
+        getUser();
         decorView = getWindow().getDecorView();
         hideSystemUI();
         decorView.setOnSystemUiVisibilityChangeListener
@@ -84,15 +172,24 @@ public abstract class FullscreenController extends AppCompatActivity {
         }
     }
 
+    public void showProgressSnowboard(int messageRes, int gif) {
+        showProgressSnowboard(getString(messageRes), gif);
+    }
+
     public void showProgressSnowboard(int messageRes) {
-        showProgressSnowboard(getString(messageRes));
+        showProgressSnowboard(getString(messageRes), R.drawable.dope);
     }
 
     public void showProgressSnowboard(CharSequence sequence) {
         showProgressSnowboard(sequence.toString());
     }
 
+
     public void showProgressSnowboard(String message) {
+        showProgressSnowboard(message, R.drawable.dope);
+    }
+
+    public void showProgressSnowboard(String message, int gif) {
         if (mProgressDialog == null) {
             mProgressDialog = new ProgressDialog(this, R.style.MyTheme);
             mProgressDialog.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
@@ -106,6 +203,8 @@ public abstract class FullscreenController extends AppCompatActivity {
         mProgressDialog.setContentView(R.layout.progress_bar);
 
         final ImageView img_loading_frame = mProgressDialog.findViewById(R.id.iv_frame_loading);
+
+        img_loading_frame.setBackground(ContextCompat.getDrawable(this, gif));
         final AnimationDrawable frameAnimation = (AnimationDrawable) img_loading_frame.getBackground();
         img_loading_frame.post(new Runnable() {
             @Override

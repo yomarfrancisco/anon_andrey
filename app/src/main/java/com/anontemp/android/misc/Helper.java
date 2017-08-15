@@ -38,6 +38,7 @@ public class Helper {
     public static final String ARG_TEMP_FLAG = "tempFalg";
     public static final String EMAIL = "email";
     public static final String PASSWORD = "password";
+    public static final String WELCOME = "welcome";
 
     public static void downToUpTransition(Activity activity) {
         activity.overridePendingTransition(R.anim.slide_up_dialog, R.anim.no_change);
@@ -70,6 +71,14 @@ public class Helper {
     public static void setUuid(String uuid) {
         AnonApp.get().getSharedPreferences().edit().putString(UUID, uuid).apply();
 
+    }
+
+    public static boolean isAlreadyWelcome() {
+        return AnonApp.get().getDefaultPrefs().getBoolean(WELCOME, false);
+    }
+
+    public static void setWelcome() {
+        AnonApp.get().getDefaultPrefs().edit().putBoolean(WELCOME, true).apply();
     }
 
     public static Pair<String, String> getCredentials() {

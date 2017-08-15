@@ -10,6 +10,7 @@ ext {
     ext.versionMinor = 0
     ext.versionPatch = git.log(includes: ['HEAD']).size()
     supportLibVersion = '26.0.1'
+    playServicesVersion = '11.0.4'
 }
 
 def keystorePropertiesFile = rootProject.file("keystore.properties")
@@ -89,20 +90,23 @@ dependencies {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
     compile "com.android.support:appcompat-v7:$supportLibVersion"
+    compile "com.android.support:palette-v7:$supportLibVersion"
     compile "com.android.support:support-v4:$supportLibVersion"
     compile "com.android.support:design:$supportLibVersion"
 
-    compile 'com.google.android.gms:play-services-maps:11.0.2'
-    compile 'com.google.android.gms:play-services-location:11.0.2'
+    compile "com.google.android.gms:play-services-maps:$playServicesVersion"
+    compile "com.google.android.gms:play-services-location:$playServicesVersion"
     compile 'com.android.support:multidex:1.0.1'
-    compile 'com.google.firebase:firebase-auth:11.0.2'
+    compile "com.google.firebase:firebase-auth:$playServicesVersion"
     compile 'com.android.support.constraint:constraint-layout:1.0.2'
-    compile 'com.google.firebase:firebase-database:11.0.2'
+    compile "com.google.firebase:firebase-database:$playServicesVersion"
     compile 'com.scottyab:secure-preferences-lib:0.1.4'
     compile 'org.apache.commons:commons-text:1.1'
     compile 'com.github.nekocode:Emojix:1.2'
-    compile 'com.google.firebase:firebase-storage:11.0.2'
+    compile "com.google.firebase:firebase-storage:$playServicesVersion"
     testCompile 'junit:junit:4.12'
+    compile 'com.github.bumptech.glide:glide:3.7.0'
+    compile 'com.firebaseui:firebase-ui-storage:2.2.0'
 }
 
 
