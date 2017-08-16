@@ -75,6 +75,9 @@ public class DashBoard extends FullscreenController implements View.OnClickListe
     public static final int EDIT = 0;
     public static final int POST = 1;
     public static final int TWEET_LENGHT = 140;
+    public static final int GIF_REQUEST_CODE = 30;
+    public static final String GIF_ADDED = "gifAdded";
+    public static final String NO_GIF = "noGif";
     private static final int REQUEST_RECORD_AUDIO_PERMISSION = 200;
     private static AnimationSet as;
     private static String mFileName = null;
@@ -521,7 +524,7 @@ public class DashBoard extends FullscreenController implements View.OnClickListe
                 Helper.downToUpTransition(DashBoard.this);
                 break;
             case R.id.genderSwitch:
-                if (currentUser.getUsername().equals("?")) {
+                if (isTempUser()) {
                     commonDialog = AnonDialog.newInstance(0, R.string.create_account_dialog, R.string.yes, R.string.no);
                     commonDialog.show(getSupportFragmentManager(), null);
 
@@ -541,6 +544,10 @@ public class DashBoard extends FullscreenController implements View.OnClickListe
                 break;
 
         }
+    }
+
+    private boolean isTempUser() {
+        return currentUser.getEmail().equals(getString(R.string.temp_mail));
     }
 
     private void saveAndPost() {
@@ -709,7 +716,6 @@ public class DashBoard extends FullscreenController implements View.OnClickListe
         snapHelper.attachToRecyclerView(moodView);
 
         tvGif = findViewById(R.id.tvGif);
-        gifLabel = findViewById(R.id.gif);
 
 
         moodView.addOnScrollListener(new RecyclerView.OnScrollListener() {
@@ -799,19 +805,18 @@ public class DashBoard extends FullscreenController implements View.OnClickListe
     }
 
     private void setPostAuthUI() {
-        if (currentUser.getUsername().equals("?")) {
+        if (isTempUser()) {
             findViewById(R.id.create_account).setVisibility(View.VISIBLE);
             findViewById(R.id.separator2).setVisibility(View.VISIBLE);
             return;
+        } else {
+            genderSwitch.setChecked(true);
+            genderHint.setTextColor(Color.BLACK);
+            genderHint.setText(R.string.gender_hint_on);
+            setGenderImage();
         }
 
-
         genderSwitch.setEnabled(true);
-        genderSwitch.setChecked(true);
-        genderHint.setTextColor(Color.BLACK);
-        genderHint.setText(R.string.gender_hint_on);
-        setGenderImage();
-
 
     }
 
@@ -881,6 +886,25 @@ public class DashBoard extends FullscreenController implements View.OnClickListe
             ivMic = snackbarView.findViewById(R.id.mic);
             ivMic.setOnTouchListener(toucher);
 
+            gifLabel = snackbarView.findViewById(R.id.gif);
+            gifLabel.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    if (NO_GIF.equals(view.getTag())) {
+                        Intent intent = new Intent(DashBoard.this, GifActivity.class);
+                        startActivityForResult(intent, GIF_REQUEST_CODE);
+                    } else {
+                        gifLabel.setImageDrawable(ContextCompat.getDrawable(DashBoard.this, R.drawable.ic_gif));
+                        gifLabel.setTag(NO_GIF);
+                        gifFileName = null;
+                        tvGif.setVisibility(View.INVISIBLE);
+                    }
+
+                }
+            });
+            gifLabel.setTag(NO_GIF);
+
+
             snackbar.show();
         } else if (snackbar != null && !snackbar.isShowing()) {
             snackbar.show();
@@ -908,8 +932,32 @@ public class DashBoard extends FullscreenController implements View.OnClickListe
         setPostAuthUI();
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        switch (requestCode) {
+            case GIF_REQUEST_CODE:
+                switch (resultCode) {
+                    case RESULT_OK:
+                        gifLabel.setImageDrawable(ContextCompat.getDrawable(DashBoard.this, R.drawable.ic_gif_loaded));
+                        gifLabel.setTag(GIF_ADDED);
+                        tvGif.setVisibility(View.VISIBLE);
+                        gifFileName = data.getStringExtra(GifActivity.GIF_URI);
+                        break;
+                    case RESULT_CANCELED:
+                        gifLabel.setTag(NO_GIF);
+                        break;
+                }
+
+
+                break;
+        }
+
+
+    }
+
+
     private enum RecordState {
         NONE, ERROR, PREPARED, RECORDING, COMPLETED
     }
-
 }

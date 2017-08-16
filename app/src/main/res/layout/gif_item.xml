@@ -1,10 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="400dp"
+    android:layout_width="match_parent"
     android:layout_height="400dp"
     android:layout_gravity="center_horizontal"
     android:background="@drawable/ic_gifbox"
+
     android:orientation="vertical">
+
+    <!--<android.support.v4.widget.ContentLoadingProgressBar-->
+    <!--android:id="@+id/progress"-->
+    <!--android:layout_width="match_parent"-->
+    <!--android:layout_height="match_parent"-->
+    <!--android:layout_gravity="center"-->
+    <!--android:scaleY="0.2"-->
+    <!--android:scaleX="0.2"-->
+    <!--style="?android:attr/progressBarStyleLarge"/>-->
 
     <ImageView
         android:id="@+id/gifView"

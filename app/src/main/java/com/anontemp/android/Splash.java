@@ -6,6 +6,10 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.ActivityOptionsCompat;
 
+import com.crashlytics.android.Crashlytics;
+
+import io.fabric.sdk.android.Fabric;
+
 public class Splash extends FullscreenController {
 
     public static final int SPLASH_TIME_OUT = 3000;
@@ -19,6 +23,8 @@ public class Splash extends FullscreenController {
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
+
+        Fabric.with(this, new Crashlytics());
 
 
         new Handler().postDelayed(new Runnable() {

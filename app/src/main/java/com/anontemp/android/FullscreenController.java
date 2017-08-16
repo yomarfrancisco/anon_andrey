@@ -90,6 +90,13 @@ public abstract class FullscreenController extends AppCompatActivity {
                 }
             });
 
+        } else {
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    onAuthDone();
+                }
+            }, 3000);
         }
     }
 

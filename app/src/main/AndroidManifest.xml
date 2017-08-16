@@ -5,6 +5,7 @@
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.INTERNET" />
 
     <application
         android:name=".AnonApp"
@@ -66,6 +67,9 @@
             android:exported="false" />
 
         <activity android:name=".GifActivity"></activity>
+        <meta-data
+            android:name="io.fabric.ApiKey"
+            android:value="c5228c757f88d2bb928eddb76d7728a6c984fa8b" />
     </application>
 
 </manifest>
