@@ -36,8 +36,27 @@ public class Tweet implements Comparable<Tweet> {
     private Long _id;
     private String visibleDate;
     private Long realDate;
+    private String tweetGif;
+    private Double tweetRecord;
+
 
     public Tweet() {
+    }
+
+    public Double getTweetRecord() {
+        return tweetRecord;
+    }
+
+    public void setTweetRecord(Double tweetRecord) {
+        this.tweetRecord = tweetRecord;
+    }
+
+    public String getTweetGif() {
+        return tweetGif;
+    }
+
+    public void setTweetGif(String tweetGif) {
+        this.tweetGif = tweetGif == null ? "" : tweetGif;
     }
 
     public Long getRealDate() {
@@ -192,6 +211,8 @@ public class Tweet implements Comparable<Tweet> {
         result.put("regionid", regionId);
         result.put("regionname", regionName);
         result.put("location", location);
+        result.put("tweetGif", tweetGif);
+        result.put("tweetRecord", tweetRecord);
         return result;
 
     }

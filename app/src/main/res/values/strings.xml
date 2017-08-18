@@ -122,6 +122,12 @@
     <string name="load_auth">Loading…</string>
     <string name="gif_welcome_title">Choose a Gif</string>
     <string name="gif_welcome_body">Scroll through; and tap a Gif if you want to include it in your post.</string>
+    <string name="warn_words_body">What\'s up with the choice of words? Your post could be reported.</string>
+    <string name="warn_words_title">Go easy now…</string>
+    <string name="dang_words_body">Certain words just don\'t go down well with the Mob. Edit your message and try again.</string>
+    <string name="dang_words_title">Whoa!</string>
+    <string name="thumb_up">👍</string>
+    <string name="ok_caps">OK</string>
 
 
 </resources>

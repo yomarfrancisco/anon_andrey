@@ -26,6 +26,7 @@ import com.anontemp.android.misc.AnonDialog;
 import com.anontemp.android.misc.FontCache;
 import com.anontemp.android.misc.Helper;
 import com.anontemp.android.model.User;
+import com.anontemp.android.view.AnonTView;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthCredential;
@@ -239,9 +240,9 @@ public abstract class FullscreenController extends AppCompatActivity {
         hideProgressDialog();
     }
 
-    public AlertDialog.Builder getAlertBuilder(Object message, Object title) {
+    public AlertDialog.Builder getAlertBuilder(Object message, Object title, Object button) {
         View d = LayoutInflater.from(this).inflate(R.layout.c_alert, null);
-        AlertDialog.Builder build = new AlertDialog.Builder(this);
+        final AlertDialog.Builder build = new AlertDialog.Builder(this);
         build.setView(d);
         if (title != null) {
             TextView tvTitle = new TextView(this);
@@ -253,27 +254,54 @@ public abstract class FullscreenController extends AppCompatActivity {
             if (title instanceof String)
                 tvTitle.setText((String) title);
         }
-        TextView tv = d.findViewById(R.id.text);
+        AnonTView tv = d.findViewById(R.id.text);
         Typeface thin = FontCache.getTypeface("HelveticaNeue-Thin.otf", this);
         tv.setTypeface(thin);
         if (message instanceof Integer)
             tv.setText((Integer) message);
         if (message instanceof String)
             tv.setText((String) message);
+        AnonTView ivOk = d.findViewById(R.id.ivOk);
+        ivOk.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                onAlertClick();
+            }
+        });
+        if (button != null) {
+
+            if (button instanceof Integer)
+                ivOk.setText((Integer) button);
+            if (button instanceof String)
+                ivOk.setText((String) button);
+        }
 
         return build;
 
     }
 
+    public void onAlertClick() {
 
-    public void showAlert(Object message, Object title) {
-        final AlertDialog dialog = getAlertBuilder(message, title).setCancelable(true).create();
-        dialog.show();
     }
 
 
-    public void showAlert(Object message) {
-        showAlert(message, null);
+    public AlertDialog showAlert(Object message, Object title) {
+        AlertDialog dialog = showAlert(message, title, null);
+        dialog.show();
+        return dialog;
+    }
+
+
+    public AlertDialog showAlert(Object message) {
+        AlertDialog dialog = showAlert(message, null);
+        dialog.show();
+        return dialog;
+    }
+
+    public AlertDialog showAlert(Object message, Object title, Object button) {
+        AlertDialog dialog = getAlertBuilder(message, title, button).setCancelable(true).create();
+        dialog.show();
+        return dialog;
     }
 
 

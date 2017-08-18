@@ -1,17 +1,22 @@
 package com.anontemp.android;
 
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
+import android.location.Location;
 import android.media.MediaPlayer;
 import android.media.MediaRecorder;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.IBinder;
 import android.os.SystemClock;
 import android.support.annotation.NonNull;
 import android.support.constraint.ConstraintLayout;
@@ -24,7 +29,6 @@ import android.support.v7.widget.PagerSnapHelper;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SnapHelper;
 import android.text.Editable;
-import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -41,15 +45,19 @@ import android.widget.SeekBar;
 import android.widget.Switch;
 import android.widget.TextView;
 
+import com.anontemp.android.misc.AnonAlert;
 import com.anontemp.android.misc.AnonDialog;
 import com.anontemp.android.misc.DialogListener;
 import com.anontemp.android.misc.Helper;
+import com.anontemp.android.misc.LocationReceiver;
+import com.anontemp.android.misc.OnLocationReceivedListener;
 import com.anontemp.android.misc.OnSwipeTouchListener;
 import com.anontemp.android.model.Region;
 import com.anontemp.android.model.Tweet;
 import com.anontemp.android.view.AnonSnackbar;
 import com.anontemp.android.view.AnonTView;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
@@ -59,7 +67,9 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 
+import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -68,8 +78,10 @@ import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
 
+import static org.apache.commons.text.StringEscapeUtils.unescapeJava;
 
-public class DashBoard extends FullscreenController implements View.OnClickListener, DialogListener {
+
+public class DashBoard extends FullscreenController implements View.OnClickListener, DialogListener, OnLocationReceivedListener {
 
 
     public static final int EDIT = 0;
@@ -224,17 +236,24 @@ public class DashBoard extends FullscreenController implements View.OnClickListe
             }
         }
     };
+    private AnonAlert alert;
+    private LocationService locationService;
+    private boolean mIsBound;
+    private String moodText = unescapeJava("\uD83D\uDE36");
+    private Location location;
+    private ServiceConnection locationConnection = new ServiceConnection() {
+        public void onServiceConnected(ComponentName className, IBinder service) {
+            locationService = ((LocationService.LocationBinder) service).getService();
+            location = locationService.getLocation();
 
-    private void updateSelectGifButton() {
-        if (!TextUtils.isEmpty(gifFileName)) {
-            gifLabel.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.ic_gif_loaded));
-            tvGif.setVisibility(View.VISIBLE);
-        } else {
-            gifLabel.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.ic_gif));
-            tvGif.setVisibility(View.INVISIBLE);
         }
 
-    }
+        public void onServiceDisconnected(ComponentName className) {
+            locationService = null;
+        }
+    };
+    private LocationReceiver locationReceiver = new LocationReceiver(this);
+    private Double tweetRecord = null;
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
@@ -315,6 +334,7 @@ public class DashBoard extends FullscreenController implements View.OnClickListe
             mRecorder = null;
             removeRecord();
             customHandler.removeCallbacks(updateTimerThread);
+            timeInMilliseconds = 0;
             return;
         }
         mRecorder.release();
@@ -331,6 +351,20 @@ public class DashBoard extends FullscreenController implements View.OnClickListe
         recordInfo.setText(R.string.cancel);
 
 
+    }
+
+    void doBindService() {
+        bindService(new Intent(DashBoard.this,
+                LocationService.class), locationConnection, Context.BIND_AUTO_CREATE);
+        mIsBound = true;
+    }
+
+    void doUnbindService() {
+        if (mIsBound) {
+            // Detach our existing connection.
+            unbindService(locationConnection);
+            mIsBound = false;
+        }
     }
 
     @Override
@@ -360,7 +394,6 @@ public class DashBoard extends FullscreenController implements View.OnClickListe
         return R.layout.activity_board;
     }
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -373,6 +406,8 @@ public class DashBoard extends FullscreenController implements View.OnClickListe
         mStorageRef = FirebaseStorage.getInstance().getReference();
 
         setViews();
+
+        doBindService();
 
 
         database.getReference("Regions").addListenerForSingleValueEvent(new ValueEventListener() {
@@ -448,6 +483,8 @@ public class DashBoard extends FullscreenController implements View.OnClickListe
         intentFilter.addAction(GeofenceTransitionsIntentService.ACTION_EXIT);
         LocalBroadcastManager.getInstance(this).registerReceiver(geofenceChangeReceiver,
                 intentFilter);
+        LocalBroadcastManager.getInstance(this).registerReceiver(locationReceiver,
+                new IntentFilter(LocationService.ARG_LOCATION_ACTION));
         if (ivPost != null) {
             ivPost.setImageDrawable(ContextCompat.getDrawable(DashBoard.this, R.mipmap.ic_pencil));
             ivPost.setEnabled(true);
@@ -460,6 +497,7 @@ public class DashBoard extends FullscreenController implements View.OnClickListe
     protected void onPause() {
         super.onPause();
         LocalBroadcastManager.getInstance(this).unregisterReceiver(geofenceChangeReceiver);
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(locationReceiver);
     }
 
     protected void onShowKeyboard() {
@@ -490,6 +528,8 @@ public class DashBoard extends FullscreenController implements View.OnClickListe
         if (keyboardListenersAttached) {
             rootLayout.getViewTreeObserver().removeGlobalOnLayoutListener(keyboardLayoutListener);
         }
+
+        doUnbindService();
     }
 
     @Override
@@ -546,16 +586,20 @@ public class DashBoard extends FullscreenController implements View.OnClickListe
         }
     }
 
+    private int getCountdownSeconds() {
+        int timeLeft = ttlSlider.getProgress();
+        if (timeLeft < 2) {
+            return 30 * 60;
+        } else {
+            return timeLeft * 30 * 60;
+        }
+    }
+
     private boolean isTempUser() {
         return currentUser.getEmail().equals(getString(R.string.temp_mail));
     }
 
-    private void saveAndPost() {
-
-        if (!validate()) {
-            return;
-        }
-
+    private void post() {
         ivPost.setEnabled(false);
         showProgressSnowboard(R.string.loading, R.drawable.cat);
         ivPost.setImageDrawable(ContextCompat.getDrawable(DashBoard.this, R.mipmap.ic_lock));
@@ -565,35 +609,72 @@ public class DashBoard extends FullscreenController implements View.OnClickListe
 
 
         Tweet tweet = new Tweet();
-        String regionText = tvLocation.getText().toString();
+        String regionText = tvLocation.getText().toString().trim();
         tweet.setRegionName(regionText);
         tweet.setRegionId(getRegionId(regionText));
-//        tweet.setMoodText(Constants.MOODS_IMAGE.get((Integer) ivMood.getTag()));
-        tweet.setTweetId(UUID.randomUUID().toString());
+        tweet.setMoodText(moodText);
         tweet.setUserId(currentUser.getUid());
         tweet.setUsername(genderSwitch.isChecked() ? currentUser.getUsername() : "?");
         tweet.setFirstName(currentUser.getFirstName());
         tweet.setTweetText(boardInput.getText().toString());
         tweet.setTweetVotes(0);
+        tweet.setCountDown(getCountdownSeconds());
         tweet.setDate(dateString);
-        tweet.setCountDown(1800);
-        tweet.setLocation("-26.1829922153333,28.1404067522872");
-        tweet.setAllowComment(false);
+        tweet.setLocation(location.getLatitude() + "," + location.getLongitude());
+        tweet.setAllowComment(commentSwitch.isChecked());
+        tweet.setTweetGif(gifFileName);
+        tweet.setTweetRecord((double) timeInMilliseconds / (double) 1000);
 
-        DatabaseReference tweetRef = database.getReference("Tweets").push();
+
+        final DatabaseReference tweetRef = database.getReference("Tweets").push();
+        tweet.setTweetId(tweetRef.getKey());
         tweetRef.setValue(tweet.toMap(), new DatabaseReference.CompletionListener() {
             @Override
             public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
-                hideProgressDialog();
-                if (databaseError == null) {
-                    Intent intent = new Intent(DashBoard.this, MessageBoard.class);
-                    startActivity(intent);
-                    Helper.downToUpTransition(DashBoard.this);
 
+                if (databaseError == null) {
+                    if (timeInMilliseconds > 0) {
+                        String recFileName = tweetRef.getKey() + ".m4a";
+                        uploadAudio(recFileName);
+
+
+                    } else {
+                        goToMessageBoard();
+                    }
+
+
+                } else {
+                    hideProgressDialog();
                 }
             }
         });
+    }
 
+    private void uploadAudio(String name) {
+
+        StorageReference recRef = FirebaseStorage.getInstance().getReference().child("records/" + name);
+        recRef.putFile(Uri.fromFile(new File(mFileName))).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+            @Override
+            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                goToMessageBoard();
+            }
+        });
+    }
+
+    private void goToMessageBoard() {
+        hideProgressDialog();
+        Intent intent = new Intent(DashBoard.this, MessageBoard.class);
+        startActivity(intent);
+        Helper.downToUpTransition(DashBoard.this);
+    }
+
+    private void saveAndPost() {
+
+        if (!validate()) {
+            return;
+        }
+
+        checkWarns();
 
     }
 
@@ -625,7 +706,59 @@ public class DashBoard extends FullscreenController implements View.OnClickListe
             Helper.showSnackbar(getString(R.string.message_long), DashBoard.this);
             return false;
         }
+
+        if (boardInput.getText().length() == 0) {
+            inputMethodManager.showSoftInput(boardInput, InputMethodManager.SHOW_IMPLICIT);
+            return false;
+        }
+
+
         return true;
+    }
+
+    private void checkWarns() {
+        String text = boardInput.getText().toString();
+        boolean found = false;
+        for (String word : Constants.WARN_WORDS)
+            if (text.toLowerCase().indexOf(word) > -1) {
+                found = true;
+                break;
+            }
+        if (found) {
+            alert = AnonAlert.newInstance(R.string.warn_words_title, R.string.warn_words_body, R.string.ok_caps);
+            alert.setOnButtonListener(new AnonAlert.AlertListener() {
+                @Override
+                public void onButton() {
+                    alert.dismiss();
+                }
+            });
+            alert.show(getSupportFragmentManager(), null);
+        } else {
+            checkDangs();
+        }
+    }
+
+    private void checkDangs() {
+        String text = boardInput.getText().toString();
+        boolean found = false;
+        for (String word : Constants.DANGEROUS_WORDS)
+            if (text.toLowerCase().indexOf(word) > -1) {
+                found = true;
+                break;
+            }
+        if (found) {
+            alert = AnonAlert.newInstance(R.string.dang_words_title, R.string.dang_words_body, R.string.ok_caps);
+            alert.setOnButtonListener(new AnonAlert.AlertListener() {
+                @Override
+                public void onButton() {
+                    alert.dismiss();
+                }
+            });
+            alert.show(getSupportFragmentManager(), null);
+        } else {
+            post();
+        }
+
     }
 
     private void animatePost() {
@@ -730,6 +863,7 @@ public class DashBoard extends FullscreenController implements View.OnClickListe
                         String text = ((MoodsAdapter.ViewHolder) v).text.getText().toString();
                         moodHint.startAnimation(as);
                         moodHint.setText(text + " selected as a mood");
+                        moodText = text;
                     }
 
                     if (!onceScrolled) {
@@ -848,6 +982,7 @@ public class DashBoard extends FullscreenController implements View.OnClickListe
         recordInfo.setVisibility(View.INVISIBLE);
         tvSound.setVisibility(View.INVISIBLE);
         recordState = RecordState.PREPARED;
+        timeInMilliseconds = 0;
     }
 
     private void showSnackbar() {
@@ -954,6 +1089,11 @@ public class DashBoard extends FullscreenController implements View.OnClickListe
         }
 
 
+    }
+
+    @Override
+    public void onReceive(Location location) {
+        this.location = location;
     }
 
 

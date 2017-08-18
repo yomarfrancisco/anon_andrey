@@ -3,19 +3,20 @@ package com.anontemp.android;
 import android.app.Dialog;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.graphics.Typeface;
 import android.graphics.drawable.AnimationDrawable;
 import android.location.Location;
-import android.location.LocationListener;
-import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.IBinder;
 import android.os.Looper;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
@@ -47,6 +48,8 @@ import com.anontemp.android.misc.FontCache;
 import com.anontemp.android.misc.GeoRegion;
 import com.anontemp.android.misc.GeofenceErrorMessages;
 import com.anontemp.android.misc.Helper;
+import com.anontemp.android.misc.LocationReceiver;
+import com.anontemp.android.misc.OnLocationReceivedListener;
 import com.anontemp.android.view.AnonTEditText;
 import com.google.android.gms.location.Geofence;
 import com.google.android.gms.location.GeofencingClient;
@@ -70,13 +73,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class MapsActivity extends FragmentActivity implements OnMapReadyCallback, LocationListener, OnCompleteListener<Void>, View.OnClickListener {
+public class MapsActivity extends FragmentActivity implements OnMapReadyCallback, OnCompleteListener<Void>, View.OnClickListener, OnLocationReceivedListener {
 
     public static final LatLng CENTER = new LatLng(-26.184760, 28.028717);
     public static final String REGION_NAME = "regionName";
     public static final String PASS = "fuckmtv";
     private static final int REQUEST_PERMISSIONS_REQUEST_CODE = 3;
-    LocationManager mLocationManager;
     Location mLocation;
     Marker lastOpenned = null;
     GodModeDialog dialog;
@@ -115,8 +117,23 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         }
     };
+
     private FirebaseUser user;
     private FirebaseAuth mAuth;
+    private LocationService locationService;
+
+    private ServiceConnection locationConnection = new ServiceConnection() {
+        public void onServiceConnected(ComponentName className, IBinder service) {
+            locationService = ((LocationService.LocationBinder) service).getService();
+
+        }
+
+        public void onServiceDisconnected(ComponentName className) {
+            locationService = null;
+        }
+    };
+    private boolean mIsBound;
+    private LocationReceiver locationReceiver = new LocationReceiver(this);
 
     private void showAlertDialog() {
 
@@ -124,6 +141,20 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         dialog = new GodModeDialog();
         dialog.show(getSupportFragmentManager(), null);
 
+    }
+
+    void doBindService() {
+        bindService(new Intent(MapsActivity.this,
+                LocationService.class), locationConnection, Context.BIND_AUTO_CREATE);
+        mIsBound = true;
+    }
+
+    void doUnbindService() {
+        if (mIsBound) {
+            // Detach our existing connection.
+            unbindService(locationConnection);
+            mIsBound = false;
+        }
     }
 
     @Override
@@ -136,7 +167,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         if (!checkPermissions()) {
             requestPermissions();
         } else {
-            getMyLocation();
+            doBindService();
         }
         mGeofenceList = new ArrayList<>();
         mGeofencePendingIntent = null;
@@ -248,6 +279,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         super.onResume();
         LocalBroadcastManager.getInstance(this).registerReceiver(geofenceChangeReceiver,
                 new IntentFilter(GeofenceTransitionsIntentService.ACTION_ENTERED));
+        LocalBroadcastManager.getInstance(this).registerReceiver(locationReceiver, new IntentFilter(LocationService.ARG_LOCATION_ACTION));
         tryAuth();
         setUpMapIfNeeded();
 
@@ -272,14 +304,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     protected void onPause() {
         super.onPause();
         LocalBroadcastManager.getInstance(this).unregisterReceiver(geofenceChangeReceiver);
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(locationReceiver);
         mMap.setMyLocationEnabled(false);
 
     }
 
     @Override
     protected void onDestroy() {
-        if (mLocationManager != null)
-            mLocationManager.removeUpdates(this);
+        doUnbindService();
         super.onDestroy();
     }
 
@@ -365,23 +397,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     }
 
-    private void getMyLocation() {
-        mLocationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-        mLocation = mLocationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
-//        if (mLocation == null) {
-        if (mLocationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-
-            if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
-                    ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                return;
-            }
-            mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 30000, 10, this);
-        } else if (mLocationManager.isProviderEnabled(LocationManager.PASSIVE_PROVIDER)) {
-
-            mLocationManager.requestLocationUpdates(LocationManager.PASSIVE_PROVIDER, 30000, 10, this);
-        }
-//        }
-    }
 
     @Override
     protected void onStop() {
@@ -420,31 +435,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         mAuth.addAuthStateListener(mAuthListener);
 
-
     }
 
-    @Override
-    public void onLocationChanged(Location location) {
-        if (location != null) {
-            Log.v("Location Changed", location.getLatitude() + " and " + location.getLongitude());
-            mLocation = location;
-        }
-    }
-
-    @Override
-    public void onStatusChanged(String s, int i, Bundle bundle) {
-
-    }
-
-    @Override
-    public void onProviderEnabled(String s) {
-
-    }
-
-    @Override
-    public void onProviderDisabled(String s) {
-
-    }
 
     private boolean checkPermissions() {
         int permissionState = ActivityCompat.checkSelfPermission(this,
@@ -571,7 +563,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 Log.i(Helper.TAG, "User interaction was cancelled.");
             } else if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 Log.i(Helper.TAG, "Permission granted.");
-                getMyLocation();
+                doBindService();
                 performPendingGeofenceTask();
 
             } else {
@@ -677,6 +669,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             }
         }).start();
 
+    }
+
+    @Override
+    public void onReceive(Location location) {
+        mLocation = location;
     }
 
     public static class GodModeDialog extends DialogFragment {

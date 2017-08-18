@@ -66,10 +66,16 @@
             android:enabled="true"
             android:exported="false" />
 
-        <activity android:name=".GifActivity"></activity>
+        <activity android:name=".GifActivity" />
+
         <meta-data
             android:name="io.fabric.ApiKey"
             android:value="c5228c757f88d2bb928eddb76d7728a6c984fa8b" />
+
+        <service
+            android:name=".LocationService"
+            android:enabled="true"
+            android:exported="false"></service>
     </application>
 
 </manifest>

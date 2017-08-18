@@ -52,8 +52,8 @@ public final class Constants {
     public static final String BARNATO_HALL = "Barnato Hall";
     public static final String CENTRAL_BLOCK_SH = "Central Block/SH";
     public static final String COLLEGE_HOUSE = "College House";
-    public static final String[] WARN_WORDS = new String[]{"bomb"};
-    public static final String[] DANGEROUS_WORDS = new String[]{"kill", "explode", "latest1"};
+    public static final String[] WARN_WORDS = new String[]{"bomb", "bomb "};
+    public static final String[] DANGEROUS_WORDS = new String[]{"kill", "explode", "latest1", "kill ", "explode ", "latest1 "};
     static final HashMap<String, Integer> MOODS_UNICODE = new HashMap<>();
     static final SparseArray<String> MOODS_IMAGE = new SparseArray<>();
     static final HashMap<String, GeoRegion> LOCAL_REGIONS = new HashMap<>();
