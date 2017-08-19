@@ -1,97 +1,105 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginBottom="8dp"
-    android:layout_marginEnd="25dp"
-    android:layout_marginStart="25dp"
-    android:layout_marginTop="5dp"
+    android:background="@android:color/white"
+    android:gravity="center"
     android:minHeight="90dp"
-    android:minWidth="150dp">
+    android:minWidth="150dp"
+    android:orientation="vertical">
 
     <ImageView
         android:layout_width="match_parent"
-        android:layout_height="10dp"
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"
-        android:src="@mipmap/ic_pushpin" />
+        android:layout_height="20dp"
+        android:layout_gravity="center_horizontal"
+        android:src="@drawable/ic_pin_red"/>
 
-    <com.anontemp.android.view.AnonTView
-        android:id="@+id/firstName"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentStart="true"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="10dp"
-        android:text="Wits"
-        android:textSize="12sp"
-        android:textStyle="bold" />
-
-    <com.anontemp.android.view.AnonTView
-        android:id="@+id/timestamp"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentEnd="true"
-        android:layout_marginEnd="30dp"
-        android:layout_marginTop="10dp"
-        android:text="10:32"
-        android:textSize="12sp"
-        android:textStyle="bold" />
-
-    <ImageView
-        android:layout_width="15dp"
-        android:layout_height="15dp"
-        android:layout_marginTop="10dp"
-        android:layout_toLeftOf="@id/timestamp"
-        android:src="@mipmap/ic_clock" />
-
-    <ImageView
-        android:id="@+id/mood"
-        android:layout_width="40dp"
-        android:layout_height="match_parent"
-
-        android:layout_alignParentEnd="true"
-        android:layout_centerVertical="true"
-        android:layout_marginTop="10dp"
-        android:src="@mipmap/ic_face" />
-
-    <com.anontemp.android.view.AnonTView
-        android:id="@+id/body"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/firstName"
-        android:layout_marginBottom="15dp"
-        android:layout_marginTop="15dp"
-        android:layout_toLeftOf="@id/mood"
-        android:text="What do I hate more than racism? Black on black hate. It's disgusting. Black on black placism. Black on black judgement. hhhhh hhhhhhhhhhhh." />
+        android:layout_marginEnd="25dp"
+        android:layout_marginStart="25dp"
+        android:orientation="horizontal">
 
-    <ImageView
-        android:id="@+id/gender"
-        android:layout_width="15dp"
-        android:layout_height="15dp"
-        android:layout_alignParentBottom="true"
-        android:src="@mipmap/ic_aubergine" />
 
-    <com.anontemp.android.view.AnonTView
-        android:id="@+id/button"
-        android:layout_width="wrap_content"
+        <com.anontemp.android.view.AnonTVSpecial
+            android:id="@+id/firstName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Wits"
+            android:textSize="12sp"/>
+
+        <com.anontemp.android.view.AnonTVSpecial
+            android:id="@+id/location"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="library"
+            android:textSize="12sp"/>
+
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginLeft="40dp"
-        android:layout_toRightOf="@id/gender"
-        android:text="Button"
-        android:textStyle="bold" />
+        android:layout_marginEnd="25dp"
+        android:layout_marginStart="25dp"
+        android:orientation="horizontal"
+        android:weightSum="1">
 
-    <com.anontemp.android.view.AnonTView
-        android:id="@+id/regionText"
-        android:layout_width="wrap_content"
+
+        <com.anontemp.android.view.AnonTView
+            android:id="@+id/body"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="15dp"
+            android:layout_marginTop="15dp"
+            android:layout_weight=".08"
+            android:text="@string/temp_tweet_body"/>
+
+
+        <com.anontemp.android.view.AnonTView
+            android:id="@+id/mood"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_weight=".92"
+            android:maxLines="1"
+            android:text="W"
+            android:textAlignment="center"
+            android:textSize="23sp"/>
+
+    </LinearLayout>
+
+    <include
+        android:id="@+id/gifContainer"
+        layout="@layout/gif_item"/>
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentEnd="true"
-        android:layout_marginRight="30dp"
-        android:text="\@WITS Braam Campus"
-        android:textSize="12sp"
-        android:textStyle="bold" />
+        android:layout_marginEnd="25dp"
+        android:layout_marginStart="25dp"
+        android:orientation="horizontal"
+        >
 
-</RelativeLayout>
+
+        <com.anontemp.android.view.AnonTVSpecial
+            android:id="@+id/gender"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Gender"/>
+
+        <com.anontemp.android.view.AnonTVSpecial
+            android:id="@+id/ttl"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Deleting in"
+            android:textSize="12sp"/>
+
+    </LinearLayout>
+</LinearLayout>

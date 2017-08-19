@@ -54,18 +54,18 @@ public final class Constants {
     public static final String COLLEGE_HOUSE = "College House";
     public static final String[] WARN_WORDS = new String[]{"bomb", "bomb "};
     public static final String[] DANGEROUS_WORDS = new String[]{"kill", "explode", "latest1", "kill ", "explode ", "latest1 "};
-    static final HashMap<String, Integer> MOODS_UNICODE = new HashMap<>();
-    static final SparseArray<String> MOODS_IMAGE = new SparseArray<>();
-    static final HashMap<String, GeoRegion> LOCAL_REGIONS = new HashMap<>();
-    static final HashMap<String, GeoRegion> SNAPSHOT_REGIONS = new HashMap<>();
-    static final HashMap<String, Integer> GENDERS_UNICODE = new HashMap<>();
-    static final SparseArray<String> GENDERS_IMAGE = new SparseArray<>();
-    static final List<MarkerOptions> SNAPSHOT_MARKERS = new ArrayList<>();
-    static final List<CircleOptions> SNAPSHOT_CIRCLES = new ArrayList<>();
-    static final List<CircleOptions> LOCAL_CIRCLES = new ArrayList<>();
-    static final String GEOFENCE_ID = "geofenceId";
+    public static final HashMap<String, Integer> MOODS_UNICODE = new HashMap<>();
+    public static final SparseArray<String> MOODS_IMAGE = new SparseArray<>();
+    public static final HashMap<String, GeoRegion> LOCAL_REGIONS = new HashMap<>();
+    public static final HashMap<String, GeoRegion> SNAPSHOT_REGIONS = new HashMap<>();
+    public static final HashMap<String, Integer> GENDERS_UNICODE = new HashMap<>();
+    public static final SparseArray<String> GENDERS_IMAGE = new SparseArray<>();
+    public static final List<MarkerOptions> SNAPSHOT_MARKERS = new ArrayList<>();
+    public static final List<CircleOptions> SNAPSHOT_CIRCLES = new ArrayList<>();
+    public static final List<CircleOptions> LOCAL_CIRCLES = new ArrayList<>();
+    public static final String GEOFENCE_ID = "geofenceId";
     private static final String PACKAGE_NAME = "com.anontemp.android";
-    static final String GEOFENCES_ADDED_KEY = PACKAGE_NAME + ".GEOFENCES_ADDED_KEY";
+    public static final String GEOFENCES_ADDED_KEY = PACKAGE_NAME + ".GEOFENCES_ADDED_KEY";
 
     static {
         LOCAL_REGIONS.put(WITS_UNIVERSITY, new GeoRegion(new LatLng(-26.189460, 28.028117), 1000));

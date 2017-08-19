@@ -49,6 +49,8 @@
     <string name="stamp_temp">10:35</string>
     <string name="count_temp">140</string>
     <string name="report">Report</string>
+    <string name="board_link_text">PIN 📌</string>
+    <string name="live_link_text">LIVE 🗣</string>
     <string name="gender_hint_disabled">Create an account to show your gender.</string>
     <string name="gender_hint_on">Show gender for this post.</string>
     <string name="gender_hint_off">Do not show gender for this post.</string>
@@ -128,6 +130,10 @@
     <string name="dang_words_title">Whoa!</string>
     <string name="thumb_up">👍</string>
     <string name="ok_caps">OK</string>
+    <string name="temp_tweet_body">What do I hate more than racism? Black on black hate. It\'s disgusting. Black on black placism. Black on black judgement. hhhhh hhhhhhhhhhhh.</string>
+    <string name="gender_tweet">Gender: %1$s</string>
+    <string name="ttl_tweet">Deleting in %1$s</string>
+    <string name="wits_notice_board">Wits notice board</string>
 
 
 </resources>

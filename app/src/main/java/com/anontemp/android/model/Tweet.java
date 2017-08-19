@@ -2,6 +2,7 @@ package com.anontemp.android.model;
 
 import android.support.annotation.NonNull;
 
+import com.anontemp.android.BaseTweetItem;
 import com.google.firebase.database.Exclude;
 import com.google.firebase.database.IgnoreExtraProperties;
 import com.google.firebase.database.PropertyName;
@@ -14,7 +15,7 @@ import java.util.Map;
  */
 
 @IgnoreExtraProperties
-public class Tweet implements Comparable<Tweet> {
+public class Tweet extends BaseTweetItem implements Comparable<Tweet> {
 
     private String key;
     private String username;
@@ -33,7 +34,6 @@ public class Tweet implements Comparable<Tweet> {
     @PropertyName("regionid")
     private String regionId;
     private String location;
-    private Long _id;
     private String visibleDate;
     private Long realDate;
     private String tweetGif;
@@ -75,13 +75,7 @@ public class Tweet implements Comparable<Tweet> {
         this.visibleDate = visibleDate;
     }
 
-    public Long get_id() {
-        return _id;
-    }
 
-    public void set_id(Long _id) {
-        this._id = _id;
-    }
 
     public String getLocation() {
         return location;
@@ -221,5 +215,10 @@ public class Tweet implements Comparable<Tweet> {
     @Override
     public int compareTo(@NonNull Tweet tweet) {
         return tweet.getRealDate().compareTo(getRealDate());
+    }
+
+    @Override
+    public int getType() {
+        return Type.TYPE_TWEET;
     }
 }
