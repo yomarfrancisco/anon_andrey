@@ -17,10 +17,8 @@ import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
@@ -33,6 +31,7 @@ public class MessageBoard extends FullscreenController implements View.OnClickLi
     private ImageButton mMenuButton;
     private RecyclerView rv;
     private TweetsAdapter adapter;
+
     private ChildEventListener childEventListener = new ChildEventListener() {
         @Override
         public void onChildAdded(DataSnapshot dataSnapshot, String s) {
@@ -41,11 +40,10 @@ public class MessageBoard extends FullscreenController implements View.OnClickLi
 
             Tweet tweet = dataSnapshot.getValue(Tweet.class);
             tweet.setRealDate(Helper.getRealDate(tweet.getDate()));
-            tweet.setVisibleDate(Helper.getVisibleDate(tweet.getRealDate()));
             tweet.set_id(new Random().nextLong());
-            tweetList.add(0, tweet);
-            adapter.notifyItemInserted(0);
-            rv.scrollToPosition(0);
+            items.add(1, tweet);
+            adapter.notifyItemInserted(1);
+            rv.scrollToPosition(1);
 
 
         }
@@ -59,8 +57,8 @@ public class MessageBoard extends FullscreenController implements View.OnClickLi
                 if (t.getTweetId().equals(tweet.getTweetId())) {
                     tweet.setVisibleDate(t.getVisibleDate());
                     tweet.setRealDate(t.getRealDate());
-                    int index = tweetList.indexOf(t);
-                    tweetList.set(index, tweet);
+                    int index = items.indexOf(t);
+                    items.set(index, tweet);
                     adapter.notifyItemChanged(index);
                     break;
                 }
@@ -84,6 +82,7 @@ public class MessageBoard extends FullscreenController implements View.OnClickLi
         }
     };
 
+
     @Override
     protected int init() {
         return R.layout.activity_message_board;
@@ -100,30 +99,30 @@ public class MessageBoard extends FullscreenController implements View.OnClickLi
         items.add(new HeaderItem(getString(R.string.wits_notice_board)));
 
         rv = findViewById(R.id.list);
+        tweetList.clear();
 
-        database.getReference("Tweets").addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-
-                for (DataSnapshot tweetShot : dataSnapshot.getChildren()) {
-                    Tweet t = tweetShot.getValue(Tweet.class);
-                    t.set_id(new Random().nextLong());
-                    t.setRealDate(Helper.getRealDate(t.getDate()));
-                    t.setVisibleDate(Helper.getVisibleDate(t.getRealDate()));
-                    tweetList.add(t);
-                }
-
-                Collections.sort(tweetList);
-                items.addAll(tweetList);
-                adapter.notifyDataSetChanged();
-
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-                Helper.showSnackbar(databaseError.getMessage(), MessageBoard.this);
-            }
-        });
+//        database.getReference("Tweets").addListenerForSingleValueEvent(new ValueEventListener() {
+//            @Override
+//            public void onDataChange(DataSnapshot dataSnapshot) {
+//
+//                for (DataSnapshot tweetShot : dataSnapshot.getChildren()) {
+//                    Tweet t = tweetShot.getValue(Tweet.class);
+//                    t.set_id(new Random().nextLong());
+//                    t.setRealDate(Helper.getRealDate(t.getDate()));
+//                    tweetList.add(t);
+//                }
+//
+//                Collections.sort(tweetList);
+//                items.addAll(tweetList);
+//                adapter.notifyDataSetChanged();
+//
+//            }
+//
+//            @Override
+//            public void onCancelled(DatabaseError databaseError) {
+//                Helper.showSnackbar(databaseError.getMessage(), MessageBoard.this);
+//            }
+//        });
         rv.setLayoutManager(new LinearLayoutManager(MessageBoard.this));
         adapter = new TweetsAdapter(items, MessageBoard.this);
         rv.setAdapter(adapter);
@@ -198,6 +197,7 @@ public class MessageBoard extends FullscreenController implements View.OnClickLi
         }
     }
 
+
     @Override
     protected void onDestroy() {
         super.onDestroy();
@@ -209,4 +209,5 @@ public class MessageBoard extends FullscreenController implements View.OnClickLi
         super.onPause();
         database.getReference("Tweets").removeEventListener(childEventListener);
     }
+
 }

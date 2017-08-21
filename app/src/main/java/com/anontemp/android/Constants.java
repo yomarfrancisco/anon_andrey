@@ -54,8 +54,6 @@ public final class Constants {
     public static final String COLLEGE_HOUSE = "College House";
     public static final String[] WARN_WORDS = new String[]{"bomb", "bomb "};
     public static final String[] DANGEROUS_WORDS = new String[]{"kill", "explode", "latest1", "kill ", "explode ", "latest1 "};
-    public static final HashMap<String, Integer> MOODS_UNICODE = new HashMap<>();
-    public static final SparseArray<String> MOODS_IMAGE = new SparseArray<>();
     public static final HashMap<String, GeoRegion> LOCAL_REGIONS = new HashMap<>();
     public static final HashMap<String, GeoRegion> SNAPSHOT_REGIONS = new HashMap<>();
     public static final HashMap<String, Integer> GENDERS_UNICODE = new HashMap<>();
@@ -83,36 +81,6 @@ public final class Constants {
         LOCAL_CIRCLES.add(getCircleOptions().center(LOCAL_REGIONS.get(MATRIX_STUDENT_UNION).getLatLng()).radius(LOCAL_REGIONS.get(MATRIX_STUDENT_UNION).getRadius()));
         LOCAL_CIRCLES.add(getCircleOptions().center(LOCAL_REGIONS.get(JUBILEE_HALL).getLatLng()).radius(LOCAL_REGIONS.get(JUBILEE_HALL).getRadius()));
 
-
-        //MOODS_UNICODE
-
-        MOODS_UNICODE.put(escapeJava("\uD83D\uDE0D"), R.mipmap.ic_inlove);
-        MOODS_UNICODE.put(escapeJava("\uD83D\uDE0E"), R.mipmap.ic_sunglasses);
-        MOODS_UNICODE.put(escapeJava("\uD83D\uDE2E"), R.mipmap.ic_open_mouth);
-        MOODS_UNICODE.put(escapeJava("\uD83D\uDE4F"), R.mipmap.ic_hands);
-        MOODS_UNICODE.put(escapeJava("\uD83D\uDE02"), R.mipmap.ic_tears);
-        MOODS_UNICODE.put(escapeJava("\uD83D\uDE21"), R.mipmap.ic_pouting_face);
-        MOODS_UNICODE.put(escapeJava("\uD83D\uDD1E"), R.mipmap.ic_no_eighteen);
-        MOODS_UNICODE.put(escapeJava("\uD83D\uDE10"), R.mipmap.ic_neutral_face);
-        MOODS_UNICODE.put(escapeJava("☹️"), R.mipmap.ic_frowning_face);
-        MOODS_UNICODE.put(escapeJava("\uD83D\uDD25"), R.mipmap.ic_fire);
-        MOODS_UNICODE.put(escapeJava("\uD83D\uDC4F"), R.mipmap.ic_clapping_hands);
-        MOODS_UNICODE.put(escapeJava("\uD83D\uDE4C"), R.mipmap.ic_raising_hands);
-        MOODS_UNICODE.put(escapeJava("\uD83D\uDE36"), R.mipmap.ic_face);
-
-        MOODS_IMAGE.put(R.mipmap.ic_inlove, unescapeJava("\uD83D\uDE0D"));
-        MOODS_IMAGE.put(R.mipmap.ic_sunglasses, unescapeJava("\uD83D\uDE0E"));
-        MOODS_IMAGE.put(R.mipmap.ic_open_mouth, unescapeJava("\uD83D\uDE2E"));
-        MOODS_IMAGE.put(R.mipmap.ic_hands, unescapeJava("\uD83D\uDE4F"));
-        MOODS_IMAGE.put(R.mipmap.ic_tears, unescapeJava("\uD83D\uDE02"));
-        MOODS_IMAGE.put(R.mipmap.ic_pouting_face, unescapeJava("\uD83D\uDE21"));
-        MOODS_IMAGE.put(R.mipmap.ic_no_eighteen, unescapeJava("\uD83D\uDD1E"));
-        MOODS_IMAGE.put(R.mipmap.ic_neutral_face, unescapeJava("\uD83D\uDE10"));
-        MOODS_IMAGE.put(R.mipmap.ic_frowning_face, unescapeJava("☹️"));
-        MOODS_IMAGE.put(R.mipmap.ic_fire, unescapeJava("\uD83D\uDD25"));
-        MOODS_IMAGE.put(R.mipmap.ic_clapping_hands, unescapeJava("\uD83D\uDC4F"));
-        MOODS_IMAGE.put(R.mipmap.ic_raising_hands, unescapeJava("\uD83D\uDE4C"));
-        MOODS_IMAGE.put(R.mipmap.ic_face, unescapeJava("\uD83D\uDE36"));
 
         //GENDERS_UNICODE
 

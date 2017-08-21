@@ -11,7 +11,6 @@ import android.graphics.Color;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.location.Location;
-import android.media.MediaPlayer;
 import android.media.MediaRecorder;
 import android.net.Uri;
 import android.os.Bundle;
@@ -105,38 +104,23 @@ public class DashBoard extends FullscreenController implements View.OnClickListe
         as.addAnimation(in);
     }
 
-    FirebaseStorage storage;
-    long timeInMilliseconds = 0L;
+    private long timeInMilliseconds, startTime = 0L;
     private String gifFileName;
     private MediaRecorder mRecorder = null;
-    private MediaPlayer mPlayer = null;
-    // Requesting permission to RECORD_AUDIO
     private String[] permissions = {android.Manifest.permission.RECORD_AUDIO};
     private InputMethodManager inputMethodManager;
-    private ImageView ivPost;
+    private ImageView ivPost, gifLabel, gender, ivMic;
     private TextInputEditText boardInput;
     private ConstraintLayout postLayout;
-    private Animation popOut;
-    private Animation popIn;
-    private Animation popBubble;
-    private AnonTView ivMood;
+    private Animation popOut, popIn, popBubble;
+    private AnonTView ivMood, ttlText, commentText, moodHint, tvGif, timer, timestamp, tvDone, recordInfo, tvSound;
     private boolean startedOnce = false;
-    private ImageView gender;
     private FirebaseAuth mAuth;
     private FirebaseDatabase database;
-    private DatabaseReference dbRef;
-    private Switch genderSwitch;
-    private TextView genderHint;
-    private TextView tvCount;
-    private TextView tvLocation;
-    private Switch commentSwitch;
+    private Switch genderSwitch, commentSwitch;
+    private TextView genderHint, tvCount, tvLocation;
     private SeekBar ttlSlider;
-    private AnonTView ttlText;
-    private AnonTView commentText;
-    private AnonTView moodHint;
     private RecyclerView moodView;
-    private AnonTView tvGif;
-    private ImageView gifLabel;
     private BroadcastReceiver geofenceChangeReceiver = new BroadcastReceiver() {
 
         @Override
@@ -157,19 +141,10 @@ public class DashBoard extends FullscreenController implements View.OnClickListe
         }
     };
     private List<Region> regions;
-    private boolean keyboardListenersAttached = false;
+    private boolean keyboardListenersAttached, onceScrolled = false;
     private ViewGroup rootLayout;
     private AnonSnackbar snackbar;
-    private AnonTView timestamp;
-    private boolean onceScrolled = false;
-    private StorageReference mStorageRef;
-    private AnonTView tvDone;
-    private long startTime = 0L;
-    private AnonTView timer;
-    private AnonTView recordInfo;
     private Handler customHandler = new Handler();
-    private AnonTView tvSound;
-    private ImageView ivMic;
     private RecordState recordState = RecordState.NONE;
     private Runnable updateTimerThread = new Runnable() {
         public void run() {
@@ -253,7 +228,6 @@ public class DashBoard extends FullscreenController implements View.OnClickListe
         }
     };
     private LocationReceiver locationReceiver = new LocationReceiver(this);
-    private Double tweetRecord = null;
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
@@ -381,10 +355,6 @@ public class DashBoard extends FullscreenController implements View.OnClickListe
             mRecorder = null;
         }
 
-        if (mPlayer != null) {
-            mPlayer.release();
-            mPlayer = null;
-        }
     }
 
     @Override
@@ -402,8 +372,6 @@ public class DashBoard extends FullscreenController implements View.OnClickListe
 
         inputMethodManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
         database = FirebaseDatabase.getInstance();
-        dbRef = database.getReference("users");
-        mStorageRef = FirebaseStorage.getInstance().getReference();
 
         setViews();
 
