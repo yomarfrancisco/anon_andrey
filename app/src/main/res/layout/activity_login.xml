@@ -174,7 +174,7 @@
 
 
     <com.anontemp.android.view.AnonTButton
-        android:id="@+id/temp_login_button"
+        android:id="@+id/authenticate_button"
         android:layout_width="0dp"
         android:layout_height="35dp"
         android:layout_marginBottom="27dp"
@@ -186,7 +186,7 @@
         app:layout_constraintRight_toLeftOf="@+id/right_main_guide"/>
 
     <com.anontemp.android.view.AnonTButton
-        android:id="@+id/authenticate_button"
+        android:id="@+id/temp_login_button"
         android:layout_width="0dp"
         android:layout_height="35dp"
         android:layout_marginBottom="15dp"
