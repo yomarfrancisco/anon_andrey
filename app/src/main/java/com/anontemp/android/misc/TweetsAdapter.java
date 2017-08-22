@@ -10,12 +10,10 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.util.Log;
-import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 
@@ -49,9 +47,8 @@ public class TweetsAdapter extends RecyclerView.Adapter {
     private final Context context;
 
     private Typeface thin;
-    private Animation popOut, popIn, popBubble;
+    private Animation popBubble;
     private int lastPosition = -1;
-    private SparseBooleanArray mPlays = new SparseBooleanArray();
 
     public TweetsAdapter(List<BaseTweetItem> tweets, Context context) {
         this.tweets = tweets;
@@ -116,10 +113,15 @@ public class TweetsAdapter extends RecyclerView.Adapter {
 
 
                 if (tweet.getTweetRecord() != null && tweet.getTweetRecord() > 0) {
+                    th.mMoodImage.setImageDrawable(null);
+                    th.mMoodImage.setVisibility(View.INVISIBLE);
+                    th.mMood.setVisibility(View.VISIBLE);
                     th.mMood.setText(R.string.speaker);
                     th.loadAudio();
+                    th.startAudioAnimation();
 
                 } else {
+                    th.clearAnimation();
 
                     if (position % 2 == 0) {
                         Drawable moodImage = getMoodBlurImageWithMoodText(tweet.getMoodText());
@@ -153,8 +155,6 @@ public class TweetsAdapter extends RecyclerView.Adapter {
                 }
 
 
-                setAnimation(tweet.getTweetRecord() != null && tweet.getTweetRecord() > 0 ? th.mMood : null, th.mComment, tweet.getMoodText(), position);
-
                 break;
 
             case BaseTweetItem.Type.TYPE_HEADER:
@@ -165,15 +165,6 @@ public class TweetsAdapter extends RecyclerView.Adapter {
                 break;
         }
 
-
-    }
-
-    @Override
-    public void onViewDetachedFromWindow(RecyclerView.ViewHolder holder) {
-        super.onViewDetachedFromWindow(holder);
-        if (holder instanceof TweetHolder) {
-            ((TweetHolder) holder).clearAnimation();
-        }
 
     }
 
@@ -245,91 +236,6 @@ public class TweetsAdapter extends RecyclerView.Adapter {
         return image;
     }
 
-    @Override
-    public void onAttachedToRecyclerView(RecyclerView recyclerView) {
-        super.onAttachedToRecyclerView(recyclerView);
-        popIn = AnimationUtils.loadAnimation(context, R.anim.pop_in);
-        popOut = AnimationUtils.loadAnimation(context, R.anim.pop_out);
-        popBubble = AnimationUtils.loadAnimation(context, R.anim.pop_bubble);
-        thin = FontCache.getTypeface("HelveticaNeue-Thin.otf", context);
-    }
-
-    private void startAudioAnimation(final AnonTView moodView, final String moodText, final int position) {
-        if (moodView != null) {
-            moodView.startAnimation(popIn);
-
-            moodView.setText(moodText);
-            popOut.setAnimationListener(new Animation.AnimationListener() {
-                @Override
-                public void onAnimationStart(Animation animation) {
-                    final Handler handler = new Handler();
-                    Runnable runnable = new Runnable() {
-                        @Override
-                        public void run() {
-                            if (mPlays.get(position, false)) {
-                                moodView.setText("🔇");
-                                handler.postDelayed(this, 5000);
-                                return;
-                            }
-
-                            moodView.startAnimation(popIn);
-
-                            if (moodText.equals(moodView.getText().toString()))
-                                moodView.setText(R.string.speaker);
-                            else moodView.setText(moodText);
-
-                            handler.postDelayed(this, 5000);
-                        }
-                    };
-                    handler.post(runnable);
-                }
-
-                @Override
-                public void onAnimationEnd(Animation animation) {
-
-                }
-
-                @Override
-                public void onAnimationRepeat(Animation animation) {
-
-                }
-            });
-            moodView.startAnimation(popOut);
-        }
-    }
-
-    private void setAnimation(final AnonTView moodView, final View commentView, final String moodText, int position) {
-        // If the bound view wasn't previously displayed on screen, it's animated
-        if (position > lastPosition) {
-            popBubble.setAnimationListener(new Animation.AnimationListener() {
-                @Override
-                public void onAnimationStart(Animation animation) {
-                    final Handler handler = new Handler();
-                    Runnable runnable = new Runnable() {
-                        @Override
-                        public void run() {
-                            commentView.startAnimation(popBubble);
-                            handler.postDelayed(this, 5000);
-                        }
-                    };
-                    handler.post(runnable);
-                }
-
-                @Override
-                public void onAnimationEnd(Animation animation) {
-
-                }
-
-                @Override
-                public void onAnimationRepeat(Animation animation) {
-
-                }
-            });
-            commentView.startAnimation(popBubble);
-            startAudioAnimation(moodView, moodText, position);
-            lastPosition = position;
-        }
-    }
 
     public class TweetHolder extends RecyclerView.ViewHolder {
         public final View mView;
@@ -351,6 +257,10 @@ public class TweetsAdapter extends RecyclerView.Adapter {
         public Tweet tweet;
         boolean mStartPlaying = true;
         private MediaPlayer mPlayer = null;
+        private Runnable runnable;
+        private boolean loadedAudioFile = false;
+        private String filePath;
+        private Handler handler;
         View.OnLongClickListener mLongClickListener = new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View view) {
@@ -368,7 +278,6 @@ public class TweetsAdapter extends RecyclerView.Adapter {
                 if (mStartPlaying) {
                     stopPlaying();
                     mStartPlaying = !mStartPlaying;
-                    mPlays.put(getAdapterPosition(), mStartPlaying);
                 }
                 if (mMood.isShown())
                     if (tweet.getMoodText().equals(mMood.getText().toString())) {
@@ -381,8 +290,6 @@ public class TweetsAdapter extends RecyclerView.Adapter {
                 return true;
             }
         };
-        private boolean loadedAudioFile = false;
-        private String filePath;
         View.OnClickListener mClickListener = new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -404,6 +311,7 @@ public class TweetsAdapter extends RecyclerView.Adapter {
 
             }
         };
+
         public TweetHolder(View view) {
             super(view);
             mView = view;
@@ -430,9 +338,32 @@ public class TweetsAdapter extends RecyclerView.Adapter {
 
         }
 
+        public void startAudioAnimation() {
+            if (handler != null && runnable != null) {
+                handler.post(runnable);
+                return;
+            }
+
+            handler = new Handler();
+            runnable = new Runnable() {
+                @Override
+                public void run() {
+
+                    if (tweet.getMoodText().equals(mMood.getText().toString()))
+                        mMood.setText(R.string.speaker);
+                    else mMood.setText(tweet.getMoodText());
+
+                    handler.postDelayed(this, 3000);
+                }
+            };
+            handler.post(runnable);
+
+        }
+
         public void clearAnimation() {
-            mMood.clearAnimation();
-            mComment.clearAnimation();
+            if (handler != null && runnable != null) {
+                handler.removeCallbacks(runnable);
+            }
         }
 
         public void loadAudio() {
@@ -463,7 +394,6 @@ public class TweetsAdapter extends RecyclerView.Adapter {
                 stopPlaying();
             }
             mStartPlaying = !mStartPlaying;
-            mPlays.put(getAdapterPosition(), mStartPlaying);
         }
 
         private void startPlaying(String mFileName) {
@@ -471,12 +401,11 @@ public class TweetsAdapter extends RecyclerView.Adapter {
             try {
                 mPlayer.setDataSource(mFileName);
                 mPlayer.prepare();
-                mMood.clearAnimation();
+                handler.removeCallbacks(runnable);
                 mPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
                     @Override
                     public void onCompletion(MediaPlayer mediaPlayer) {
                         onPlay();
-                        startAudioAnimation(mMood, tweet.getMoodText(), getAdapterPosition());
                     }
                 });
                 mPlayer.start();
@@ -496,6 +425,7 @@ public class TweetsAdapter extends RecyclerView.Adapter {
             }
             if (mMood.isShown())
                 mMood.setText(R.string.speaker);
+            handler.post(runnable);
         }
 
         @Override
