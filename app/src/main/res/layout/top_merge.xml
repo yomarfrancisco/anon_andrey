@@ -40,7 +40,7 @@
         android:layout_marginBottom="35dp"
         android:clickable="true"
         android:text="@string/back_to_map"
-        android:textColor="@color/red_alpha"
+        android:textColor="@android:color/holo_green_dark"
         android:textSize="12sp"
         android:visibility="gone"
         app:layout_constraintBottom_toTopOf="@+id/top_guide"

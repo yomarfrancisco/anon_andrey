@@ -56,10 +56,11 @@
         android:layout_marginBottom="35dp"
         android:clickable="true"
         android:text="@string/temp_login_link"
-        android:textColor="@color/red_alpha"
+        android:textColor="@android:color/holo_green_dark"
         android:textSize="12sp"
         app:layout_constraintBottom_toTopOf="@+id/top_guide"
-        app:layout_constraintRight_toLeftOf="@+id/right_guideline" />
+        app:layout_constraintRight_toLeftOf="@+id/right_guideline"
+        />
 
     <View
         android:layout_width="0dp"
@@ -77,14 +78,15 @@
         android:orientation="vertical"
         app:layout_constraintGuide_percent="0.85" />
 
-    <com.anontemp.android.view.AnonTView
+    <com.anontemp.android.view.AnonTVSpecial
         android:id="@+id/tvTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/gender_title"
-        android:textSize="22sp"
+        android:textColor="@color/text_special"
+        android:textSize="18sp"
         app:layout_constraintLeft_toLeftOf="@+id/left_main_guide"
-        app:layout_constraintTop_toTopOf="@+id/top_main_guide" />
+        app:layout_constraintTop_toTopOf="@+id/top_main_guide"/>
 
     <ImageButton
         android:id="@+id/bPeach"
@@ -173,14 +175,15 @@
         tools:layout_editor_absoluteY="265dp" />
 
 
-    <com.anontemp.android.view.AnonTView
+    <com.anontemp.android.view.AnonTVSpecial
         android:id="@+id/tvMailTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/email_title"
-        android:textSize="22sp"
+        android:textColor="@color/text_special"
+        android:textSize="18sp"
         app:layout_constraintLeft_toLeftOf="@+id/left_main_guide"
-        app:layout_constraintTop_toTopOf="@+id/top_mail_guide" />
+        app:layout_constraintTop_toTopOf="@+id/top_mail_guide"/>
 
     <com.anontemp.android.view.AnonTView
         android:id="@+id/tvEmailHint"
@@ -244,14 +247,15 @@
         tools:layout_editor_absoluteY="265dp" />
 
 
-    <com.anontemp.android.view.AnonTView
+    <com.anontemp.android.view.AnonTVSpecial
         android:id="@+id/tvPassTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/pass_title"
-        android:textSize="22sp"
+        android:textColor="@color/text_special"
+        android:textSize="18sp"
         app:layout_constraintLeft_toLeftOf="@+id/left_main_guide"
-        app:layout_constraintTop_toTopOf="@+id/top_pass_guide" />
+        app:layout_constraintTop_toTopOf="@+id/top_pass_guide"/>
 
     <com.anontemp.android.view.AnonTView
         android:id="@+id/tvPassHint"
@@ -318,7 +322,6 @@
         android:layout_height="wrap_content"
         android:background="@drawable/bg_round_rect_black"
         android:text="@string/sign_up"
-        android:textAllCaps="false"
         android:textColor="@android:color/white"
         android:textSize="20sp"
         android:typeface="serif"

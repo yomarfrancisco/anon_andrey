@@ -24,6 +24,7 @@ import java.util.Random;
 
 public class MessageBoard extends FullscreenController implements View.OnClickListener {
 
+    public static final int FIRST = 1;
     final List<Tweet> tweetList = new ArrayList<>();
     List<BaseTweetItem> items;
     private FirebaseDatabase database;
@@ -41,9 +42,9 @@ public class MessageBoard extends FullscreenController implements View.OnClickLi
             Tweet tweet = dataSnapshot.getValue(Tweet.class);
             tweet.setRealDate(Helper.getRealDate(tweet.getDate()));
             tweet.set_id(new Random().nextLong());
-            items.add(1, tweet);
+            items.add(FIRST, tweet);
             adapter.notifyItemInserted(1);
-            rv.scrollToPosition(1);
+            rv.scrollToPosition(0);
 
 
         }

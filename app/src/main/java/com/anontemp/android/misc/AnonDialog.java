@@ -34,6 +34,7 @@ public class AnonDialog extends DialogFragment {
 
     public static AnonDialog newInstance(int title, int message, int ok, int cancel) {
         AnonDialog f = new AnonDialog();
+        f.setStyle(DialogFragment.STYLE_NO_FRAME, 0);
         Bundle args = new Bundle();
         args.putInt(TITLE, title);
         args.putInt(MESSAGE, message);

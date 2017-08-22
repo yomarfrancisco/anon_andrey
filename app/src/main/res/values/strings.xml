@@ -135,10 +135,11 @@
     <string name="ttl_tweet">Deleting in </string>
     <string name="wits_notice_board">Wits notice board</string>
     <plurals name="comment_count">
-        <item quantity="zero">%1$s comment</item>
+        <item quantity="zero">no comments</item>
         <item quantity="one">%1$s comment</item>
         <item quantity="other">%1$s comments</item>
     </plurals>
+    <string name="log_in">log in</string>
 
 
 </resources>

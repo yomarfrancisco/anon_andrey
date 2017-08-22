@@ -32,6 +32,7 @@ public class AnonAlert extends DialogFragment {
 
     public static AnonAlert newInstance(int title, int message, int button) {
         AnonAlert f = new AnonAlert();
+        f.setStyle(DialogFragment.STYLE_NO_FRAME, 0);
         Bundle args = new Bundle();
         args.putInt(TITLE, title);
         args.putInt(MESSAGE, message);

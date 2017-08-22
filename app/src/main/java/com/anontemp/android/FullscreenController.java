@@ -17,6 +17,7 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.util.Log;
+import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageView;
@@ -30,6 +31,7 @@ import com.anontemp.android.view.AnonTView;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthCredential;
+import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -61,6 +63,31 @@ public abstract class FullscreenController extends AppCompatActivity {
     private void getUser() {
         if (currentUser == null) {
             user = FirebaseAuth.getInstance().getCurrentUser();
+            if (user == null) {
+                if (!Helper.getUuid().isEmpty() && (user == null || user != null && !user.getUid().equals(Helper.getUuid()))) {
+                    Pair<String, String> pair = Helper.getCredentials();
+                    if (pair != null) {
+
+                        FirebaseAuth.getInstance().signInWithEmailAndPassword(pair.first, pair.second)
+                                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<AuthResult> task) {
+                                        Log.d(Helper.TAG, "signInWithEmail:onComplete:" + task.isSuccessful());
+
+                                        if (!task.isSuccessful()) {
+                                            Log.w(Helper.TAG, "signInWithEmail:failed", task.getException());
+
+
+                                        }
+
+                                    }
+                                });
+                    }
+
+
+                }
+            }
+
             if (user == null)
                 return;
             DatabaseReference users = FirebaseDatabase.getInstance().getReference("users");

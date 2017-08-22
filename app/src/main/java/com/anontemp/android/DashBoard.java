@@ -564,7 +564,7 @@ public class DashBoard extends FullscreenController implements View.OnClickListe
     }
 
     private boolean isTempUser() {
-        return currentUser.getEmail().equals(getString(R.string.temp_mail));
+        return user.isAnonymous();
     }
 
     private void post() {
@@ -874,6 +874,7 @@ public class DashBoard extends FullscreenController implements View.OnClickListe
         });
 
         tvSound = findViewById(R.id.tvSound);
+        setPostAuthUI();
 
 
     }
@@ -1030,10 +1031,6 @@ public class DashBoard extends FullscreenController implements View.OnClickListe
         genderHint.setText(R.string.gender_hint_disabled);
     }
 
-    @Override
-    public void onAuthDone() {
-        setPostAuthUI();
-    }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {

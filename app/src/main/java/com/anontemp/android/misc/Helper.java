@@ -83,7 +83,12 @@ public class Helper {
 
     public static Pair<String, String> getCredentials() {
         SharedPreferences s = AnonApp.get().getSharedPreferences();
-        return new Pair<>(s.getString(EMAIL, ""), s.getString(PASSWORD, ""));
+        String mail = s.getString(EMAIL, "");
+        String pass = s.getString(PASSWORD, "");
+        if (mail.isEmpty() || pass.isEmpty())
+            return null;
+
+        return new Pair<>(mail, pass);
     }
 
     public static void setCredentials(Pair<String, String> pair) {
@@ -133,8 +138,6 @@ public class Helper {
             return startFormat.format(date);
         }
     }
-
-
 
 
 }

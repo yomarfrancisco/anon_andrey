@@ -13,4 +13,5 @@
     <color name="light_gray">#d3d3d3</color>
     <color name="dark_gray">#616161</color>
     <color name="text_special">#FF8800</color>
+    <color name="text_special_dark">#884400</color>
 </resources>

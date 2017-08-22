@@ -1,6 +1,7 @@
 package com.anontemp.android;
 
 import android.content.Intent;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.TextInputEditText;
@@ -12,6 +13,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 
+import com.anontemp.android.misc.FontCache;
 import com.anontemp.android.misc.Helper;
 import com.anontemp.android.model.User;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -41,6 +43,7 @@ public class CreateAccount extends FullscreenController implements View.OnClickL
 
     private FirebaseAuth mAuth;
     private FirebaseAuth.AuthStateListener mAuthListener;
+    private Typeface mFontSnowboard;
 
     @Override
     protected int init() {
@@ -111,11 +114,13 @@ public class CreateAccount extends FullscreenController implements View.OnClickL
     }
 
     private void initViews() {
+        mFontSnowboard = FontCache.getTypeface("CFSnowboardProjectPERSONAL.ttf", this);
         chosenGender = findViewById(R.id.chosenGender);
         mMail = findViewById(R.id.emailInput);
         mPass = findViewById(R.id.passInput);
         signUp = findViewById(R.id.authenticate);
         signUp.setOnClickListener(this);
+        signUp.setTypeface(mFontSnowboard);
         chosenGender.setTag(INT_UNDEFINED);
         findViewById(R.id.tempLoginLink).setOnClickListener(this);
 
@@ -176,7 +181,7 @@ public class CreateAccount extends FullscreenController implements View.OnClickL
 
 
                         //TODO region identifier
-                        currentUser = new User(username, email, user.getUid(), "Wits");
+                        currentUser = new User(username, email, user.getUid(), "Wits", user.getUid());
                         DatabaseReference userRef = dbRef.child(user.getUid());
                         userRef.setValue(currentUser);
 

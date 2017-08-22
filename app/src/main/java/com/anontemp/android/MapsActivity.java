@@ -645,25 +645,31 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             public void run() {
                 user = mAuth.getCurrentUser();
                 if (!Helper.getUuid().isEmpty() && (user == null || user != null && !user.getUid().equals(Helper.getUuid()))) {
-                    Looper.prepare();
+
                     Pair<String, String> pair = Helper.getCredentials();
-                    mAuth.signInWithEmailAndPassword(pair.first, pair.second)
-                            .addOnCompleteListener(MapsActivity.this, new OnCompleteListener<AuthResult>() {
-                                @Override
-                                public void onComplete(@NonNull Task<AuthResult> task) {
-                                    Log.d(Helper.TAG, "signInWithEmail:onComplete:" + task.isSuccessful());
+                    if (pair != null) {
+                        Looper.prepare();
+                        mAuth.signInWithEmailAndPassword(pair.first, pair.second)
+                                .addOnCompleteListener(MapsActivity.this, new OnCompleteListener<AuthResult>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<AuthResult> task) {
+                                        Log.d(Helper.TAG, "signInWithEmail:onComplete:" + task.isSuccessful());
 
 //                                    user = mAuth.getCurrentUser();
-                                    if (!task.isSuccessful()) {
-                                        Log.w(Helper.TAG, "signInWithEmail:failed", task.getException());
+                                        if (!task.isSuccessful()) {
+                                            Log.w(Helper.TAG, "signInWithEmail:failed", task.getException());
 
 
+                                        }
+
+                                        // ...
                                     }
+                                });
+                        Looper.loop();
+                    } else {
+                        user = null;
+                    }
 
-                                    // ...
-                                }
-                            });
-                    Looper.loop();
 
                 }
             }

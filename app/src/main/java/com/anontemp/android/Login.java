@@ -1,6 +1,7 @@
 package com.anontemp.android;
 
 import android.content.Intent;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.TextInputEditText;
@@ -15,17 +16,18 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.anontemp.android.misc.AnonDialog;
 import com.anontemp.android.misc.DialogListener;
+import com.anontemp.android.misc.FontCache;
 import com.anontemp.android.misc.Helper;
 import com.anontemp.android.model.User;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
@@ -36,12 +38,12 @@ import static com.anontemp.android.misc.Helper.PAGE_TYPE_PRIVACY;
 
 public class Login extends FullscreenController implements View.OnClickListener, DialogListener {
 
+    public static final String QUESTION = "?";
     private FirebaseAuth mAuth;
-    private FirebaseAuth.AuthStateListener mAuthListener;
-    private TextInputEditText mMail;
-    private TextInputEditText mPass;
-    private AppCompatButton bAuth;
+    private TextInputEditText mMail, mPass;
+    private AppCompatButton mTempLoginButton, mAuthButton;
     private FirebaseDatabase database;
+    private Typeface mFontSnowboard;
 
     @Override
     protected int init() {
@@ -54,28 +56,20 @@ public class Login extends FullscreenController implements View.OnClickListener,
         super.onCreate(savedInstanceState);
 
 
-        mAuthListener = new FirebaseAuth.AuthStateListener() {
-            @Override
-            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-                FirebaseUser user = firebaseAuth.getCurrentUser();
-                if (user != null) {
-                    // User is signed in
-                    Log.d(Helper.TAG, "onAuthStateChanged:signed_in:" + user.getUid());
-                } else {
-                    // User is signed out
-                    Log.d(Helper.TAG, "onAuthStateChanged:signed_out");
-                }
-                // ...
-            }
-        };
+        mFontSnowboard = FontCache.getTypeface("CFSnowboardProjectPERSONAL.ttf", this);
+
         database = FirebaseDatabase.getInstance();
 
         findViewById(R.id.returnToMap).setVisibility(View.VISIBLE);
         findViewById(R.id.returnToMap).setOnClickListener(this);
         mMail = findViewById(R.id.emailInput);
         mPass = findViewById(R.id.passInput);
-        bAuth = findViewById(R.id.authenticate);
-        bAuth.setOnClickListener(this);
+        mTempLoginButton = findViewById(R.id.temp_login_button);
+        mTempLoginButton.setTypeface(mFontSnowboard);
+        mTempLoginButton.setOnClickListener(this);
+        mAuthButton = findViewById(R.id.authenticate_button);
+        mAuthButton.setTypeface(mFontSnowboard);
+        mAuthButton.setOnClickListener(this);
         findViewById(R.id.ivLogo).setOnClickListener(this);
 
         TextView links = findViewById(R.id.links);
@@ -108,19 +102,57 @@ public class Login extends FullscreenController implements View.OnClickListener,
 
     }
 
-    @Override
-    public void onStart() {
-        super.onStart();
-        mAuth.addAuthStateListener(mAuthListener);
+
+    private void anonymousAuthentication() {
+        mAuthButton.setEnabled(false);
+        mTempLoginButton.setEnabled(false);
+        mAuth.signInAnonymously().addOnSuccessListener(new OnSuccessListener<AuthResult>() {
+            @Override
+            public void onSuccess(AuthResult authResult) {
+                user = authResult.getUser();
+
+                Log.i(LOG_TAG, "anon user has signed in successfully");
+
+                database.getReference().child("users").addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+
+                        String userId = "anon0";
+
+                        if (dataSnapshot.exists()) {
+                            userId = "anon" + dataSnapshot.getChildrenCount();
+                        }
+                        currentUser = new User(QUESTION, QUESTION, user.getUid(), QUESTION, userId);
+                        database.getReference("users").child(user.getUid()).setValue(currentUser).addOnCompleteListener(new OnCompleteListener<Void>() {
+                            @Override
+                            public void onComplete(@NonNull Task<Void> task) {
+                                completeLogin();
+                            }
+                        });
+
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+                        mAuthButton.setEnabled(true);
+                        mTempLoginButton.setEnabled(true);
+                        showAlert(databaseError.getMessage());
+
+                    }
+                });
+
+
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                mAuthButton.setEnabled(true);
+                mTempLoginButton.setEnabled(true);
+                showAlert(e.getLocalizedMessage());
+            }
+        });
     }
 
-    @Override
-    public void onStop() {
-        super.onStop();
-        if (mAuthListener != null) {
-            mAuth.removeAuthStateListener(mAuthListener);
-        }
-    }
 
     @Override
     public void onClick(View v) {
@@ -132,7 +164,12 @@ public class Login extends FullscreenController implements View.OnClickListener,
 
 
                 break;
-            case R.id.authenticate:
+            case R.id.temp_login_button:
+                showProgressSnowboard(R.string.loading, R.drawable.balaclava);
+                anonymousAuthentication();
+                break;
+
+            case R.id.authenticate_button:
                 showProgressSnowboard(R.string.loading, R.drawable.balaclava);
                 if (!validate()) {
                     Helper.showSnackbar(getString(R.string.validate_err), this);
@@ -197,8 +234,9 @@ public class Login extends FullscreenController implements View.OnClickListener,
     }
 
     private void signIn(final String email, final String password) {
-        bAuth.setEnabled(false);
-        bAuth.setText(R.string.load_auth);
+        mAuthButton.setEnabled(false);
+        mAuthButton.setText(R.string.load_auth);
+        mTempLoginButton.setEnabled(false);
 
         mAuth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
@@ -211,25 +249,20 @@ public class Login extends FullscreenController implements View.OnClickListener,
                         // signed in user can be handled in the listener.
                         if (!task.isSuccessful()) {
                             Log.w(Helper.TAG, "signInWithEmail:failed", task.getException());
-                            Toast.makeText(Login.this, R.string.validate_err,
-                                    Toast.LENGTH_SHORT).show();
-                            bAuth.setEnabled(true);
+                            showAlert(task.getException().getLocalizedMessage());
+                            mAuthButton.setEnabled(true);
+                            mTempLoginButton.setEnabled(true);
                             return;
                         }
 
                         user = task.getResult().getUser();
+
+                        Log.i(LOG_TAG, user.getEmail() + " has signed in successfuly");
                         database.getReference("users").child(user.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
                             @Override
                             public void onDataChange(DataSnapshot dataSnapshot) {
                                 currentUser = dataSnapshot.getValue(User.class);
                                 if (currentUser == null) {
-                                    currentUser = new User("?", email, user.getUid(), "Wits");
-                                    database.getReference("users").child(user.getUid()).setValue(currentUser).addOnCompleteListener(new OnCompleteListener<Void>() {
-                                        @Override
-                                        public void onComplete(@NonNull Task<Void> task) {
-                                            completeLogin();
-                                        }
-                                    });
 
                                 } else {
                                     completeLogin();
