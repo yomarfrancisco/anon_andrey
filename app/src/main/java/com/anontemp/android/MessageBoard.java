@@ -38,76 +38,6 @@ public class MessageBoard extends FullscreenController implements View.OnClickLi
     private RecyclerView mRecycler;
     private TweetsAdapter mAdapter;
     private List<Region> mRegions = new ArrayList<>();
-
-    private ChildEventListener mTweetsListener = new ChildEventAdapter() {
-        @Override
-        public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-            if (mRecycler == null || mAdapter == null)
-                return;
-
-            Tweet tweet = dataSnapshot.getValue(Tweet.class);
-            tweet.setRealDate(Helper.getRealDate(tweet.getDate()));
-            if (!isShowableTweet(tweet))
-                return;
-            tweet.setTimeToLive(formatTimeToLive(getTimeToLive(tweet.getRealDate(), tweet.getCountdown())));
-            tweet.set_id(new Random().nextLong());
-            mTweetItems.add(FIRST, tweet);
-            mAdapter.notifyItemInserted(FIRST);
-            mRecycler.scrollToPosition(0);
-
-
-        }
-
-        private boolean isNotifyShown() {
-            return mAlert!=null&&mAlert.isShowing();
-        }
-
-        @Override
-        public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-            if (mRecycler == null || mAdapter == null)
-                return;
-            Tweet mUpdatedTweet = dataSnapshot.getValue(Tweet.class);
-            for (Tweet mOriginalTweet : mTweets) {
-
-                if (mOriginalTweet.getTweetId().equals(mUpdatedTweet.getTweetId())) {
-                    int index = mTweetItems.indexOf(mOriginalTweet);
-
-                    if(!isShowableTweet(mUpdatedTweet)) {
-                        mAdapter.notifyItemRemoved(index);
-                        return;
-                    }
-
-                    mUpdatedTweet.setRealDate(mOriginalTweet.getRealDate());
-                    mUpdatedTweet.setTimeToLive(formatTimeToLive(getTimeToLive(mUpdatedTweet.getRealDate(), mUpdatedTweet.getCountdown())));
-                    mUpdatedTweet.set_id(mOriginalTweet.get_id());
-
-                    String uid = currentUser.getUid();
-                    if (uid.equals(mUpdatedTweet.getUserId())) {
-                        if(mUpdatedTweet.getLoves()!=null&&mOriginalTweet.getLoves()==null
-                                || mUpdatedTweet.getLoves()!=null&&mOriginalTweet.getLoves()!=null&&
-                                mUpdatedTweet.getLoves().size()!=mOriginalTweet.getLoves().size()) {
-                            if(!isNotifyShown())
-                            mAlert = showAlert(R.string.new_love);
-                        }
-
-                        if(mUpdatedTweet.getComments()!=null&&mOriginalTweet.getComments()==null
-                                || mUpdatedTweet.getComments()!=null&&mOriginalTweet.getComments()!=null&&
-                                mUpdatedTweet.getComments().size()!=mOriginalTweet.getComments().size()) {
-                            if(!isNotifyShown())
-                            mAlert = showAlert(R.string.new_comment);
-                            mAdapter.toggleComment((TweetsAdapter.TweetHolder) mRecycler.findViewHolderForItemId(mOriginalTweet.get_id()));
-                        }
-                    }
-
-                    mTweetItems.set(index, mUpdatedTweet);
-                    mAdapter.notifyItemChanged(index);
-                    break;
-                }
-            }
-
-        }
-
-    };
     private ChildEventListener mRegionsListener = new ChildEventAdapter() {
         @Override
         public void onChildAdded(DataSnapshot dataSnapshot, String s) {
@@ -117,8 +47,7 @@ public class MessageBoard extends FullscreenController implements View.OnClickLi
         }
 
     };
-
-
+    private AlertDialog mAlert;
     private ChildEventListener mTweetsListener = new ChildEventAdapter() {
         @Override
         public void onChildAdded(DataSnapshot dataSnapshot, String s) {
@@ -138,10 +67,6 @@ public class MessageBoard extends FullscreenController implements View.OnClickLi
 
         }
 
-        private boolean isNotifyShown() {
-            return mAlert!=null&&mAlert.isShowing();
-        }
-
         @Override
         public void onChildChanged(DataSnapshot dataSnapshot, String s) {
             if (mRecycler == null || mAdapter == null)
@@ -152,7 +77,7 @@ public class MessageBoard extends FullscreenController implements View.OnClickLi
                 if (mOriginalTweet.getTweetId().equals(mUpdatedTweet.getTweetId())) {
                     int index = mTweetItems.indexOf(mOriginalTweet);
 
-                    if(!isShowableTweet(mUpdatedTweet)) {
+                    if (!isShowableTweet(mUpdatedTweet)) {
                         mAdapter.notifyItemRemoved(index);
                         return;
                     }
@@ -163,18 +88,18 @@ public class MessageBoard extends FullscreenController implements View.OnClickLi
 
                     String uid = currentUser.getUid();
                     if (uid.equals(mUpdatedTweet.getUserId())) {
-                        if(mUpdatedTweet.getLoves()!=null&&mOriginalTweet.getLoves()==null
-                                || mUpdatedTweet.getLoves()!=null&&mOriginalTweet.getLoves()!=null&&
-                                mUpdatedTweet.getLoves().size()!=mOriginalTweet.getLoves().size()) {
-                            if(!isNotifyShown())
-                            mAlert = showAlert(R.string.new_love);
+                        if (mUpdatedTweet.getLoves() != null && mOriginalTweet.getLoves() == null
+                                || mUpdatedTweet.getLoves() != null && mOriginalTweet.getLoves() != null &&
+                                mUpdatedTweet.getLoves().size() != mOriginalTweet.getLoves().size()) {
+                            if (!isNotifyShown())
+                                mAlert = showAlert(R.string.new_love);
                         }
 
-                        if(mUpdatedTweet.getComments()!=null&&mOriginalTweet.getComments()==null
-                                || mUpdatedTweet.getComments()!=null&&mOriginalTweet.getComments()!=null&&
-                                mUpdatedTweet.getComments().size()!=mOriginalTweet.getComments().size()) {
-                            if(!isNotifyShown())
-                            mAlert = showAlert(R.string.new_comment);
+                        if (mUpdatedTweet.getComments() != null && mOriginalTweet.getComments() == null
+                                || mUpdatedTweet.getComments() != null && mOriginalTweet.getComments() != null &&
+                                mUpdatedTweet.getComments().size() != mOriginalTweet.getComments().size()) {
+                            if (!isNotifyShown())
+                                mAlert = showAlert(R.string.new_comment);
                             mAdapter.toggleComment((TweetsAdapter.TweetHolder) mRecycler.findViewHolderForItemId(mOriginalTweet.get_id()));
                         }
                     }
@@ -188,6 +113,10 @@ public class MessageBoard extends FullscreenController implements View.OnClickLi
         }
 
     };
+
+    private boolean isNotifyShown() {
+        return mAlert != null && mAlert.isShowing();
+    }
 
     private boolean isShowableTweet(Tweet tweet) {
         if (tweet.getReporters() != null && tweet.getReporters().size() > 4) {
@@ -259,7 +188,7 @@ public class MessageBoard extends FullscreenController implements View.OnClickLi
         showWelcomeScreen();
 
 
-    }    private AlertDialog mAlert;
+    }
 
     private void showWelcomeScreen() {
         if (Helper.isBoardWelcome())
@@ -271,7 +200,7 @@ public class MessageBoard extends FullscreenController implements View.OnClickLi
 
     @Override
     public void onAlertClick() {
-        if(mAlert!=null&&mAlert.isShowing())
+        if (mAlert != null && mAlert.isShowing())
             mAlert.dismiss();
     }
 
