@@ -14,12 +14,14 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 
 import com.anontemp.android.BaseTweetItem;
 import com.anontemp.android.R;
 import com.anontemp.android.model.Tweet;
+import com.anontemp.android.view.AnonTButton;
 import com.anontemp.android.view.AnonTVSpecial;
 import com.anontemp.android.view.AnonTView;
 import com.bumptech.glide.Glide;
@@ -154,6 +156,11 @@ public class TweetsAdapter extends RecyclerView.Adapter {
                     th.mPurpleSplash.setVisibility(View.INVISIBLE);
                 }
 
+                th.mTimeToDelete.setText(tweet.getTimeToLive());
+
+                int commentsSize = tweet.getComments() == null ? 0 : tweet.getComments().size();
+                th.mComment.setText(context.getResources().getQuantityString(R.plurals.comment_count, commentsSize, commentsSize));
+
 
                 break;
 
@@ -166,6 +173,13 @@ public class TweetsAdapter extends RecyclerView.Adapter {
         }
 
 
+    }
+
+    public void toggleComment(TweetHolder th) {
+        final Animation myAnim = AnimationUtils.loadAnimation(context, R.anim.bounce);
+        MyBounceInterpolator interpolator = new MyBounceInterpolator(0.2, 20);
+        myAnim.setInterpolator(interpolator);
+        th.mComment.startAnimation(myAnim);
     }
 
     @Override
@@ -253,7 +267,7 @@ public class TweetsAdapter extends RecyclerView.Adapter {
         public final ImageView mBlackSplash;
         public final ImageView mPinkSplash;
         public final ImageView mPurpleSplash;
-        public final AnonTView mComment;
+        public final AnonTButton mComment;
         public Tweet tweet;
         boolean mStartPlaying = true;
         private MediaPlayer mPlayer = null;

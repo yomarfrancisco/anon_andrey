@@ -27,6 +27,7 @@ import com.anontemp.android.misc.AnonDialog;
 import com.anontemp.android.misc.FontCache;
 import com.anontemp.android.misc.Helper;
 import com.anontemp.android.model.User;
+import com.anontemp.android.view.AnonTVSpecial;
 import com.anontemp.android.view.AnonTView;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -272,14 +273,13 @@ public abstract class FullscreenController extends AppCompatActivity {
         final AlertDialog.Builder build = new AlertDialog.Builder(this);
         build.setView(d);
         if (title != null) {
-            TextView tvTitle = new TextView(this);
-            Typeface bold = FontCache.getTypeface("helvetica-neue-bold.ttf", this);
-            tvTitle.setTypeface(bold);
-            build.setCustomTitle(tvTitle);
+            AnonTVSpecial tvTitle = d.findViewById(R.id.title);
             if (title instanceof Integer)
                 tvTitle.setText((Integer) title);
             if (title instanceof String)
                 tvTitle.setText((String) title);
+        } else {
+            d.findViewById(R.id.title).setVisibility(View.GONE);
         }
         AnonTView tv = d.findViewById(R.id.text);
         Typeface thin = FontCache.getTypeface("HelveticaNeue-Thin.otf", this);

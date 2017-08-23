@@ -25,7 +25,7 @@ public class Tweet extends BaseTweetItem implements Comparable<Tweet> {
     @PropertyName("votes")
     private Integer tweetVotes;
     private Boolean allowComment;
-    private Integer countDown;
+    private Integer countdown;
     private String date;
     @PropertyName("regionname")
     private String regionName;
@@ -34,13 +34,40 @@ public class Tweet extends BaseTweetItem implements Comparable<Tweet> {
     @PropertyName("regionid")
     private String regionId;
     private String location;
-    private String visibleDate;
+    private String timeToLive;
     private Long realDate;
     private String tweetGif;
     private Double tweetRecord;
+    private Map<String, String> comments;
+    private Map<String, String> loves;
+    private Map<String, String> reporters;
 
 
     public Tweet() {
+    }
+
+    public Map<String, String> getLoves() {
+        return loves;
+    }
+
+    public void setLoves(Map<String, String> loves) {
+        this.loves = loves;
+    }
+
+    public Map<String, String> getReporters() {
+        return reporters;
+    }
+
+    public void setReporters(Map<String, String> reporters) {
+        this.reporters = reporters;
+    }
+
+    public Map<String, String> getComments() {
+        return comments;
+    }
+
+    public void setComments(Map<String, String> comments) {
+        this.comments = comments;
     }
 
     public Double getTweetRecord() {
@@ -67,12 +94,12 @@ public class Tweet extends BaseTweetItem implements Comparable<Tweet> {
         this.realDate = realDate;
     }
 
-    public String getVisibleDate() {
-        return visibleDate;
+    public String getTimeToLive() {
+        return timeToLive;
     }
 
-    public void setVisibleDate(String visibleDate) {
-        this.visibleDate = visibleDate;
+    public void setTimeToLive(String timeToLive) {
+        this.timeToLive = timeToLive;
     }
 
 
@@ -109,12 +136,12 @@ public class Tweet extends BaseTweetItem implements Comparable<Tweet> {
         this.allowComment = allowComment;
     }
 
-    public Integer getCountDown() {
-        return countDown;
+    public Integer getCountdown() {
+        return countdown;
     }
 
-    public void setCountDown(Integer countDown) {
-        this.countDown = countDown;
+    public void setCountdown(Integer countdown) {
+        this.countdown = countdown;
     }
 
     public String getDate() {
@@ -199,7 +226,7 @@ public class Tweet extends BaseTweetItem implements Comparable<Tweet> {
         result.put("tweetText", tweetText);
         result.put("votes", tweetVotes);
         result.put("date", date);
-        result.put("countdown", countDown);
+        result.put("countdown", countdown);
         result.put("moodText", moodText);
         result.put("allowComment", allowComment);
         result.put("regionid", regionId);

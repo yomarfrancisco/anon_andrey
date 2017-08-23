@@ -586,7 +586,7 @@ public class DashBoard extends FullscreenController implements View.OnClickListe
         tweet.setFirstName(currentUser.getFirstName());
         tweet.setTweetText(boardInput.getText().toString());
         tweet.setTweetVotes(0);
-        tweet.setCountDown(getCountdownSeconds());
+        tweet.setCountdown(getCountdownSeconds());
         tweet.setDate(dateString);
         tweet.setLocation(location.getLatitude() + "," + location.getLongitude());
         tweet.setAllowComment(commentSwitch.isChecked());

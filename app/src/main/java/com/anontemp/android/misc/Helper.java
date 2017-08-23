@@ -38,7 +38,8 @@ public class Helper {
     public static final String ARG_TEMP_FLAG = "tempFalg";
     public static final String EMAIL = "email";
     public static final String PASSWORD = "password";
-    public static final String WELCOME = "welcome";
+    public static final String WELCOME_GIF = "welcome_gif";
+    public static final String WELCOME_BOARD = "welcome_board";
 
     public static void downToUpTransition(Activity activity) {
         activity.overridePendingTransition(R.anim.slide_up_dialog, R.anim.no_change);
@@ -73,12 +74,20 @@ public class Helper {
 
     }
 
-    public static boolean isAlreadyWelcome() {
-        return AnonApp.get().getDefaultPrefs().getBoolean(WELCOME, false);
+    public static boolean isGifAlreadyWelcome() {
+        return AnonApp.get().getDefaultPrefs().getBoolean(WELCOME_GIF, false);
     }
 
-    public static void setWelcome() {
-        AnonApp.get().getDefaultPrefs().edit().putBoolean(WELCOME, true).apply();
+    public static void seGiftWelcome() {
+        AnonApp.get().getDefaultPrefs().edit().putBoolean(WELCOME_GIF, true).apply();
+    }
+
+    public static boolean isBoardWelcome() {
+        return AnonApp.get().getDefaultPrefs().getBoolean(WELCOME_BOARD, false);
+    }
+
+    public static void setBoardWelcome() {
+        AnonApp.get().getDefaultPrefs().edit().putBoolean(WELCOME_BOARD, true).apply();
     }
 
     public static Pair<String, String> getCredentials() {

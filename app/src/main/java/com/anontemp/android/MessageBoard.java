@@ -2,87 +2,213 @@ package com.anontemp.android;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.ImageButton;
 
+import com.anontemp.android.misc.ChildEventAdapter;
 import com.anontemp.android.misc.HeaderItem;
 import com.anontemp.android.misc.Helper;
 import com.anontemp.android.misc.MessageDivider;
 import com.anontemp.android.misc.TweetsAdapter;
+import com.anontemp.android.model.Region;
 import com.anontemp.android.model.Tweet;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.Random;
 
 public class MessageBoard extends FullscreenController implements View.OnClickListener {
 
     public static final int FIRST = 1;
-    final List<Tweet> tweetList = new ArrayList<>();
-    List<BaseTweetItem> items;
-    private FirebaseDatabase database;
+    final List<Tweet> mTweets = new ArrayList<>();
+    List<BaseTweetItem> mTweetItems;
+    private FirebaseDatabase mDatabase;
     private FirebaseAuth mAuth;
     private ImageButton mMenuButton;
-    private RecyclerView rv;
-    private TweetsAdapter adapter;
+    private RecyclerView mRecycler;
+    private TweetsAdapter mAdapter;
+    private List<Region> mRegions = new ArrayList<>();
 
-    private ChildEventListener childEventListener = new ChildEventListener() {
+    private ChildEventListener mTweetsListener = new ChildEventAdapter() {
         @Override
         public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-            if (rv == null || adapter == null)
+            if (mRecycler == null || mAdapter == null)
                 return;
 
             Tweet tweet = dataSnapshot.getValue(Tweet.class);
             tweet.setRealDate(Helper.getRealDate(tweet.getDate()));
+            if (!isShowableTweet(tweet))
+                return;
+            tweet.setTimeToLive(formatTimeToLive(getTimeToLive(tweet.getRealDate(), tweet.getCountdown())));
             tweet.set_id(new Random().nextLong());
-            items.add(FIRST, tweet);
-            adapter.notifyItemInserted(1);
-            rv.scrollToPosition(0);
+            mTweetItems.add(FIRST, tweet);
+            mAdapter.notifyItemInserted(FIRST);
+            mRecycler.scrollToPosition(0);
 
 
         }
 
+        private boolean isNotifyShown() {
+            return mAlert!=null&&mAlert.isShowing();
+        }
+
         @Override
         public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-            if (rv == null || adapter == null)
+            if (mRecycler == null || mAdapter == null)
                 return;
-            Tweet tweet = dataSnapshot.getValue(Tweet.class);
-            for (Tweet t : tweetList) {
-                if (t.getTweetId().equals(tweet.getTweetId())) {
-                    tweet.setVisibleDate(t.getVisibleDate());
-                    tweet.setRealDate(t.getRealDate());
-                    int index = items.indexOf(t);
-                    items.set(index, tweet);
-                    adapter.notifyItemChanged(index);
+            Tweet mUpdatedTweet = dataSnapshot.getValue(Tweet.class);
+            for (Tweet mOriginalTweet : mTweets) {
+
+                if (mOriginalTweet.getTweetId().equals(mUpdatedTweet.getTweetId())) {
+                    int index = mTweetItems.indexOf(mOriginalTweet);
+
+                    if(!isShowableTweet(mUpdatedTweet)) {
+                        mAdapter.notifyItemRemoved(index);
+                        return;
+                    }
+
+                    mUpdatedTweet.setRealDate(mOriginalTweet.getRealDate());
+                    mUpdatedTweet.setTimeToLive(formatTimeToLive(getTimeToLive(mUpdatedTweet.getRealDate(), mUpdatedTweet.getCountdown())));
+                    mUpdatedTweet.set_id(mOriginalTweet.get_id());
+
+                    String uid = currentUser.getUid();
+                    if (uid.equals(mUpdatedTweet.getUserId())) {
+                        if(mUpdatedTweet.getLoves()!=null&&mOriginalTweet.getLoves()==null
+                                || mUpdatedTweet.getLoves()!=null&&mOriginalTweet.getLoves()!=null&&
+                                mUpdatedTweet.getLoves().size()!=mOriginalTweet.getLoves().size()) {
+                            if(!isNotifyShown())
+                            mAlert = showAlert(R.string.new_love);
+                        }
+
+                        if(mUpdatedTweet.getComments()!=null&&mOriginalTweet.getComments()==null
+                                || mUpdatedTweet.getComments()!=null&&mOriginalTweet.getComments()!=null&&
+                                mUpdatedTweet.getComments().size()!=mOriginalTweet.getComments().size()) {
+                            if(!isNotifyShown())
+                            mAlert = showAlert(R.string.new_comment);
+                            mAdapter.toggleComment((TweetsAdapter.TweetHolder) mRecycler.findViewHolderForItemId(mOriginalTweet.get_id()));
+                        }
+                    }
+
+                    mTweetItems.set(index, mUpdatedTweet);
+                    mAdapter.notifyItemChanged(index);
                     break;
                 }
             }
 
         }
 
+    };
+    private ChildEventListener mRegionsListener = new ChildEventAdapter() {
         @Override
-        public void onChildRemoved(DataSnapshot dataSnapshot) {
+        public void onChildAdded(DataSnapshot dataSnapshot, String s) {
 
+            Region region = dataSnapshot.getValue(Region.class);
+            mRegions.add(0, region);
         }
 
-        @Override
-        public void onChildMoved(DataSnapshot dataSnapshot, String s) {
-
-        }
-
-        @Override
-        public void onCancelled(DatabaseError databaseError) {
-
-        }
     };
 
+
+    private ChildEventListener mTweetsListener = new ChildEventAdapter() {
+        @Override
+        public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+            if (mRecycler == null || mAdapter == null)
+                return;
+
+            Tweet tweet = dataSnapshot.getValue(Tweet.class);
+            tweet.setRealDate(Helper.getRealDate(tweet.getDate()));
+            if (!isShowableTweet(tweet))
+                return;
+            tweet.setTimeToLive(formatTimeToLive(getTimeToLive(tweet.getRealDate(), tweet.getCountdown())));
+            tweet.set_id(new Random().nextLong());
+            mTweetItems.add(FIRST, tweet);
+            mAdapter.notifyItemInserted(FIRST);
+            mRecycler.scrollToPosition(0);
+
+
+        }
+
+        private boolean isNotifyShown() {
+            return mAlert!=null&&mAlert.isShowing();
+        }
+
+        @Override
+        public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+            if (mRecycler == null || mAdapter == null)
+                return;
+            Tweet mUpdatedTweet = dataSnapshot.getValue(Tweet.class);
+            for (Tweet mOriginalTweet : mTweets) {
+
+                if (mOriginalTweet.getTweetId().equals(mUpdatedTweet.getTweetId())) {
+                    int index = mTweetItems.indexOf(mOriginalTweet);
+
+                    if(!isShowableTweet(mUpdatedTweet)) {
+                        mAdapter.notifyItemRemoved(index);
+                        return;
+                    }
+
+                    mUpdatedTweet.setRealDate(mOriginalTweet.getRealDate());
+                    mUpdatedTweet.setTimeToLive(formatTimeToLive(getTimeToLive(mUpdatedTweet.getRealDate(), mUpdatedTweet.getCountdown())));
+                    mUpdatedTweet.set_id(mOriginalTweet.get_id());
+
+                    String uid = currentUser.getUid();
+                    if (uid.equals(mUpdatedTweet.getUserId())) {
+                        if(mUpdatedTweet.getLoves()!=null&&mOriginalTweet.getLoves()==null
+                                || mUpdatedTweet.getLoves()!=null&&mOriginalTweet.getLoves()!=null&&
+                                mUpdatedTweet.getLoves().size()!=mOriginalTweet.getLoves().size()) {
+                            if(!isNotifyShown())
+                            mAlert = showAlert(R.string.new_love);
+                        }
+
+                        if(mUpdatedTweet.getComments()!=null&&mOriginalTweet.getComments()==null
+                                || mUpdatedTweet.getComments()!=null&&mOriginalTweet.getComments()!=null&&
+                                mUpdatedTweet.getComments().size()!=mOriginalTweet.getComments().size()) {
+                            if(!isNotifyShown())
+                            mAlert = showAlert(R.string.new_comment);
+                            mAdapter.toggleComment((TweetsAdapter.TweetHolder) mRecycler.findViewHolderForItemId(mOriginalTweet.get_id()));
+                        }
+                    }
+
+                    mTweetItems.set(index, mUpdatedTweet);
+                    mAdapter.notifyItemChanged(index);
+                    break;
+                }
+            }
+
+        }
+
+    };
+
+    private boolean isShowableTweet(Tweet tweet) {
+        if (tweet.getReporters() != null && tweet.getReporters().size() > 4) {
+            return false;
+        }
+
+        return getTimeToLive(tweet.getRealDate(), tweet.getCountdown() == null ? 0 : tweet.getCountdown()) > 0;
+
+
+    }
+
+    private long getTimeToLive(long date, int countdown) {
+
+
+        return (date + (countdown * 1000) - Calendar.getInstance().getTimeInMillis()) * -1;
+
+    }
+
+    private String formatTimeToLive(long date) {
+        return getString(R.string.ttl_tweet, new SimpleDateFormat("H'h' mm'm'").format(new Date(date)));
+    }
 
     @Override
     protected int init() {
@@ -93,41 +219,19 @@ public class MessageBoard extends FullscreenController implements View.OnClickLi
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mAuth = FirebaseAuth.getInstance();
-        database = FirebaseDatabase.getInstance();
+        mDatabase = FirebaseDatabase.getInstance();
         mMenuButton = findViewById(R.id.menu_button);
         mMenuButton.setOnClickListener(this);
-        items = new ArrayList<>();
-        items.add(new HeaderItem(getString(R.string.wits_notice_board)));
+        mTweetItems = new ArrayList<>();
+        mTweetItems.add(new HeaderItem(getString(R.string.wits_notice_board)));
 
-        rv = findViewById(R.id.list);
-        tweetList.clear();
+        mRecycler = findViewById(R.id.list);
+        mTweets.clear();
 
-//        database.getReference("Tweets").addListenerForSingleValueEvent(new ValueEventListener() {
-//            @Override
-//            public void onDataChange(DataSnapshot dataSnapshot) {
-//
-//                for (DataSnapshot tweetShot : dataSnapshot.getChildren()) {
-//                    Tweet t = tweetShot.getValue(Tweet.class);
-//                    t.set_id(new Random().nextLong());
-//                    t.setRealDate(Helper.getRealDate(t.getDate()));
-//                    tweetList.add(t);
-//                }
-//
-//                Collections.sort(tweetList);
-//                items.addAll(tweetList);
-//                adapter.notifyDataSetChanged();
-//
-//            }
-//
-//            @Override
-//            public void onCancelled(DatabaseError databaseError) {
-//                Helper.showSnackbar(databaseError.getMessage(), MessageBoard.this);
-//            }
-//        });
-        rv.setLayoutManager(new LinearLayoutManager(MessageBoard.this));
-        adapter = new TweetsAdapter(items, MessageBoard.this);
-        rv.setAdapter(adapter);
-        rv.addItemDecoration(new MessageDivider(MessageBoard.this));
+        mRecycler.setLayoutManager(new LinearLayoutManager(MessageBoard.this));
+        mAdapter = new TweetsAdapter(mTweetItems, MessageBoard.this);
+        mRecycler.setAdapter(mAdapter);
+        mRecycler.addItemDecoration(new MessageDivider(MessageBoard.this));
 
 
 //        Calendar now = Calendar.getInstance();
@@ -152,14 +256,31 @@ public class MessageBoard extends FullscreenController implements View.OnClickLi
 
         findViewById(R.id.board_link).setOnClickListener(this);
         findViewById(R.id.live_link).setOnClickListener(this);
+        showWelcomeScreen();
 
+
+    }    private AlertDialog mAlert;
+
+    private void showWelcomeScreen() {
+        if (Helper.isBoardWelcome())
+            return;
+        mAlert = showAlert(R.string.board_welcome_body, R.string.board_welcome_title);
+        Helper.setBoardWelcome();
 
     }
 
     @Override
+    public void onAlertClick() {
+        if(mAlert!=null&&mAlert.isShowing())
+            mAlert.dismiss();
+    }
+
+
+    @Override
     protected void onResume() {
         super.onResume();
-        database.getReference("Tweets").addChildEventListener(childEventListener);
+        mDatabase.getReference("Tweets").addChildEventListener(mTweetsListener);
+        mDatabase.getReference("Regions").addChildEventListener(mRegionsListener);
 
     }
 
@@ -208,7 +329,8 @@ public class MessageBoard extends FullscreenController implements View.OnClickLi
     @Override
     protected void onPause() {
         super.onPause();
-        database.getReference("Tweets").removeEventListener(childEventListener);
+        mDatabase.getReference("Tweets").removeEventListener(mTweetsListener);
+        mDatabase.getReference("Regions").removeEventListener(mRegionsListener);
     }
 
 }

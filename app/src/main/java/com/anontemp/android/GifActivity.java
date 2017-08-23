@@ -117,10 +117,10 @@ public class GifActivity extends FullscreenController implements GifsAdapter.Gif
 
 
     private void showWelcomeScreen() {
-        if (Helper.isAlreadyWelcome())
+        if (Helper.isGifAlreadyWelcome())
             return;
         showAlert(R.string.gif_welcome_body, R.string.gif_welcome_title);
-        Helper.setWelcome();
+        Helper.seGiftWelcome();
 
     }
 

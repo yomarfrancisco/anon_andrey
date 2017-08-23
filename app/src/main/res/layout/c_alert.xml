@@ -7,13 +7,24 @@
     android:clickable="true"
     android:orientation="vertical">
 
+    <com.anontemp.android.view.AnonTVSpecial
+        android:id="@+id/title"
+        android:layout_width="280dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="20dp"
+        android:textAlignment="center"
+        android:textColor="@android:color/holo_green_dark"
+        android:textSize="19sp"
+        />
+
     <com.anontemp.android.view.AnonTView
         android:id="@+id/text"
         android:layout_width="247dp"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
         android:layout_marginTop="20dp"
-        android:textSize="15sp" />
+        android:textSize="15sp"/>
 
     <com.anontemp.android.view.AnonTView
         android:id="@+id/ivOk"
