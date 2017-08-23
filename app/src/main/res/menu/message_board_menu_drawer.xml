@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/nav_wits"
+            android:title="@string/wits_notice_board"/>
+        <item
+            android:id="@+id/nav_law_man"
+            android:title="@string/law_man"/>
+        <item
+            android:id="@+id/nav_barnato"
+            android:title="@string/barnato"/>
+        <item
+            android:id="@+id/nav_library"
+            android:title="@string/library_lawns"/>
+        <item
+            android:id="@+id/nav_matrix"
+            android:title="@string/matrix"/>
+        <item
+            android:id="@+id/nav_block"
+            android:title="@string/block"/>
+        <item
+            android:id="@+id/nav_jubes"
+            android:title="@string/jubes"/>
+        <item
+            android:id="@+id/nav_pin"
+            android:title="@string/nav_pin_title"/>
+        <item
+            android:id="@+id/nav_live"
+            android:title="@string/nav_mob_live"/>
+    </group>
+
+</menu>

@@ -134,6 +134,14 @@
     <string name="gender_tweet">Gender: %1$s</string>
     <string name="ttl_tweet">Deleting in %1$s</string>
     <string name="wits_notice_board">Wits notice board</string>
+    <string name="law_man">Comm, Law &amp; Man</string>
+    <string name="barnato">Barnato</string>
+    <string name="library_lawns">Library &amp; Lawns</string>
+    <string name="matrix">Matrix</string>
+    <string name="block">SH &amp; C.Block</string>
+    <string name="jubes">Jubes</string>
+    <string name="nav_pin_title">Pin Something</string>
+    <string name="nav_mob_live">Anon. Mob Live</string>
     <plurals name="comment_count">
         <item quantity="zero">%d comment</item>
         <item quantity="one">%d comment</item>
@@ -144,6 +152,10 @@
     <string name="board_welcome_title">Welcome to anon.</string>
     <string name="new_love">Someone just liked your post.</string>
     <string name="new_comment">Someone just made a comment about your post.</string>
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+
+    <string name="action_settings">Settings</string>
 
 
 </resources>

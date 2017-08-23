@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.anontemp.android">
+          package="com.anontemp.android">
 
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-    <uses-permission android:name="android.permission.RECORD_AUDIO" />
-    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+    <uses-permission android:name="android.permission.RECORD_AUDIO"/>
+    <uses-permission android:name="android.permission.INTERNET"/>
 
     <application
         android:name=".AnonApp"
@@ -18,64 +18,65 @@
         android:theme="@style/AppTheme">
         <meta-data
             android:name="com.google.android.gms.version"
-            android:value="@integer/google_play_services_version" />
+            android:value="@integer/google_play_services_version"/>
 
         <activity
             android:name=".Splash"
             android:label="@string/app_name"
             android:theme="@style/SplashScreenTheme">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <action android:name="android.intent.action.VIEW" />
+                <action android:name="android.intent.action.MAIN"/>
+                <action android:name="android.intent.action.VIEW"/>
 
-                <category android:name="android.intent.category.LAUNCHER" />
+                <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
         <activity
             android:name=".WhiteSplash"
-            android:theme="@style/AppTheme" />
+            android:theme="@style/AppTheme"/>
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="@string/google_maps_key" />
+            android:value="@string/google_maps_key"/>
 
         <activity
             android:name=".MapsActivity"
-            android:label="@string/title_activity_maps" />
+            android:label="@string/title_activity_maps"/>
         <activity
             android:name=".Snapshot"
-            android:label="@string/title_activity_maps" />
+            android:label="@string/title_activity_maps"/>
 
         <service
             android:name=".GeofenceTransitionsIntentService"
-            android:exported="false" />
+            android:exported="false"/>
         <service
             android:name=".SnapshotIntentService"
-            android:exported="false" />
+            android:exported="false"/>
 
-        <activity android:name=".Login" />
+        <activity android:name=".Login"/>
         <activity
             android:name=".DashBoard"
-            android:windowSoftInputMode="adjustResize|stateHidden" />
-        <activity android:name=".MessageBoard" />
-        <activity android:name=".TermsAndPrivacy" />
-        <activity android:name=".CreateAccount" />
+            android:windowSoftInputMode="adjustResize|stateHidden"/>
+        <activity android:name=".MessageBoard"/>
+        <activity android:name=".TermsAndPrivacy"/>
+        <activity android:name=".CreateAccount"/>
 
         <service
             android:name=".misc.AuthService"
             android:enabled="true"
-            android:exported="false" />
+            android:exported="false"/>
 
-        <activity android:name=".GifActivity" />
+        <activity android:name=".GifActivity"/>
 
         <meta-data
             android:name="io.fabric.ApiKey"
-            android:value="c5228c757f88d2bb928eddb76d7728a6c984fa8b" />
+            android:value="c5228c757f88d2bb928eddb76d7728a6c984fa8b"/>
 
         <service
             android:name=".LocationService"
             android:enabled="true"
-            android:exported="false"></service>
+            android:exported="false"/>
+
     </application>
 
 </manifest>
