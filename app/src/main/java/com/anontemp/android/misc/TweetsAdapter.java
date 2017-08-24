@@ -348,6 +348,7 @@ public class TweetsAdapter extends RecyclerView.Adapter {
             mMoodImage.setOnClickListener(mClickListener);
             mMood.setOnLongClickListener(mLongClickListener);
             mMoodImage.setOnLongClickListener(mLongClickListener);
+            Typeface thin = FontCache.getTypeface("HelveticaNeue-Thin.otf", context);
             mComment.setTypeface(thin);
 
         }

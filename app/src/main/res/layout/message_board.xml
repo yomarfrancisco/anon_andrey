@@ -79,16 +79,66 @@
 
         </android.support.v7.widget.RecyclerView>
 
-        <android.support.design.widget.NavigationView
-            android:id="@+id/nav_view"
-            android:layout_width="wrap_content"
+
+        <FrameLayout
+            android:layout_width="190dp"
             android:layout_height="match_parent"
             android:layout_gravity="end"
-            android:background="@color/black_alpha"
-            android:fitsSystemWindows="false"
-            app:itemTextColor="@android:color/white"
-            app:menu="@menu/message_board_menu_drawer"
-            />
+            android:background="@color/black_alpha">
+
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="22dp"
+                android:layout_marginStart="18dp"
+                android:layout_marginTop="8dp"
+                android:scaleType="fitXY"
+                android:src="@drawable/brown_splash"
+                android:tint="@color/black_alpha_more"/>
+
+            <ImageView
+                android:layout_width="14dp"
+                android:layout_height="18dp"
+                android:layout_marginStart="100dp"
+                android:layout_marginTop="285dp"
+                android:scaleType="fitXY"
+                android:src="@drawable/black_splash1"
+                android:tint="@color/black_alpha_more"/>
+
+            <ListView
+
+                android:id="@+id/menu_list"
+                android:layout_width="190dp"
+                android:layout_height="match_parent"
+                android:layout_marginTop="30dp"
+                android:choiceMode="singleChoice"
+                android:divider="@android:color/transparent"
+                android:dividerHeight="0dp"
+                tools:listitem="@layout/drawer_heading">
+
+            </ListView>
+
+            <ImageView
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_marginStart="150dp"
+                android:layout_marginTop="315dp"
+                android:scaleType="fitXY"
+                android:src="@drawable/purple_splash_1"
+                android:tint="@color/black_alpha_more"/>
+
+
+            <ImageView
+                android:layout_width="10dp"
+                android:layout_height="10dp"
+                android:layout_marginStart="20dp"
+                android:layout_marginTop="435dp"
+                android:background="@color/black_alpha"
+                android:scaleType="fitXY"
+                android:src="@drawable/purple_splash_1"
+                android:tint="@color/black_alpha_more"/>
+
+
+        </FrameLayout>
 
 
     </android.support.v4.widget.DrawerLayout>
@@ -99,9 +149,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintGuide_percent="1"
-        tools:layout_editor_absoluteX="0dp"
-        tools:layout_editor_absoluteY="597dp"/>
+        app:layout_constraintGuide_percent="1"/>
 
     <View
         android:id="@+id/separator2"

@@ -2,19 +2,20 @@ package com.anontemp.android;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ImageButton;
+import android.widget.ListView;
 
 import com.anontemp.android.misc.ChildEventAdapter;
 import com.anontemp.android.misc.HeaderItem;
 import com.anontemp.android.misc.Helper;
+import com.anontemp.android.misc.MenuListAdapter;
 import com.anontemp.android.misc.MessageDivider;
 import com.anontemp.android.misc.TweetsAdapter;
 import com.anontemp.android.model.Region;
@@ -31,12 +32,13 @@ import java.util.Date;
 import java.util.List;
 import java.util.Random;
 
-public class MessageBoard extends FullscreenController implements View.OnClickListener, NavigationView.OnNavigationItemSelectedListener {
+public class MessageBoard extends FullscreenController implements View.OnClickListener {
 
     public static final int FIRST = 1;
     final List<Tweet> mTweets = new ArrayList<>();
     List<BaseTweetItem> mTweetItems;
     DrawerLayout drawer;
+    ListView mMenuList;
     private FirebaseDatabase mDatabase;
     private FirebaseAuth mAuth;
     private ImageButton mMenuButton;
@@ -159,32 +161,38 @@ public class MessageBoard extends FullscreenController implements View.OnClickLi
         }
     }
 
+    private void selectItem(int position) {
 
-    @SuppressWarnings("StatementWithEmptyBody")
-    @Override
-    public boolean onNavigationItemSelected(MenuItem item) {
-        // Handle navigation view item clicks here.
-        int id = item.getItemId();
-
-        switch (id) {
-            case R.id.nav_wits:
-                break;
-        }
-
+        // Highlight the selected item, update the title, and close the drawer
+        mMenuList.setItemChecked(position, true);
         drawer.closeDrawer(GravityCompat.END);
-        return true;
     }
+
+
+//    @SuppressWarnings("StatementWithEmptyBody")
+//    @Override
+//    public boolean onNavigationItemSelected(MenuItem item) {
+//        // Handle navigation view item clicks here.
+//        int id = item.getItemId();
+//
+//        switch (id) {
+//            case R.id.nav_wits:
+//                break;
+//        }
+//
+//        drawer.closeDrawer(GravityCompat.END);
+//        return true;
+//    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         drawer = findViewById(R.id.drawer_layout);
-        NavigationView navigationView = findViewById(R.id.nav_view);
-        navigationView.setNavigationItemSelectedListener(this);
 
-
-
+        mMenuList = findViewById(R.id.menu_list);
+        mMenuList.setAdapter(new MenuListAdapter(this));
+        mMenuList.setOnItemClickListener(new DrawerItemClickListener());
 
         mAuth = FirebaseAuth.getInstance();
         mDatabase = FirebaseDatabase.getInstance();
@@ -243,7 +251,6 @@ public class MessageBoard extends FullscreenController implements View.OnClickLi
             mAlert.dismiss();
     }
 
-
     @Override
     protected void onResume() {
         super.onResume();
@@ -268,7 +275,12 @@ public class MessageBoard extends FullscreenController implements View.OnClickLi
                 Helper.downToUpTransition(MessageBoard.this);
                 break;
             case R.id.menu_button:
-                drawer.openDrawer(GravityCompat.END);
+                if (drawer.isDrawerOpen(GravityCompat.END)) {
+                    drawer.closeDrawer(GravityCompat.END);
+                } else {
+                    drawer.openDrawer(GravityCompat.END);
+                }
+
                 break;
 //            case R.id.report:
 //                Intent emailIntent = new Intent(Intent.ACTION_SENDTO);
@@ -290,7 +302,6 @@ public class MessageBoard extends FullscreenController implements View.OnClickLi
         }
     }
 
-
     @Override
     protected void onDestroy() {
         super.onDestroy();
@@ -302,6 +313,13 @@ public class MessageBoard extends FullscreenController implements View.OnClickLi
         super.onPause();
         mDatabase.getReference("Tweets").removeEventListener(mTweetsListener);
         mDatabase.getReference("Regions").removeEventListener(mRegionsListener);
+    }
+
+    private class DrawerItemClickListener implements ListView.OnItemClickListener {
+        @Override
+        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+            selectItem(position);
+        }
     }
 
 }
