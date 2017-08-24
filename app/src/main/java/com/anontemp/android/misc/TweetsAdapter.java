@@ -19,6 +19,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 
 import com.anontemp.android.BaseTweetItem;
+import com.anontemp.android.Constants;
 import com.anontemp.android.R;
 import com.anontemp.android.model.Tweet;
 import com.anontemp.android.view.AnonTButton;
@@ -33,6 +34,7 @@ import com.google.firebase.storage.FirebaseStorage;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import static com.anontemp.android.FullscreenController.LOG_TAG;
@@ -47,16 +49,94 @@ public class TweetsAdapter extends RecyclerView.Adapter {
     public static final String M4A = ".m4a";
     private final List<BaseTweetItem> tweets;
     private final Context context;
-
-    private Typeface thin;
-    private Animation popBubble;
-    private int lastPosition = -1;
+    private final TweetsRegionFilter mFilter;
+    private List<BaseTweetItem> filterTweets;
+    private int mSelectedRegionIndex = -1;
+    private RecyclerView mRecyclerView;
 
     public TweetsAdapter(List<BaseTweetItem> tweets, Context context) {
         this.tweets = tweets;
         this.context = context;
+        this.mFilter = new TweetsRegionFilter(this, tweets);
+        this.filterTweets = new ArrayList<>();
+        this.filterTweets.addAll(tweets);
 
         setHasStableIds(true);
+    }
+
+    public void addTweet(Tweet tweet) {
+        tweets.add(1, tweet);
+        if (regionMatches(tweet)) {
+            this.filterTweets.add(1, tweet);
+            notifyItemInserted(1);
+        }
+    }
+
+
+    public boolean containsTweet(Tweet tweet) {
+        return this.filterTweets.contains(tweet);
+    }
+
+    public void setTweet(Tweet tweet, int i, boolean shouldToggleComment) {
+        tweets.set(i, tweet);
+        if (regionMatches(tweet)) {
+            for (BaseTweetItem item : filterTweets) {
+                if (item instanceof Tweet) {
+                    if (tweet.get_id().equals(item.get_id())) {
+                        int index = filterTweets.indexOf(item);
+                        filterTweets.set(index, tweet);
+                        notifyItemChanged(i);
+                        if (shouldToggleComment)
+                            toggleComment((TweetHolder) mRecyclerView.findViewHolderForItemId(tweet.get_id()));
+                        break;
+                    }
+                }
+            }
+
+        }
+
+
+    }
+
+    @Override
+    public void onAttachedToRecyclerView(RecyclerView recyclerView) {
+        super.onAttachedToRecyclerView(recyclerView);
+        mRecyclerView = recyclerView;
+    }
+
+    private boolean regionMatches(Tweet tweet) {
+        return mSelectedRegionIndex < 1 || mSelectedRegionIndex == getRegionIndex(tweet);
+    }
+
+    private int getRegionIndex(Tweet tweet) {
+        if (TextUtils.isEmpty(tweet.getRegionName()))
+            return 0;
+        for (GeoRegion region : Constants.LOCAL_REGIONS)
+            if (tweet.getRegionName().equals(region.getTitle()))
+                return Constants.LOCAL_REGIONS.indexOf(region);
+
+        return 0;
+    }
+
+    public void removeTweet(Tweet tweet) {
+        tweets.remove(tweet);
+
+        if (regionMatches(tweet)) {
+            int i = filterTweets.indexOf(tweet);
+            filterTweets.remove(tweet);
+            notifyItemRemoved(i);
+        }
+    }
+
+    public void setList(List<BaseTweetItem> list) {
+        this.filterTweets.clear();
+        this.filterTweets.addAll(list);
+    }
+
+
+    public void filterList(String text) {
+        mSelectedRegionIndex = text.length() == 0 ? 0 : Integer.valueOf(text);
+        mFilter.filter(text);
     }
 
     @Override
@@ -78,7 +158,7 @@ public class TweetsAdapter extends RecyclerView.Adapter {
 
     @Override
     public int getItemViewType(int position) {
-        return tweets.get(position).getType();
+        return filterTweets.get(position).getType();
     }
 
     @Override
@@ -88,7 +168,7 @@ public class TweetsAdapter extends RecyclerView.Adapter {
         switch (getItemViewType(position)) {
             case BaseTweetItem.Type.TYPE_TWEET:
                 final TweetHolder th = (TweetHolder) holder;
-                Tweet tweet = (Tweet) tweets.get(position);
+                Tweet tweet = (Tweet) filterTweets.get(position);
                 th.tweet = tweet;
                 th.mFirstName.setText(tweet.getFirstName());
                 th.mLocation.setText(tweet.getRegionName());
@@ -166,7 +246,7 @@ public class TweetsAdapter extends RecyclerView.Adapter {
 
             case BaseTweetItem.Type.TYPE_HEADER:
                 HeaderHolder hh = (HeaderHolder) holder;
-                HeaderItem headerItem = (HeaderItem) tweets.get(position);
+                HeaderItem headerItem = (HeaderItem) filterTweets.get(position);
                 hh.mHeaderItem = headerItem;
                 hh.tvTile.setText(headerItem.getTitle());
                 break;
@@ -184,12 +264,12 @@ public class TweetsAdapter extends RecyclerView.Adapter {
 
     @Override
     public int getItemCount() {
-        return tweets.size();
+        return null != filterTweets ? filterTweets.size() : 0;
     }
 
     @Override
     public long getItemId(int position) {
-        return tweets.get(position).get_id();
+        return filterTweets.get(position).get_id();
     }
 
     private Drawable getMoodBlurImageWithMoodText(String moodText) {

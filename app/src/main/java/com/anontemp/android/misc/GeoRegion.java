@@ -10,10 +10,37 @@ public class GeoRegion {
 
     private float radius;
     private LatLng latLng;
+    private int color;
+    private String title;
+    private String menuTitle;
+
+
+    public GeoRegion(String title, LatLng latLng, float radius, String menuTitle) {
+        this.radius = radius;
+        this.latLng = latLng;
+        this.title = title;
+        this.menuTitle = menuTitle;
+    }
 
     public GeoRegion(LatLng latLng, float radius) {
         this.radius = radius;
         this.latLng = latLng;
+    }
+
+    public int getColor() {
+        return color;
+    }
+
+    public void setColor(int color) {
+        this.color = color;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
     }
 
     public float getRadius() {

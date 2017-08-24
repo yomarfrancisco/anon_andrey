@@ -24,7 +24,7 @@
               android:paddingEnd="?android:attr/listPreferredItemPaddingEnd"
               android:text="@string/wits_title"
               android:textAppearance="?android:attr/textAppearanceListItemSmall"
-              android:textColor="@color/white_alfa"
+              android:textColor="@color/menu_states"
               app:layout_constraintLeft_toLeftOf="@id/left_guideline"
               app:layout_constraintTop_toTopOf="parent"
         />

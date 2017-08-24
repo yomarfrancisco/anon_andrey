@@ -1,7 +1,6 @@
 package com.anontemp.android.misc;
 
 import android.content.Context;
-import android.graphics.Color;
 import android.graphics.Typeface;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -9,11 +8,14 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
 
+import com.anontemp.android.Constants;
 import com.anontemp.android.R;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
+import static com.anontemp.android.Constants.MENU_WITS;
 
 /**
  * Created by jaydee on 24.08.17.
@@ -22,13 +24,6 @@ import java.util.List;
 public class MenuListAdapter extends BaseAdapter {
 
 
-    public static final String WITS = "WITS NOTICE BOARD";
-    public static final String LAW = "Comm, Law & Man";
-    public static final String BARNATO = "Barnato";
-    public static final String LIBRARY = "Library & Lawns";
-    public static final String MATRIX = "Matrix";
-    public static final String BLOCK = "SH & C.Block";
-    public static final String JUBES = "Jubes";
     public static final String PIN = "PIN SOMETHING";
     public static final String LIVE = "ANON. MOB LIVE";
     private final Context mContext;
@@ -39,8 +34,8 @@ public class MenuListAdapter extends BaseAdapter {
     public MenuListAdapter(Context context) {
         super();
         this.mContext = context;
-        mItems.add(new HeadingItem(WITS));
-        for (String title : Arrays.asList(LAW, BARNATO, LIBRARY, MATRIX, BLOCK, JUBES)) {
+        mItems.add(new HeadingItem(MENU_WITS));
+        for (String title : Arrays.asList(Constants.MENU_LAW, Constants.MENU_BARNATO, Constants.MENU_LIBRARY, Constants.MENU_MATRIX, Constants.MENU_BLOCK, Constants.MENU_JUBES)) {
             mItems.add(new SimpleItem(title));
         }
         mItems.add(new HeadingItem(PIN));
@@ -91,7 +86,6 @@ public class MenuListAdapter extends BaseAdapter {
                     holder = new ViewHolder();
                     holder.mTextView = v.findViewById(R.id.text);
                     holder.mTextView.setTypeface(mSpecial);
-                    holder.mTextView.setTextColor(Color.WHITE);
                     v.setTag(holder);
 
                 } else {
@@ -111,7 +105,6 @@ public class MenuListAdapter extends BaseAdapter {
                     holder2 = new ViewHolder();
                     holder2.mTextView = v2.findViewById(R.id.text);
                     holder2.mTextView.setTypeface(mHelvetica);
-                    holder2.mTextView.setTextColor(Color.WHITE);
                     v2.setTag(holder2);
 
                 } else {
@@ -130,8 +123,8 @@ public class MenuListAdapter extends BaseAdapter {
     }
 
     private abstract class ListItem {
-        public static final int TYPE_HEAD = 1;
-        public static final int TYPE_SIMPLE = 2;
+        public static final int TYPE_HEAD = 0;
+        public static final int TYPE_SIMPLE = 1;
         protected String title;
 
         public ListItem(String title) {

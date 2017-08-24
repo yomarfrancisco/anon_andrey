@@ -25,22 +25,12 @@ public final class Constants {
     public final static String EMAIL_PATTERN = "[a-zA-Z0-9._-]+@[a-z]+\\.+[a-z]+";
     public static final String WITS_UNIVERSITY = "WITS University";
     public static final String WITS_UNIVERSITY_LOWCASE = "Wits University";
-    public static final String MTV_BASE = "MTV Base";
-    public static final String TOTAL_GAS_STATION = "Total gas station";
-    public static final String VIRGIN_ALICE_LANE = "Virgin Alice Lane";
-    public static final String FAMILY = "Family";
-    public static final String TASHAS_BEDFORDVIEW = "Tashas Bedfordview";
-    public static final String JHB_NORTH = "Jhb North";
-    public static final String JHB_EAST = "Jhb East";
-    public static final String THE_ZONE = "The Zone";
     public static final String ROSEBANK = "Rosebank";
     public static final String CHAMBER_OF_MINES = "Chamber of Mines";
-    public static final String CENTRAL_B_SENATE_H = "Central B. /Senate H.";
     public static final String WARTENWEILLER_LIBRARY = "Wartenweiller Library";
     public static final String LIBRARY_LAWNS = "Library & Lawns";
     public static final String MATRIX_STUDENT_UNION = "Matrix & Student Union";
     public static final String JUBILEE_HALL = "Jubilee Hall";
-    public static final String MENS_RES = "Mens' Res";
     public static final String BRAAM_CAMPUS = "Braam Campus";
     public static final String NEIGHBOURGOODS = "Neighbourgoods";
     public static final String MTV_BASE_HQ = "MTV Base HQ";
@@ -56,7 +46,7 @@ public final class Constants {
 
     public static final String[] WARN_WORDS = new String[]{"bomb", "bomb "};
     public static final String[] DANGEROUS_WORDS = new String[]{"kill", "explode", "latest1", "kill ", "explode ", "latest1 "};
-    public static final HashMap<String, GeoRegion> LOCAL_REGIONS = new HashMap<>();
+    public static final ArrayList<GeoRegion> LOCAL_REGIONS = new ArrayList<>();
     public static final HashMap<String, GeoRegion> SNAPSHOT_REGIONS = new HashMap<>();
     public static final HashMap<String, Integer> GENDERS_UNICODE = new HashMap<>();
     public static final SparseArray<String> GENDERS_IMAGE = new SparseArray<>();
@@ -64,24 +54,30 @@ public final class Constants {
     public static final List<CircleOptions> SNAPSHOT_CIRCLES = new ArrayList<>();
     public static final List<CircleOptions> LOCAL_CIRCLES = new ArrayList<>();
     public static final String GEOFENCE_ID = "geofenceId";
+    public static final String MENU_WITS = "WITS NOTICE BOARD";
+    public static final String MENU_LAW = "Comm, Law & Man";
+    public static final String MENU_BARNATO = "Barnato";
+    public static final String MENU_LIBRARY = "Library & Lawns";
+    public static final String MENU_MATRIX = "Matrix";
+    public static final String MENU_BLOCK = "SH & C.Block";
+    public static final String MENU_JUBES = "Jubes";
     private static final String PACKAGE_NAME = "com.anontemp.android";
     public static final String GEOFENCES_ADDED_KEY = PACKAGE_NAME + ".GEOFENCES_ADDED_KEY";
 
     static {
-        LOCAL_REGIONS.put(WITS_UNIVERSITY, new GeoRegion(new LatLng(-26.189460, 28.028117), 1000));
-        LOCAL_REGIONS.put(COMMERCE_LAW_AND_MANAGEMENT, new GeoRegion(new LatLng(-26.189360, 28.026503), 200));
-        LOCAL_REGIONS.put(BARNATO_HALL, new GeoRegion(new LatLng(-26.186972, 28.024893), 100));
-        LOCAL_REGIONS.put(CENTRAL_BLOCK_SH, new GeoRegion(new LatLng(-26.193107, 28.030311), 100));
-        LOCAL_REGIONS.put(LIBRARY_LAWNS, new GeoRegion(new LatLng(-26.191247, 28.030161), 100));
-        LOCAL_REGIONS.put(MATRIX_STUDENT_UNION, new GeoRegion(new LatLng(-26.189505, 28.030849), 100));
-        LOCAL_REGIONS.put(JUBILEE_HALL, new GeoRegion(new LatLng(-26.188344, 28.032598), 100));
+        LOCAL_REGIONS.add(new GeoRegion(WITS_UNIVERSITY, new LatLng(-26.189460, 28.028117), 1000, MENU_WITS));
+        LOCAL_REGIONS.add(new GeoRegion(COMMERCE_LAW_AND_MANAGEMENT, new LatLng(-26.189360, 28.026503), 200, MENU_LAW));
+        LOCAL_REGIONS.add(new GeoRegion(BARNATO_HALL, new LatLng(-26.186972, 28.024893), 100, MENU_BARNATO));
+        LOCAL_REGIONS.add(new GeoRegion(LIBRARY_LAWNS, new LatLng(-26.191247, 28.030161), 100, MENU_LIBRARY));
+        LOCAL_REGIONS.add(new GeoRegion(MATRIX_STUDENT_UNION, new LatLng(-26.189505, 28.030849), 100, MENU_MATRIX));
+        LOCAL_REGIONS.add(new GeoRegion(CENTRAL_BLOCK_SH, new LatLng(-26.193107, 28.030311), 100, MENU_BLOCK));
+        LOCAL_REGIONS.add(new GeoRegion(JUBILEE_HALL, new LatLng(-26.188344, 28.032598), 100, MENU_JUBES));
 
-        LOCAL_CIRCLES.add(getCircleOptions().center(LOCAL_REGIONS.get(COMMERCE_LAW_AND_MANAGEMENT).getLatLng()).radius(LOCAL_REGIONS.get(COMMERCE_LAW_AND_MANAGEMENT).getRadius()));
-        LOCAL_CIRCLES.add(getCircleOptions().center(LOCAL_REGIONS.get(BARNATO_HALL).getLatLng()).radius(LOCAL_REGIONS.get(BARNATO_HALL).getRadius()));
-        LOCAL_CIRCLES.add(getCircleOptions().center(LOCAL_REGIONS.get(CENTRAL_BLOCK_SH).getLatLng()).radius(LOCAL_REGIONS.get(CENTRAL_BLOCK_SH).getRadius()));
-        LOCAL_CIRCLES.add(getCircleOptions().center(LOCAL_REGIONS.get(LIBRARY_LAWNS).getLatLng()).radius(LOCAL_REGIONS.get(LIBRARY_LAWNS).getRadius()));
-        LOCAL_CIRCLES.add(getCircleOptions().center(LOCAL_REGIONS.get(MATRIX_STUDENT_UNION).getLatLng()).radius(LOCAL_REGIONS.get(MATRIX_STUDENT_UNION).getRadius()));
-        LOCAL_CIRCLES.add(getCircleOptions().center(LOCAL_REGIONS.get(JUBILEE_HALL).getLatLng()).radius(LOCAL_REGIONS.get(JUBILEE_HALL).getRadius()));
+        for (GeoRegion region : LOCAL_REGIONS) {
+            if (region.getTitle().equals(WITS_UNIVERSITY))
+                continue;
+            LOCAL_CIRCLES.add(getCircleOptions().center(region.getLatLng()).radius(region.getRadius()));
+        }
 
 
         //GENDERS_UNICODE
@@ -99,7 +95,6 @@ public final class Constants {
 
 
         //SUBREGIONS
-
 
 
         //SNAPSHOTS

@@ -26,6 +26,9 @@ public class MessageDivider extends RecyclerView.ItemDecoration {
         int right;
 
         int childCount = parent.getChildCount();
+        if (childCount <= 1) {
+            return;
+        }
         for (int i = 0; i < childCount; i++) {
             View child = parent.getChildAt(i);
 

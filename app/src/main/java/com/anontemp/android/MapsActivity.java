@@ -71,7 +71,6 @@ import com.google.firebase.auth.FirebaseUser;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback, OnCompleteListener<Void>, View.OnClickListener, OnLocationReceivedListener {
 
@@ -316,18 +315,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
     private void populateGeofenceList() {
-        for (Map.Entry<String, GeoRegion> entry : Constants.LOCAL_REGIONS.entrySet()) {
+        for (GeoRegion entry : Constants.LOCAL_REGIONS) {
 
             mGeofenceList.add(new Geofence.Builder()
-                    // Set the request ID of the geofence. This is a string to identify this
-                    // geofence.
-                    .setRequestId(entry.getKey())
-
-                    // Set the circular region of this geofence.
+                    .setRequestId(entry.getTitle())
                     .setCircularRegion(
-                            entry.getValue().getLatLng().latitude,
-                            entry.getValue().getLatLng().longitude,
-                            entry.getValue().getRadius()
+                            entry.getLatLng().latitude,
+                            entry.getLatLng().longitude,
+                            entry.getRadius()
                     )
                     .setExpirationDuration(86400000)
                     .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER |

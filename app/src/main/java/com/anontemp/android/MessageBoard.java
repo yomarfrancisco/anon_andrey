@@ -2,6 +2,8 @@ package com.anontemp.android;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.constraint.ConstraintLayout;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AlertDialog;
@@ -11,6 +13,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ImageButton;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import com.anontemp.android.misc.ChildEventAdapter;
 import com.anontemp.android.misc.HeaderItem;
@@ -67,8 +70,7 @@ public class MessageBoard extends FullscreenController implements View.OnClickLi
                 return;
             tweet.setTimeToLive(formatTimeToLive(getTimeToLive(tweet.getRealDate(), tweet.getCountdown())));
             tweet.set_id(new Random().nextLong());
-            mTweetItems.add(FIRST, tweet);
-            mAdapter.notifyItemInserted(FIRST);
+            mAdapter.addTweet(tweet);
             mRecycler.scrollToPosition(0);
 
 
@@ -85,7 +87,7 @@ public class MessageBoard extends FullscreenController implements View.OnClickLi
                     int index = mTweetItems.indexOf(mOriginalTweet);
 
                     if (!isShowableTweet(mUpdatedTweet)) {
-                        mAdapter.notifyItemRemoved(index);
+                        mAdapter.removeTweet(mOriginalTweet);
                         return;
                     }
 
@@ -94,6 +96,7 @@ public class MessageBoard extends FullscreenController implements View.OnClickLi
                     mUpdatedTweet.set_id(mOriginalTweet.get_id());
 
                     String uid = currentUser.getUid();
+                    boolean shouldToggleComment = false;
                     if (uid.equals(mUpdatedTweet.getUserId())) {
                         if (mUpdatedTweet.getLoves() != null && mOriginalTweet.getLoves() == null
                                 || mUpdatedTweet.getLoves() != null && mOriginalTweet.getLoves() != null &&
@@ -107,12 +110,11 @@ public class MessageBoard extends FullscreenController implements View.OnClickLi
                                 mUpdatedTweet.getComments().size() != mOriginalTweet.getComments().size()) {
                             if (!isNotifyShown())
                                 mAlert = showAlert(R.string.new_comment);
-                            mAdapter.toggleComment((TweetsAdapter.TweetHolder) mRecycler.findViewHolderForItemId(mOriginalTweet.get_id()));
+                            shouldToggleComment = true;
                         }
                     }
 
-                    mTweetItems.set(index, mUpdatedTweet);
-                    mAdapter.notifyItemChanged(index);
+                    mAdapter.setTweet(mUpdatedTweet, index, shouldToggleComment);
                     break;
                 }
             }
@@ -120,7 +122,7 @@ public class MessageBoard extends FullscreenController implements View.OnClickLi
         }
 
     };
-    private int mChosenRegionIndex = -1;
+    private int lastPosition = 0;
 
     private boolean isNotifyShown() {
         return mAlert != null && mAlert.isShowing();
@@ -163,9 +165,61 @@ public class MessageBoard extends FullscreenController implements View.OnClickLi
 
     private void selectItem(int position) {
 
+//        for(Region region : mRegions) {
+//            boolean existAllowedComment = false;
+//            for (int j = 0; j < mTweets.size(); j++) {
+//                Tweet t = mTweets.get(j);
+//                if (region.getRegionId().equals(t.getRegionId())) {
+//                    if(existAllowedComment) {
+//                        t.setAllowComment(false);
+//                        mTweets.remove(j);
+//                        mTweets.add(j, t);
+//                    } else if (isShowableTweet(t) && t.getAllowComment()) {
+//                        existAllowedComment = true;
+//
+//                    }
+//                }
+//
+//            }
+//        }
+
+
         // Highlight the selected item, update the title, and close the drawer
         mMenuList.setItemChecked(position, true);
+        if (position < Constants.LOCAL_REGIONS.size()) {
+            mAdapter.filterList(String.valueOf(position));
+            if (lastPosition != position && position != 0) {
+                ConstraintLayout layout = (ConstraintLayout) getViewByPosition(position, mMenuList);
+                TextView textView = layout.findViewById(R.id.text);
+                textView.setTextColor(ContextCompat.getColor(this, R.color.pink));
+                if (lastPosition != 0) {
+                    layout = (ConstraintLayout) getViewByPosition(lastPosition, mMenuList);
+                    textView = layout.findViewById(R.id.text);
+                    textView.setTextColor(ContextCompat.getColor(this, R.color.white_alfa));
+                }
+            }
+            lastPosition = position;
+        } else {
+            if (position == mMenuList.getCount() - 2) {
+                goToBoard();
+            } else {
+                goToSnapshot();
+            }
+        }
         drawer.closeDrawer(GravityCompat.END);
+
+    }
+
+    public View getViewByPosition(int pos, ListView listView) {
+        final int firstListItemPosition = listView.getFirstVisiblePosition();
+        final int lastListItemPosition = firstListItemPosition + listView.getChildCount() - 1;
+
+        if (pos < firstListItemPosition || pos > lastListItemPosition) {
+            return listView.getAdapter().getView(pos, null, listView);
+        } else {
+            final int childIndex = pos - firstListItemPosition;
+            return listView.getChildAt(childIndex);
+        }
     }
 
 
@@ -259,20 +313,28 @@ public class MessageBoard extends FullscreenController implements View.OnClickLi
 
     }
 
+    private void goToBoard() {
+        Intent intent = new Intent(MessageBoard.this, DashBoard.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        startActivity(intent);
+        Helper.downToUpTransition(MessageBoard.this);
+    }
+
+    private void goToSnapshot() {
+        Intent intent = new Intent(MessageBoard.this, Snapshot.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        startActivity(intent);
+        Helper.downToUpTransition(MessageBoard.this);
+    }
+
     @Override
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.board_link:
-                Intent intent = new Intent(MessageBoard.this, DashBoard.class);
-                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                startActivity(intent);
-                Helper.downToUpTransition(MessageBoard.this);
+                goToBoard();
                 break;
             case R.id.live_link:
-                intent = new Intent(MessageBoard.this, Snapshot.class);
-                intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
-                startActivity(intent);
-                Helper.downToUpTransition(MessageBoard.this);
+                goToSnapshot();
                 break;
             case R.id.menu_button:
                 if (drawer.isDrawerOpen(GravityCompat.END)) {
