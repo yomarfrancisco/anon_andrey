@@ -148,7 +148,7 @@
         <item quantity="other">%d comments</item>
     </plurals>
     <string name="log_in">log in</string>
-    <string name="board_welcome_body">Don\'t fuck it up for others by posting offensive shit. Double tap to report a post.</string>
+    <string name="board_welcome_body">Don\'t fuck it up for others by posting offensive shit. Long tap to report a post.</string>
     <string name="board_welcome_title">Welcome to anon.</string>
     <string name="new_love">Someone just liked your post.</string>
     <string name="new_comment">Someone just made a comment about your post.</string>
@@ -156,6 +156,9 @@
     <string name="navigation_drawer_close">Close navigation drawer</string>
 
     <string name="action_settings">Settings</string>
+
+    <string name="already_posted">You already reported this post, we\'re definitely on it</string>
+    <string name="post_question">Would you like to report this post?</string>
 
 
 </resources>

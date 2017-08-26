@@ -32,6 +32,7 @@ public class AnonDialog extends DialogFragment {
     private int ok;
     private int cancel;
 
+
     public static AnonDialog newInstance(int title, int message, int ok, int cancel) {
         AnonDialog f = new AnonDialog();
         f.setStyle(DialogFragment.STYLE_NO_FRAME, 0);
@@ -42,6 +43,12 @@ public class AnonDialog extends DialogFragment {
         args.putInt(CANCEL, cancel);
         f.setArguments(args);
         return f;
+    }
+
+
+    public AnonDialog addListener(DialogListener dialogListener) {
+        this.listener = dialogListener;
+        return this;
     }
 
     @Override
@@ -56,11 +63,12 @@ public class AnonDialog extends DialogFragment {
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
 
-
-        try {
-            this.listener = ((DialogListener) getActivity());
-        } catch (ClassCastException e) {
-            throw new ClassCastException("Activity must implement DialogListener.");
+        if (listener == null) {
+            try {
+                this.listener = ((DialogListener) getActivity());
+            } catch (ClassCastException e) {
+                throw new ClassCastException("Activity must implement DialogListener.");
+            }
         }
 
         d = LayoutInflater.from(getActivity()).inflate(R.layout.c_dial, null);

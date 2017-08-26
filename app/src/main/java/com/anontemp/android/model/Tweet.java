@@ -3,6 +3,7 @@ package com.anontemp.android.model;
 import android.support.annotation.NonNull;
 
 import com.anontemp.android.BaseTweetItem;
+import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.Exclude;
 import com.google.firebase.database.IgnoreExtraProperties;
 import com.google.firebase.database.PropertyName;
@@ -41,9 +42,17 @@ public class Tweet extends BaseTweetItem implements Comparable<Tweet> {
     private Map<String, String> comments;
     private Map<String, String> loves;
     private Map<String, String> reporters;
-
+    private DatabaseReference reference;
 
     public Tweet() {
+    }
+
+    public DatabaseReference getReference() {
+        return reference;
+    }
+
+    public void setReference(DatabaseReference reference) {
+        this.reference = reference;
     }
 
     public Map<String, String> getLoves() {

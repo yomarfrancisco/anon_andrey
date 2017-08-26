@@ -61,6 +61,13 @@ public final class Constants {
     public static final String MENU_MATRIX = "Matrix";
     public static final String MENU_BLOCK = "SH & C.Block";
     public static final String MENU_JUBES = "Jubes";
+    public static final String JHB_NORTH = "Jhb North";
+    public static final String JHB_EAST = "Jhb East";
+    public static final String CENTRAL_B_SENATE_H = "Central B. /Senate H.";
+    public static final String BRAAM_CAMP = "Braam. Camp";
+    public static final String WEST_CAMP = "West Camp.";
+    public static final String EAST_CAMP = "East Camp.";
+    public static final String WITS_CAMP = "Wits Braam Camp.";
     private static final String PACKAGE_NAME = "com.anontemp.android";
     public static final String GEOFENCES_ADDED_KEY = PACKAGE_NAME + ".GEOFENCES_ADDED_KEY";
 

@@ -15,7 +15,10 @@ import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.anontemp.android.misc.AnonAlert;
+import com.anontemp.android.misc.AnonDialog;
 import com.anontemp.android.misc.ChildEventAdapter;
+import com.anontemp.android.misc.DialogListener;
 import com.anontemp.android.misc.HeaderItem;
 import com.anontemp.android.misc.Helper;
 import com.anontemp.android.misc.MenuListAdapter;
@@ -32,10 +35,12 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
-public class MessageBoard extends FullscreenController implements View.OnClickListener {
+public class MessageBoard extends FullscreenController implements View.OnClickListener, TweetsAdapter.TweetInterface {
 
     public static final int FIRST = 1;
     final List<Tweet> mTweets = new ArrayList<>();
@@ -65,6 +70,7 @@ public class MessageBoard extends FullscreenController implements View.OnClickLi
                 return;
 
             Tweet tweet = dataSnapshot.getValue(Tweet.class);
+            tweet.setReference(dataSnapshot.getRef());
             tweet.setRealDate(Helper.getRealDate(tweet.getDate()));
             if (!isShowableTweet(tweet))
                 return;
@@ -76,10 +82,12 @@ public class MessageBoard extends FullscreenController implements View.OnClickLi
 
         }
 
+
         @Override
         public void onChildChanged(DataSnapshot dataSnapshot, String s) {
             if (mRecycler == null || mAdapter == null)
                 return;
+
             Tweet mUpdatedTweet = dataSnapshot.getValue(Tweet.class);
             for (Tweet mOriginalTweet : mTweets) {
 
@@ -94,6 +102,7 @@ public class MessageBoard extends FullscreenController implements View.OnClickLi
                     mUpdatedTweet.setRealDate(mOriginalTweet.getRealDate());
                     mUpdatedTweet.setTimeToLive(formatTimeToLive(getTimeToLive(mUpdatedTweet.getRealDate(), mUpdatedTweet.getCountdown())));
                     mUpdatedTweet.set_id(mOriginalTweet.get_id());
+                    mUpdatedTweet.setReference(mOriginalTweet.getReference());
 
                     String uid = currentUser.getUid();
                     boolean shouldToggleComment = false;
@@ -123,6 +132,7 @@ public class MessageBoard extends FullscreenController implements View.OnClickLi
 
     };
     private int lastPosition = 0;
+    private AnonAlert alert;
 
     private boolean isNotifyShown() {
         return mAlert != null && mAlert.isShowing();
@@ -210,18 +220,6 @@ public class MessageBoard extends FullscreenController implements View.OnClickLi
 
     }
 
-    public View getViewByPosition(int pos, ListView listView) {
-        final int firstListItemPosition = listView.getFirstVisiblePosition();
-        final int lastListItemPosition = firstListItemPosition + listView.getChildCount() - 1;
-
-        if (pos < firstListItemPosition || pos > lastListItemPosition) {
-            return listView.getAdapter().getView(pos, null, listView);
-        } else {
-            final int childIndex = pos - firstListItemPosition;
-            return listView.getChildAt(childIndex);
-        }
-    }
-
 
 //    @SuppressWarnings("StatementWithEmptyBody")
 //    @Override
@@ -237,6 +235,18 @@ public class MessageBoard extends FullscreenController implements View.OnClickLi
 //        drawer.closeDrawer(GravityCompat.END);
 //        return true;
 //    }
+
+    public View getViewByPosition(int pos, ListView listView) {
+        final int firstListItemPosition = listView.getFirstVisiblePosition();
+        final int lastListItemPosition = firstListItemPosition + listView.getChildCount() - 1;
+
+        if (pos < firstListItemPosition || pos > lastListItemPosition) {
+            return listView.getAdapter().getView(pos, null, listView);
+        } else {
+            final int childIndex = pos - firstListItemPosition;
+            return listView.getChildAt(childIndex);
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -375,6 +385,57 @@ public class MessageBoard extends FullscreenController implements View.OnClickLi
         super.onPause();
         mDatabase.getReference("Tweets").removeEventListener(mTweetsListener);
         mDatabase.getReference("Regions").removeEventListener(mRegionsListener);
+    }
+
+    @Override
+    public void onTweetLong(final Tweet tweet) {
+        if (alreadyPostedWithTweet(tweet)) {
+            alert = AnonAlert.newInstance(0, R.string.already_posted, R.string.ok_caps);
+            alert.setOnButtonListener(new AnonAlert.AlertListener() {
+                @Override
+                public void onButton() {
+                    alert.dismiss();
+                }
+            });
+            alert.show(getSupportFragmentManager(), null);
+        } else {
+            commonDialog = AnonDialog.newInstance(0, R.string.post_question, R.string.yes, R.string.no);
+            commonDialog.addListener(new DialogListener() {
+                @Override
+                public void onYes() {
+                    if (currentUser == null)
+                        return;
+
+                    String uid = currentUser.getUid();
+                    String username = currentUser.getFirstName();
+                    if (tweet.getReporters() == null) {
+                        Map<String, String> map = new HashMap<>();
+                        map.put(uid, username);
+                        tweet.getReference().child("reporters").setValue(map);
+                    } else {
+                        tweet.getReporters().put(uid, username);
+                        tweet.getReference().child("reporters").setValue(tweet.getReporters());
+                    }
+
+                }
+
+                @Override
+                public void onCancel() {
+                    if (commonDialog.isVisible())
+                        commonDialog.dismiss();
+                }
+            });
+            commonDialog.show(getSupportFragmentManager(), null);
+        }
+    }
+
+    private boolean alreadyPostedWithTweet(Tweet tweet) {
+        if (tweet.getReporters() == null)
+            return false;
+
+        String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+
+        return tweet.getReporters().keySet().contains(uid);
     }
 
     private class DrawerItemClickListener implements ListView.OnItemClickListener {

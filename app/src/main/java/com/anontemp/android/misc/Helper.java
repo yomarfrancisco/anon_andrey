@@ -10,6 +10,7 @@ import android.view.View;
 import android.widget.TextView;
 
 import com.anontemp.android.AnonApp;
+import com.anontemp.android.Constants;
 import com.anontemp.android.R;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.EmailAuthProvider;
@@ -148,5 +149,23 @@ public class Helper {
         }
     }
 
+    public static String getTweetFirstNameLabel(String regionName) {
+        switch (regionName) {
+            case Constants.JHB_EAST:
+            case Constants.JHB_NORTH:
+            case "WITS Braam Campus":
+                return Constants.BRAAM_CAMP;
+            case Constants.BARNATO_HALL:
+            case Constants.COMMERCE_LAW_AND_MANAGEMENT:
+                return Constants.WEST_CAMP;
+            case Constants.CENTRAL_B_SENATE_H:
+            case Constants.LIBRARY_LAWNS:
+            case Constants.MATRIX_STUDENT_UNION:
+            case Constants.JUBILEE_HALL:
+                return Constants.EAST_CAMP;
+            default:
+                return Constants.WITS_CAMP;
+        }
+    }
 
 }

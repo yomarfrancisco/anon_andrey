@@ -53,6 +53,7 @@ public class TweetsAdapter extends RecyclerView.Adapter {
     private List<BaseTweetItem> filterTweets;
     private int mSelectedRegionIndex = -1;
     private RecyclerView mRecyclerView;
+    private TweetInterface mInterface;
 
     public TweetsAdapter(List<BaseTweetItem> tweets, Context context) {
         this.tweets = tweets;
@@ -60,6 +61,7 @@ public class TweetsAdapter extends RecyclerView.Adapter {
         this.mFilter = new TweetsRegionFilter(this, tweets);
         this.filterTweets = new ArrayList<>();
         this.filterTweets.addAll(tweets);
+        this.mInterface = (TweetInterface) context;
 
         setHasStableIds(true);
     }
@@ -71,7 +73,6 @@ public class TweetsAdapter extends RecyclerView.Adapter {
             notifyItemInserted(1);
         }
     }
-
 
     public boolean containsTweet(Tweet tweet) {
         return this.filterTweets.contains(tweet);
@@ -133,7 +134,6 @@ public class TweetsAdapter extends RecyclerView.Adapter {
         this.filterTweets.addAll(list);
     }
 
-
     public void filterList(String text) {
         mSelectedRegionIndex = text.length() == 0 ? 0 : Integer.valueOf(text);
         mFilter.filter(text);
@@ -170,8 +170,8 @@ public class TweetsAdapter extends RecyclerView.Adapter {
                 final TweetHolder th = (TweetHolder) holder;
                 Tweet tweet = (Tweet) filterTweets.get(position);
                 th.tweet = tweet;
-                th.mFirstName.setText(tweet.getFirstName());
-                th.mLocation.setText(tweet.getRegionName());
+                th.mFirstName.setText(Helper.getTweetFirstNameLabel(tweet.getRegionName()));
+                th.mLocation.setText("@" + tweet.getRegionName());
                 th.mBody.setText(tweet.getTweetText());
                 th.mMood.setText(tweet.getMoodText());
                 th.mGender.setText(context.getString(R.string.gender_tweet, tweet.getUsername()));
@@ -238,8 +238,14 @@ public class TweetsAdapter extends RecyclerView.Adapter {
 
                 th.mTimeToDelete.setText(tweet.getTimeToLive());
 
-                int commentsSize = tweet.getComments() == null ? 0 : tweet.getComments().size();
-                th.mComment.setText(context.getResources().getQuantityString(R.plurals.comment_count, commentsSize, commentsSize));
+
+                if (tweet.getAllowComment()) {
+                    int commentsSize = tweet.getComments() == null ? 0 : tweet.getComments().size();
+                    th.mComment.setVisibility(View.VISIBLE);
+                    th.mComment.setText(context.getResources().getQuantityString(R.plurals.comment_count, commentsSize, commentsSize));
+                } else {
+                    th.mComment.setVisibility(View.INVISIBLE);
+                }
 
 
                 break;
@@ -330,6 +336,9 @@ public class TweetsAdapter extends RecyclerView.Adapter {
         return image;
     }
 
+    public interface TweetInterface {
+        void onTweetLong(Tweet tweet);
+    }
 
     public class TweetHolder extends RecyclerView.ViewHolder {
         public final View mView;
@@ -431,7 +440,16 @@ public class TweetsAdapter extends RecyclerView.Adapter {
             Typeface thin = FontCache.getTypeface("HelveticaNeue-Thin.otf", context);
             mComment.setTypeface(thin);
 
+            mView.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View view) {
+                    mInterface.onTweetLong(tweet);
+                    return true;
+                }
+            });
+
         }
+
 
         public void startAudioAnimation() {
             if (handler != null && runnable != null) {
