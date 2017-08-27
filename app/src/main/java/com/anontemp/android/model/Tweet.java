@@ -8,6 +8,7 @@ import com.google.firebase.database.Exclude;
 import com.google.firebase.database.IgnoreExtraProperties;
 import com.google.firebase.database.PropertyName;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -16,7 +17,8 @@ import java.util.Map;
  */
 
 @IgnoreExtraProperties
-public class Tweet extends BaseTweetItem implements Comparable<Tweet> {
+public class Tweet extends BaseTweetItem implements Comparable<Tweet>, Serializable {
+
 
     private String key;
     private String username;
@@ -110,7 +112,6 @@ public class Tweet extends BaseTweetItem implements Comparable<Tweet> {
     public void setTimeToLive(String timeToLive) {
         this.timeToLive = timeToLive;
     }
-
 
 
     public String getLocation() {

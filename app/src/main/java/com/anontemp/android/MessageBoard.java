@@ -9,6 +9,7 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ImageButton;
@@ -43,7 +44,7 @@ import java.util.Random;
 public class MessageBoard extends FullscreenController implements View.OnClickListener, TweetsAdapter.TweetInterface {
 
     public static final int FIRST = 1;
-    final List<Tweet> mTweets = new ArrayList<>();
+    public static final String TWEET_EXTRA = "tweet_extra";
     List<BaseTweetItem> mTweetItems;
     DrawerLayout drawer;
     ListView mMenuList;
@@ -72,8 +73,10 @@ public class MessageBoard extends FullscreenController implements View.OnClickLi
             Tweet tweet = dataSnapshot.getValue(Tweet.class);
             tweet.setReference(dataSnapshot.getRef());
             tweet.setRealDate(Helper.getRealDate(tweet.getDate()));
-            if (!isShowableTweet(tweet))
+            if (!isShowableTweet(tweet)) {
+                Log.d(LOG_TAG, tweet.getDate());
                 return;
+            }
             tweet.setTimeToLive(formatTimeToLive(getTimeToLive(tweet.getRealDate(), tweet.getCountdown())));
             tweet.set_id(new Random().nextLong());
             mAdapter.addTweet(tweet);
@@ -89,17 +92,22 @@ public class MessageBoard extends FullscreenController implements View.OnClickLi
                 return;
 
             Tweet mUpdatedTweet = dataSnapshot.getValue(Tweet.class);
-            for (Tweet mOriginalTweet : mTweets) {
+            for (BaseTweetItem item : mAdapter.getTweets()) {
+
+                if (!(item instanceof Tweet))
+                    continue;
+
+                Tweet mOriginalTweet = (Tweet) item;
 
                 if (mOriginalTweet.getTweetId().equals(mUpdatedTweet.getTweetId())) {
                     int index = mTweetItems.indexOf(mOriginalTweet);
-
+                    mUpdatedTweet.setRealDate(mOriginalTweet.getRealDate());
                     if (!isShowableTweet(mUpdatedTweet)) {
                         mAdapter.removeTweet(mOriginalTweet);
                         return;
                     }
 
-                    mUpdatedTweet.setRealDate(mOriginalTweet.getRealDate());
+
                     mUpdatedTweet.setTimeToLive(formatTimeToLive(getTimeToLive(mUpdatedTweet.getRealDate(), mUpdatedTweet.getCountdown())));
                     mUpdatedTweet.set_id(mOriginalTweet.get_id());
                     mUpdatedTweet.setReference(mOriginalTweet.getReference());
@@ -151,7 +159,7 @@ public class MessageBoard extends FullscreenController implements View.OnClickLi
     private long getTimeToLive(long date, int countdown) {
 
 
-        return (date + (countdown * 1000) - Calendar.getInstance().getTimeInMillis()) * -1;
+        return date + (countdown * 1000) - Calendar.getInstance().getTimeInMillis();
 
     }
 
@@ -266,7 +274,6 @@ public class MessageBoard extends FullscreenController implements View.OnClickLi
         mTweetItems.add(new HeaderItem(getString(R.string.wits_notice_board)));
 
         mRecycler = findViewById(R.id.list);
-        mTweets.clear();
 
         mRecycler.setLayoutManager(new LinearLayoutManager(MessageBoard.this));
         mAdapter = new TweetsAdapter(mTweetItems, MessageBoard.this);
@@ -331,8 +338,14 @@ public class MessageBoard extends FullscreenController implements View.OnClickLi
     }
 
     private void goToSnapshot() {
+        goToSnapshot(null);
+    }
+
+    private void goToSnapshot(Tweet tweet) {
         Intent intent = new Intent(MessageBoard.this, Snapshot.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        if (tweet != null)
+            intent.putExtra(TWEET_EXTRA, tweet);
         startActivity(intent);
         Helper.downToUpTransition(MessageBoard.this);
     }
@@ -416,17 +429,24 @@ public class MessageBoard extends FullscreenController implements View.OnClickLi
                         tweet.getReporters().put(uid, username);
                         tweet.getReference().child("reporters").setValue(tweet.getReporters());
                     }
+                    if (commonDialog.getDialog().isShowing())
+                        commonDialog.dismiss();
 
                 }
 
                 @Override
                 public void onCancel() {
-                    if (commonDialog.isVisible())
+                    if (commonDialog.getDialog().isShowing())
                         commonDialog.dismiss();
                 }
             });
             commonDialog.show(getSupportFragmentManager(), null);
         }
+    }
+
+    @Override
+    public void onCommentClick(Tweet tweet) {
+        goToSnapshot(tweet);
     }
 
     private boolean alreadyPostedWithTweet(Tweet tweet) {

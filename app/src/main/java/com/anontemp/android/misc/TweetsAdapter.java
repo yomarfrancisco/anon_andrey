@@ -66,6 +66,10 @@ public class TweetsAdapter extends RecyclerView.Adapter {
         setHasStableIds(true);
     }
 
+    public List<BaseTweetItem> getTweets() {
+        return tweets;
+    }
+
     public void addTweet(Tweet tweet) {
         tweets.add(1, tweet);
         if (regionMatches(tweet)) {
@@ -338,6 +342,8 @@ public class TweetsAdapter extends RecyclerView.Adapter {
 
     public interface TweetInterface {
         void onTweetLong(Tweet tweet);
+
+        void onCommentClick(Tweet tweet);
     }
 
     public class TweetHolder extends RecyclerView.ViewHolder {
@@ -439,6 +445,16 @@ public class TweetsAdapter extends RecyclerView.Adapter {
             mMoodImage.setOnLongClickListener(mLongClickListener);
             Typeface thin = FontCache.getTypeface("HelveticaNeue-Thin.otf", context);
             mComment.setTypeface(thin);
+
+            mComment.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    if (!view.isShown())
+                        return;
+
+                    mInterface.onCommentClick(tweet);
+                }
+            });
 
             mView.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
