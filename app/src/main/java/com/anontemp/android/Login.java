@@ -82,7 +82,6 @@ public class Login extends FullscreenController implements View.OnClickListener,
                 Intent intent = new Intent(Login.this, TermsAndPrivacy.class);
                 intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
                 startActivity(intent);
-                Helper.downToUpTransition(Login.this);
             }
         };
 
@@ -94,7 +93,6 @@ public class Login extends FullscreenController implements View.OnClickListener,
                 intent.putExtra(ARG_PAGE_TYPE, PAGE_TYPE_PRIVACY);
                 intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
                 startActivity(intent);
-                Helper.downToUpTransition(Login.this);
             }
         };
         spans.setSpan(termsSpan, 288, 293, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
@@ -301,7 +299,6 @@ public class Login extends FullscreenController implements View.OnClickListener,
         Intent intent = new Intent(Login.this, MapsActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
         startActivity(intent);
-        Helper.downToUpTransition(Login.this);
     }
 
     @Override

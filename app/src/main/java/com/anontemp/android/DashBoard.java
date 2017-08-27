@@ -507,7 +507,6 @@ public class DashBoard extends FullscreenController implements View.OnClickListe
                 Intent intent = new Intent(DashBoard.this, MessageBoard.class);
                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 startActivity(intent);
-                Helper.downToUpTransition(DashBoard.this);
                 break;
             case R.id.boardInput:
                 animatePost();
@@ -529,7 +528,6 @@ public class DashBoard extends FullscreenController implements View.OnClickListe
                 intent = new Intent(DashBoard.this, CreateAccount.class);
                 intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
                 startActivity(intent);
-                Helper.downToUpTransition(DashBoard.this);
                 break;
             case R.id.genderSwitch:
                 if (isTempUser()) {
@@ -545,7 +543,6 @@ public class DashBoard extends FullscreenController implements View.OnClickListe
                 intent = new Intent(DashBoard.this, Snapshot.class);
                 intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
                 startActivity(intent);
-                Helper.downToUpTransition(DashBoard.this);
                 break;
             case R.id.commentSwitch:
                 commentText.setText(commentSwitch.isChecked() ? R.string.comments_on : R.string.comments_off);
@@ -633,7 +630,6 @@ public class DashBoard extends FullscreenController implements View.OnClickListe
         hideProgressDialog();
         Intent intent = new Intent(DashBoard.this, MessageBoard.class);
         startActivity(intent);
-        Helper.downToUpTransition(DashBoard.this);
     }
 
     private void saveAndPost() {
@@ -1021,7 +1017,6 @@ public class DashBoard extends FullscreenController implements View.OnClickListe
         Intent intent = new Intent(DashBoard.this, CreateAccount.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
         startActivity(intent);
-        Helper.downToUpTransition(DashBoard.this);
     }
 
     @Override

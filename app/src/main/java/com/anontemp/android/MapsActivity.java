@@ -24,7 +24,6 @@ import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.DialogFragment;
-import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AlertDialog;
@@ -72,7 +71,7 @@ import com.google.firebase.auth.FirebaseUser;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MapsActivity extends FragmentActivity implements OnMapReadyCallback, OnCompleteListener<Void>, View.OnClickListener, OnLocationReceivedListener {
+public class MapsActivity extends FullscreenMapController implements OnMapReadyCallback, OnCompleteListener<Void>, View.OnClickListener, OnLocationReceivedListener {
 
     public static final LatLng CENTER = new LatLng(-26.184760, 28.028717);
     public static final String REGION_NAME = "regionName";
@@ -157,9 +156,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
     @Override
+    protected int init() {
+        return R.layout.activity_maps;
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_maps);
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
@@ -394,7 +397,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
 
     @Override
-    protected void onStop() {
+    public void onStop() {
         super.onStop();
         if (mAuthListener != null) {
             mAuth.removeAuthStateListener(mAuthListener);
@@ -630,7 +633,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
         intent.putExtra(REGION_NAME, Constants.WITS_UNIVERSITY_LOWCASE);
         startActivity(intent);
-        Helper.downToUpTransition(MapsActivity.this);
     }
 
     private void tryAuth() {

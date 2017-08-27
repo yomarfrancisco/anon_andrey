@@ -50,6 +50,7 @@
     <string name="count_temp">140</string>
     <string name="report">Report</string>
     <string name="board_link_text">PIN 📌</string>
+    <string name="pin_link_text">Pin</string>
     <string name="live_link_text">LIVE 🗣</string>
     <string name="gender_hint_disabled">Create an account to show your gender.</string>
     <string name="gender_hint_on">Show gender for this post.</string>
@@ -159,6 +160,7 @@
 
     <string name="already_posted">You already reported this post, we\'re definitely on it</string>
     <string name="post_question">Would you like to report this post?</string>
+    <string name="votes_count">%1$d members like this post.</string>
 
 
 </resources>

@@ -12,9 +12,9 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.VisibleForTesting;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.util.Log;
 import android.util.Pair;
@@ -47,7 +47,7 @@ import cn.nekocode.emojix.Emojix;
  * Created by jaydee on 04.07.17.
  */
 
-public abstract class FullscreenController extends AppCompatActivity {
+public abstract class FullscreenMapController extends FragmentActivity {
 
     public static final String LOG_TAG = "ANON";
     protected static User currentUser;
@@ -139,14 +139,14 @@ public abstract class FullscreenController extends AppCompatActivity {
                     user = null;
 
 
-                    Snackbar snackbar = Helper.getSnackBar(getString(R.string.user_deleted), FullscreenController.this);
+                    Snackbar snackbar = Helper.getSnackBar(getString(R.string.user_deleted), FullscreenMapController.this);
                     snackbar.addCallback(new Snackbar.Callback() {
                         @Override
                         public void onDismissed(Snackbar transientBottomBar, int event) {
-                            Intent intent = new Intent(FullscreenController.this, Login.class);
+                            Intent intent = new Intent(FullscreenMapController.this, Login.class);
                             intent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                             startActivity(intent);
-                            Helper.downToUpTransition(FullscreenController.this);
+                            Helper.downToUpTransition(FullscreenMapController.this);
                             super.onDismissed(transientBottomBar, event);
 
                         }
@@ -265,12 +265,6 @@ public abstract class FullscreenController extends AppCompatActivity {
     @Override
     public void startActivity(Intent intent) {
         super.startActivity(intent);
-        Helper.downToUpTransition(this);
-    }
-
-    @Override
-    public void startActivityForResult(Intent intent, int requestCode) {
-        super.startActivityForResult(intent, requestCode);
         Helper.downToUpTransition(this);
     }
 

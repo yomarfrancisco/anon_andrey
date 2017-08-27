@@ -5,8 +5,6 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
 
-import com.anontemp.android.misc.Helper;
-
 import static com.anontemp.android.misc.Helper.ARG_PAGE_TYPE;
 import static com.anontemp.android.misc.Helper.PAGE_TYPE_PRIVACY;
 import static com.anontemp.android.misc.Helper.PAGE_TYPE_TERMS;
@@ -54,13 +52,11 @@ public class TermsAndPrivacy extends FullscreenController implements View.OnClic
                 }
                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 startActivity(intent);
-                Helper.downToUpTransition(TermsAndPrivacy.this);
                 break;
             case R.id.tempLoginLink:
                 intent = new Intent(TermsAndPrivacy.this, Login.class);
                 intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
                 startActivity(intent);
-                Helper.downToUpTransition(TermsAndPrivacy.this);
                 break;
 
 

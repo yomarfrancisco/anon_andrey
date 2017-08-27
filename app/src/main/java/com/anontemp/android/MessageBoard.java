@@ -334,7 +334,6 @@ public class MessageBoard extends FullscreenController implements View.OnClickLi
         Intent intent = new Intent(MessageBoard.this, DashBoard.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         startActivity(intent);
-        Helper.downToUpTransition(MessageBoard.this);
     }
 
     private void goToSnapshot() {
@@ -347,7 +346,6 @@ public class MessageBoard extends FullscreenController implements View.OnClickLi
         if (tweet != null)
             intent.putExtra(TWEET_EXTRA, tweet);
         startActivity(intent);
-        Helper.downToUpTransition(MessageBoard.this);
     }
 
     @Override

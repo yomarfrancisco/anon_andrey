@@ -134,7 +134,6 @@ public class CreateAccount extends FullscreenController implements View.OnClickL
                         = new Intent(CreateAccount.this, Login.class);
                 in.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
                 startActivity(in);
-                Helper.downToUpTransition(CreateAccount.this);
                 break;
             case R.id.authenticate:
                 if (!validate()) {
