@@ -162,5 +162,10 @@
     <string name="post_question">Would you like to report this post?</string>
     <string name="votes_count">%1$d members like this post.</string>
 
+    <string name="like_butt_text">Like this post 🙂</string>
+    <string name="comment_butt_text">Write a comment 🖍</string>
+    <string name="region_name">\@%1$s</string>
+    <string name="post_in_quotes">\'%1$s\'</string>
+
 
 </resources>

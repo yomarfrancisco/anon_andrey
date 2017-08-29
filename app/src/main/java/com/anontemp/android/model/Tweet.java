@@ -44,7 +44,7 @@ public class Tweet extends BaseTweetItem implements Comparable<Tweet>, Serializa
     private Map<String, String> comments;
     private Map<String, String> loves;
     private Map<String, String> reporters;
-    private DatabaseReference reference;
+    private transient DatabaseReference reference;
 
     public Tweet() {
     }

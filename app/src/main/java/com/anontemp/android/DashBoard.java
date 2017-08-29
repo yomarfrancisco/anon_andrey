@@ -541,7 +541,7 @@ public class DashBoard extends FullscreenController implements View.OnClickListe
                 break;
             case R.id.snapshot:
                 intent = new Intent(DashBoard.this, Snapshot.class);
-                intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 startActivity(intent);
                 break;
             case R.id.commentSwitch:

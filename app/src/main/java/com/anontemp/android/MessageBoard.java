@@ -324,7 +324,7 @@ public class MessageBoard extends FullscreenController implements View.OnClickLi
 
     private void goToSnapshot(Tweet tweet) {
         Intent intent = new Intent(MessageBoard.this, Snapshot.class);
-        intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TOP);
         if (tweet != null)
             intent.putExtra(TWEET_EXTRA, tweet);
         startActivity(intent);
