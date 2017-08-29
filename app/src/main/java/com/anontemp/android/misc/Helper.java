@@ -1,10 +1,12 @@
 package com.anontemp.android.misc;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.support.design.widget.Snackbar;
 import android.support.v4.content.ContextCompat;
+import android.text.TextUtils;
 import android.util.Pair;
 import android.view.View;
 import android.widget.TextView;
@@ -12,6 +14,8 @@ import android.widget.TextView;
 import com.anontemp.android.AnonApp;
 import com.anontemp.android.Constants;
 import com.anontemp.android.R;
+import com.anontemp.android.model.Tweet;
+import com.google.android.gms.maps.model.LatLng;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.EmailAuthProvider;
 
@@ -166,6 +170,59 @@ public class Helper {
             default:
                 return Constants.WITS_CAMP;
         }
+    }
+
+    public static int getColorWithRegionName(String regionName) {
+
+        for (GeoRegion region : Constants.LOCAL_REGIONS) {
+            if (regionName.equals(region.getTitle())) {
+                return region.getColor();
+            }
+        }
+        return android.R.color.black;
+    }
+
+    public static boolean isShowableTweet(Tweet tweet) {
+        if (tweet.getReporters() != null && tweet.getReporters().size() > 4) {
+            return false;
+        }
+
+        return getTimeToLive(tweet.getRealDate(), tweet.getCountdown() == null ? 0 : tweet.getCountdown()) > 0;
+
+
+    }
+
+    public static long getTimeToLive(long date, int countdown) {
+
+
+        return date + (countdown * 1000) - Calendar.getInstance().getTimeInMillis();
+
+    }
+
+    public static String formatTimeToLive(long date, Context context) {
+        return context.getString(R.string.ttl_tweet, new SimpleDateFormat("H'h' mm'm'").format(new Date(date)));
+    }
+
+    public static GeoRegion getLocalRegion(Tweet tweet) {
+        for (GeoRegion region : Constants.LOCAL_REGIONS)
+            if (tweet.getRegionName().equals(region.getTitle())) {
+                return region;
+            }
+
+        return Constants.LOCAL_REGIONS.get(0);
+    }
+
+    public static LatLng getLocation(String location) {
+
+        if (TextUtils.isEmpty(location))
+            return new LatLng(-26.1947, 28.0522);
+
+        String[] words = location.split(",");
+        if (words.length != 2) {
+            return new LatLng(-26.1947, 28.0522);
+        }
+
+        return new LatLng(Double.valueOf(words[0]), Double.valueOf(words[1]));
     }
 
 }

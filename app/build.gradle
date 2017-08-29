@@ -117,6 +117,7 @@ dependencies {
     compile 'com.github.bumptech.glide:glide:3.7.0'
     compile 'com.firebaseui:firebase-ui-storage:2.2.0'
     testCompile 'junit:junit:4.12'
+    compile 'com.firebase:geofire-android:2.1.1'
 }
 
 

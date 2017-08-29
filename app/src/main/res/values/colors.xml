@@ -16,5 +16,15 @@
     <color name="text_special_dark">#884400</color>
     <color name="white_alfa">#C0FFFFFF</color>
     <color name="pink">#FFD1C6</color>
+    <color name="circle_default_color">#40505050</color>
+    <color name="wits_color">#550000</color>
+    <color name="law_color">#005500</color>
+    <color name="barnato_color">#000055</color>
+    <color name="block_color">#555500</color>
+    <color name="library_color">#550055</color>
+    <color name="matrix_colo">#005555</color>
+    <color name="jubes_color">#000000</color>
+    <color name="sin_color">#005500</color>
+    <color name="virgin_color">#000055</color>
 
 </resources>

@@ -345,7 +345,7 @@ public class MapsActivity extends FullscreenMapController implements OnMapReadyC
         }
         mMap.getUiSettings().setZoomControlsEnabled(false);
 
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(CENTER, 12));
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(CENTER, 15));
         mMap.getUiSettings().setAllGesturesEnabled(false);
 
         for (CircleOptions circleOptions : Constants.LOCAL_CIRCLES) {

@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
+import android.graphics.Rect;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -13,43 +14,337 @@ import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.LinearLayout;
 
+import com.anontemp.android.misc.BubbleDrawable;
+import com.anontemp.android.misc.ChildEventAdapter;
+import com.anontemp.android.misc.GeoRegion;
 import com.anontemp.android.misc.Helper;
+import com.anontemp.android.model.Capital;
 import com.anontemp.android.model.Region;
 import com.anontemp.android.model.Tweet;
+import com.anontemp.android.model.UserLocation;
+import com.anontemp.android.view.AnonTView;
+import com.firebase.geofire.GeoFire;
+import com.firebase.geofire.GeoLocation;
+import com.firebase.geofire.GeoQuery;
+import com.firebase.geofire.GeoQueryEventListener;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.CircleOptions;
+import com.google.android.gms.maps.model.GroundOverlay;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
+import static com.anontemp.android.misc.Helper.isShowableTweet;
 
 public class Snapshot extends FullscreenMapController implements OnMapReadyCallback, LocationListener, View.OnClickListener {
 
-    public static final LatLng CENTER = new LatLng(-26.190160, 28.028117);
+    public static final LatLng CENTER = new LatLng(-26.190160, 28.028817);
+    public static final String SPACE = " ";
     private static final int REQUEST_PERMISSIONS_REQUEST_CODE = 3;
     private final static int MAX_COUNT_SHOWABLE = 5;
     LocationManager mLocationManager;
     Location mLocation;
     Marker lastOpenned = null;
+    List<GroundOverlay> mOverlays = new ArrayList<>();
+    List<Marker> mMarkers = new ArrayList<>();
+    FirebaseAuth mAuth;
+    Map<Marker, Capital> mMarkerCapitalMap = new HashMap<>();
     private GoogleMap mMap;
     private List<Tweet> mTweetList;
     private List<Region> mRegionList;
-
     private FirebaseAuth.AuthStateListener mAuthListener;
+    private List<UserLocation> trackUsersList = new ArrayList<>();
+    private int voteValue = 0;
+    private FirebaseDatabase mDatabase;
+    private List<Region> mRegions = new ArrayList<>();
+    private ChildEventListener mRegionsListener = new ChildEventAdapter() {
+        @Override
+        public void onChildAdded(DataSnapshot dataSnapshot, String s) {
 
+            Region region = dataSnapshot.getValue(Region.class);
+            mRegions.add(0, region);
+        }
+
+    };
+    private Tweet activeTweet;
+    private ChildEventListener mTweetsListener = new ChildEventAdapter() {
+
+
+        @Override
+        public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+
+            if (dataSnapshot.exists()) {
+                Tweet tweet = dataSnapshot.getValue(Tweet.class);
+                mTweetList.add(tweet);
+                //TODO reloadTweets
+            }
+
+
+        }
+
+        @Override
+        public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+
+            if (!dataSnapshot.exists())
+                return;
+
+            Tweet updatedTweet = dataSnapshot.getValue(Tweet.class);
+            Tweet originalTweet = null;
+            int index = -1;
+
+            for (Tweet tweet : mTweetList)
+                if (tweet.getTweetId().equals(updatedTweet.getTweetId())) {
+                    originalTweet = tweet;
+                    index = mTweetList.indexOf(tweet);
+                    break;
+                }
+
+            if (originalTweet == null) {
+                mTweetList.add(updatedTweet);
+                //TODO reloadTweets
+                return;
+            }
+
+            mTweetList.set(index, updatedTweet);
+            //TODO reloadTweets
+
+
+            if (updatedTweet.getLoves() != null && activeTweet != null
+                    && updatedTweet.getTweetId().equals(activeTweet.getTweetId())
+                    && (activeTweet.getLoves() == null || updatedTweet.getLoves().size() != activeTweet.getLoves().size())) {
+                voteValue = updatedTweet.getLoves().size();
+                //TODO emitloveeffect
+
+            }
+
+        }
+
+    };
+    private boolean isUserCommented = false;
+    private ViewGroup rootLayout;
+    private boolean keyboardListenersAttached, onceScrolled = false;
+    private ViewTreeObserver.OnGlobalLayoutListener keyboardLayoutListener = new ViewTreeObserver.OnGlobalLayoutListener() {
+        @Override
+        public void onGlobalLayout() {
+
+            Rect r = new Rect();
+            rootLayout.getWindowVisibleDisplayFrame(r);
+
+            int screenHeight = rootLayout.getRootView().getHeight();
+            int heightDifference = screenHeight - (r.bottom - r.top);
+
+            if (heightDifference < 300) {
+                onHideKeyboard();
+            } else {
+                onShowKeyboard();
+            }
+        }
+    };
+    private InputMethodManager inputMethodManager;
+    private Marker mMarker;
+
+    private void filterNewCommentFromTweet(Tweet oldTweet, Tweet newTweet) {
+        Map<String, String> oldComments = oldTweet.getComments();
+        Map<String, String> newComments = newTweet.getComments();
+
+
+        if (newComments == null)
+            return;
+
+
+        int color = Helper.getColorWithRegionName(newTweet.getRegionName());
+
+        for (String uid : newComments.keySet()) {
+
+            String newComment = newComments.get(uid);
+
+            if (TextUtils.isEmpty(newComment))
+                continue;
+
+            if (oldComments == null || oldComments.isEmpty()) {
+                //Todo ammit comment
+                return;
+            }
+
+            String oldComment = oldComments.get(uid);
+
+            if (TextUtils.isEmpty(oldComment) || !newComment.equals(oldComment)) {
+                //Todo ammit comment
+                return;
+            }
+
+
+        }
+        if (isUserCommented && activeTweet != null) {
+            color = Helper.getColorWithRegionName(activeTweet.getRegionName());
+            //Todo ammit comment
+            isUserCommented = false;
+
+        }
+
+
+    }
+
+    private void reloadTweets() {
+        for (Region region : mRegions) {
+            boolean existAllowedComment = false;
+            for (int j = 0; j < mTweetList.size(); j++) {
+                Tweet t = mTweetList.get(j);
+                if (region.getRegionId().equals(t.getRegionId())) {
+                    if (existAllowedComment) {
+                        t.setAllowComment(false);
+                        mTweetList.remove(j);
+                        mTweetList.add(j, t);
+                    } else if (isShowableTweet(t) && t.getAllowComment()) {
+                        existAllowedComment = true;
+
+                    }
+                }
+
+            }
+        }
+        loadTweets();
+
+    }
 
     @Override
     protected int init() {
+        mAuth = FirebaseAuth.getInstance();
+        user = mAuth.getCurrentUser();
         return R.layout.activity_snapshot;
+    }
+
+    private void trackUserWithWits() {
+        if (user == null)
+            return;
+
+        DatabaseReference geoRef = FirebaseDatabase.getInstance().getReference().child("GeoFire");
+        GeoFire geoFire = new GeoFire(geoRef);
+        GeoRegion witsRegion = Constants.LOCAL_REGIONS.get(0);
+        GeoLocation center = new GeoLocation(witsRegion.getLatLng().latitude, witsRegion.getLatLng().longitude);
+        GeoQuery centerQuery = geoFire.queryAtLocation(center, witsRegion.getRadius());
+        centerQuery.addGeoQueryEventListener(new GeoQueryEventListener() {
+            @Override
+            public void onKeyEntered(String key, GeoLocation location) {
+                UserLocation userLocation = new UserLocation(key, location.latitude, location.longitude);
+            }
+
+            @Override
+            public void onKeyExited(String key) {
+
+            }
+
+            @Override
+            public void onKeyMoved(String key, GeoLocation location) {
+
+            }
+
+            @Override
+            public void onGeoQueryReady() {
+
+            }
+
+            @Override
+            public void onGeoQueryError(DatabaseError error) {
+
+            }
+        });
+
+
+    }
+
+    private void updateUserLocation(UserLocation location) {
+        int index = -1;
+        for (UserLocation user : trackUsersList) {
+            if (location.getUid().equals(user.getUid())) {
+                index = trackUsersList.indexOf(user);
+                break;
+            }
+        }
+        if (index == -1) {
+            trackUsersList.add(location);
+        } else {
+            trackUsersList.set(index, location);
+        }
+
+    }
+
+    private void loadTweets() {
+
+        for (GroundOverlay overlay : mOverlays)
+            overlay.remove();
+        for (Marker marker : mMarkers)
+            marker.remove();
+
+        mMarkerCapitalMap.clear();
+
+        for (int i = 0; i < mTweetList.size(); i++) {
+            Tweet tweet = mTweetList.get(i);
+            if (Helper.isShowableTweet(tweet) && tweet.getAllowComment()) {
+                GeoRegion localRegion = Helper.getLocalRegion(tweet);
+                String[] words = tweet.getDate().split(SPACE);
+                String tweetTime = words != null && words.length > 2 ? words[0] + SPACE + words[1] + ": " : "";
+
+                Capital annotation = Capital.newInstance("@" + tweet.getRegionName(), tweetTime + "'" + tweet.getTweetText() + "'", localRegion.getLatLng(), tweet);
+                Marker marker = mMap.addMarker(annotation.getOptions());
+                mMarkerCapitalMap.put(marker, annotation);
+
+                if (activeTweet != null && activeTweet.getTweetId().equals(tweet.getTweetId())) {
+                    marker.showInfoWindow();
+                }
+
+            }
+
+        }
+
+        for (UserLocation userLocation : trackUsersList) {
+            MarkerOptions markerOptions = new MarkerOptions().draggable(false).position(new LatLng(userLocation.getLat(), userLocation.getLng()));
+            final Marker marker = mMap.addMarker(markerOptions);
+
+        }
+
+
+    }
+
+    protected void onShowKeyboard() {
+
+    }
+
+    protected void onHideKeyboard() {
+    }
+
+    protected void attachKeyboardListeners() {
+        if (keyboardListenersAttached) {
+            return;
+        }
+
+        rootLayout = findViewById(R.id.rootLayout);
+        rootLayout.getViewTreeObserver().addOnGlobalLayoutListener(keyboardLayoutListener);
+
+        keyboardListenersAttached = true;
     }
 
     @Override
@@ -58,12 +353,17 @@ public class Snapshot extends FullscreenMapController implements OnMapReadyCallb
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+        mDatabase = FirebaseDatabase.getInstance();
+        attachKeyboardListeners();
+        inputMethodManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
         if (!checkPermissions()) {
             requestPermissions();
         } else {
             getMyLocation();
         }
         findViewById(R.id.pin_link).setOnClickListener(this);
+        activeTweet = getIntent().getSerializableExtra(MessageBoard.TWEET_EXTRA) != null ?
+                (Tweet) getIntent().getSerializableExtra(MessageBoard.TWEET_EXTRA) : null;
 
     }
 
@@ -72,6 +372,7 @@ public class Snapshot extends FullscreenMapController implements OnMapReadyCallb
     protected void onResume() {
         super.onResume();
         setUpMapIfNeeded();
+        mDatabase.getReference("Regions").addChildEventListener(mRegionsListener);
 
     }
 
@@ -91,6 +392,7 @@ public class Snapshot extends FullscreenMapController implements OnMapReadyCallb
     protected void onPause() {
         super.onPause();
         mMap.setMyLocationEnabled(false);
+        mDatabase.getReference("Regions").removeEventListener(mRegionsListener);
 
     }
 
@@ -99,8 +401,10 @@ public class Snapshot extends FullscreenMapController implements OnMapReadyCallb
         if (mLocationManager != null)
             mLocationManager.removeUpdates(this);
         super.onDestroy();
+        if (keyboardListenersAttached) {
+            rootLayout.getViewTreeObserver().removeGlobalOnLayoutListener(keyboardLayoutListener);
+        }
     }
-
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
@@ -112,22 +416,14 @@ public class Snapshot extends FullscreenMapController implements OnMapReadyCallb
         }
         mMap.getUiSettings().setZoomControlsEnabled(false);
 
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(CENTER, 16));
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(CENTER, 15.65f));
         mMap.getUiSettings().setAllGesturesEnabled(false);
-        mMap.getUiSettings().setScrollGesturesEnabled(true);
 
-        for (MarkerOptions markerOptions : Constants.SNAPSHOT_MARKERS) {
-            if (markerOptions.getTitle().equals(Constants.BRAAM_CAMPUS)) {
-                Marker marker = mMap.addMarker(markerOptions);
-                marker.showInfoWindow();
-            } else {
-                mMap.addMarker(markerOptions);
-            }
-        }
-
-        for (CircleOptions circleOptions : Constants.SNAPSHOT_CIRCLES) {
+        for (CircleOptions circleOptions : Constants.LOCAL_CIRCLES) {
             mMap.addCircle(circleOptions);
         }
+
+        mMap.setInfoWindowAdapter(new AnonInfoWindowAdapter());
 
 
         try {
@@ -185,7 +481,6 @@ public class Snapshot extends FullscreenMapController implements OnMapReadyCallb
             mLocationManager.requestLocationUpdates(LocationManager.PASSIVE_PROVIDER, 30000, 10, this);
         }
     }
-
 
     @Override
     protected void onStart() {
@@ -253,7 +548,6 @@ public class Snapshot extends FullscreenMapController implements OnMapReadyCallb
         }
     }
 
-
     private void showSnackbar(final int mainTextStringId, final int actionStringId,
                               View.OnClickListener listener) {
         Snackbar.make(
@@ -312,6 +606,55 @@ public class Snapshot extends FullscreenMapController implements OnMapReadyCallb
         }
 
 
+    }
+
+    class AnonInfoWindowAdapter implements GoogleMap.InfoWindowAdapter {
+
+
+        private final View mView;
+
+        AnonInfoWindowAdapter() {
+            mView = getLayoutInflater().inflate(R.layout.anon_info_window, null);
+        }
+
+
+        @Override
+        public View getInfoWindow(Marker marker) {
+            Snapshot.this.mMarker = marker;
+
+            final String title = marker.getTitle();
+            final LinearLayout layout = mView.findViewById(R.id.window_layout);
+            layout.setBackground(new BubbleDrawable());
+            final AnonTView titleUi = mView.findViewById(R.id.title);
+            if (title != null) {
+                titleUi.setText(title);
+            } else {
+                titleUi.setText("");
+            }
+
+            final String snippet = marker.getSnippet();
+            final AnonTView snippetUi = mView
+                    .findViewById(R.id.snippet);
+            if (snippet != null) {
+                snippetUi.setText(snippet);
+            } else {
+                snippetUi.setText("");
+            }
+
+            return mView;
+
+
+        }
+
+        @Override
+        public View getInfoContents(Marker marker) {
+            if (Snapshot.this.mMarker != null
+                    && Snapshot.this.mMarker.isInfoWindowShown()) {
+                Snapshot.this.mMarker.hideInfoWindow();
+                Snapshot.this.mMarker.showInfoWindow();
+            }
+            return null;
+        }
     }
 
 }

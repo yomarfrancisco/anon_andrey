@@ -1,6 +1,5 @@
 package com.anontemp.android;
 
-import android.graphics.Color;
 import android.util.SparseArray;
 
 import com.anontemp.android.misc.GeoRegion;
@@ -68,22 +67,30 @@ public final class Constants {
     public static final String WEST_CAMP = "West Camp.";
     public static final String EAST_CAMP = "East Camp.";
     public static final String WITS_CAMP = "Wits Braam Camp.";
+    public static final int WITS_COLOR = 0xFF550000;
+    public static final int LAW_COLOR = 0xFF005500;
+    public static final int BARNATO_COLOR = 0xFF000055;
+    public static final int LIBRARY_COLOR = 0xFF550055;
+    public static final int MATRIX_COLOR = 0xFF005555;
+    public static final int BLOCK_COLOR = 0xFF555500;
+    public static final int JUBES_COLOR = 0xFF000000;
     private static final String PACKAGE_NAME = "com.anontemp.android";
     public static final String GEOFENCES_ADDED_KEY = PACKAGE_NAME + ".GEOFENCES_ADDED_KEY";
 
     static {
-        LOCAL_REGIONS.add(new GeoRegion(WITS_UNIVERSITY, new LatLng(-26.189460, 28.028117), 1000, MENU_WITS));
-        LOCAL_REGIONS.add(new GeoRegion(COMMERCE_LAW_AND_MANAGEMENT, new LatLng(-26.189360, 28.026503), 200, MENU_LAW));
-        LOCAL_REGIONS.add(new GeoRegion(BARNATO_HALL, new LatLng(-26.186972, 28.024893), 100, MENU_BARNATO));
-        LOCAL_REGIONS.add(new GeoRegion(LIBRARY_LAWNS, new LatLng(-26.191247, 28.030161), 100, MENU_LIBRARY));
-        LOCAL_REGIONS.add(new GeoRegion(MATRIX_STUDENT_UNION, new LatLng(-26.189505, 28.030849), 100, MENU_MATRIX));
-        LOCAL_REGIONS.add(new GeoRegion(CENTRAL_BLOCK_SH, new LatLng(-26.193107, 28.030311), 100, MENU_BLOCK));
-        LOCAL_REGIONS.add(new GeoRegion(JUBILEE_HALL, new LatLng(-26.188344, 28.032598), 100, MENU_JUBES));
+        LOCAL_REGIONS.add(new GeoRegion(WITS_UNIVERSITY, new LatLng(-26.189460, 28.028117), 1000, MENU_WITS, WITS_COLOR));
+        LOCAL_REGIONS.add(new GeoRegion(COMMERCE_LAW_AND_MANAGEMENT, new LatLng(-26.189360, 28.026503), 200, MENU_LAW, LAW_COLOR));
+        LOCAL_REGIONS.add(new GeoRegion(BARNATO_HALL, new LatLng(-26.186972, 28.024893), 100, MENU_BARNATO, BARNATO_COLOR));
+        LOCAL_REGIONS.add(new GeoRegion(LIBRARY_LAWNS, new LatLng(-26.191247, 28.030161), 100, MENU_LIBRARY, LIBRARY_COLOR));
+        LOCAL_REGIONS.add(new GeoRegion(MATRIX_STUDENT_UNION, new LatLng(-26.189505, 28.030849), 100, MENU_MATRIX, MATRIX_COLOR));
+        LOCAL_REGIONS.add(new GeoRegion(CENTRAL_BLOCK_SH, new LatLng(-26.193107, 28.030311), 100, MENU_BLOCK, BLOCK_COLOR));
+        LOCAL_REGIONS.add(new GeoRegion(JUBILEE_HALL, new LatLng(-26.188344, 28.032598), 100, MENU_JUBES, JUBES_COLOR));
 
         for (GeoRegion region : LOCAL_REGIONS) {
             if (region.getTitle().equals(WITS_UNIVERSITY))
                 continue;
-            LOCAL_CIRCLES.add(getCircleOptions().center(region.getLatLng()).radius(region.getRadius()));
+            LOCAL_CIRCLES.add(getCircleOptions().center(region.getLatLng()).radius(region.getRadius()).
+                    fillColor(0x40505050).strokeWidth(15).strokeColor(region.getColor()));
         }
 
 
@@ -166,7 +173,7 @@ public final class Constants {
     }
 
     public static CircleOptions getCircleOptions() {
-        return new CircleOptions().fillColor(Color.argb(100, 128, 128, 128)).strokeColor(Color.argb(140, 20, 0, 255)).strokeWidth(5);
+        return new CircleOptions();
     }
 
 

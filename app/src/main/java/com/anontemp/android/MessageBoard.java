@@ -32,14 +32,15 @@ import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.FirebaseDatabase;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+
+import static com.anontemp.android.misc.Helper.formatTimeToLive;
+import static com.anontemp.android.misc.Helper.getTimeToLive;
+import static com.anontemp.android.misc.Helper.isShowableTweet;
 
 public class MessageBoard extends FullscreenController implements View.OnClickListener, TweetsAdapter.TweetInterface {
 
@@ -77,7 +78,7 @@ public class MessageBoard extends FullscreenController implements View.OnClickLi
                 Log.d(LOG_TAG, tweet.getDate());
                 return;
             }
-            tweet.setTimeToLive(formatTimeToLive(getTimeToLive(tweet.getRealDate(), tweet.getCountdown())));
+            tweet.setTimeToLive(formatTimeToLive(getTimeToLive(tweet.getRealDate(), tweet.getCountdown()), MessageBoard.this));
             tweet.set_id(new Random().nextLong());
             mAdapter.addTweet(tweet);
             mRecycler.scrollToPosition(0);
@@ -108,7 +109,7 @@ public class MessageBoard extends FullscreenController implements View.OnClickLi
                     }
 
 
-                    mUpdatedTweet.setTimeToLive(formatTimeToLive(getTimeToLive(mUpdatedTweet.getRealDate(), mUpdatedTweet.getCountdown())));
+                    mUpdatedTweet.setTimeToLive(formatTimeToLive(getTimeToLive(mUpdatedTweet.getRealDate(), mUpdatedTweet.getCountdown()), MessageBoard.this));
                     mUpdatedTweet.set_id(mOriginalTweet.get_id());
                     mUpdatedTweet.setReference(mOriginalTweet.getReference());
 
@@ -146,26 +147,7 @@ public class MessageBoard extends FullscreenController implements View.OnClickLi
         return mAlert != null && mAlert.isShowing();
     }
 
-    private boolean isShowableTweet(Tweet tweet) {
-        if (tweet.getReporters() != null && tweet.getReporters().size() > 4) {
-            return false;
-        }
 
-        return getTimeToLive(tweet.getRealDate(), tweet.getCountdown() == null ? 0 : tweet.getCountdown()) > 0;
-
-
-    }
-
-    private long getTimeToLive(long date, int countdown) {
-
-
-        return date + (countdown * 1000) - Calendar.getInstance().getTimeInMillis();
-
-    }
-
-    private String formatTimeToLive(long date) {
-        return getString(R.string.ttl_tweet, new SimpleDateFormat("H'h' mm'm'").format(new Date(date)));
-    }
 
     @Override
     protected int init() {
