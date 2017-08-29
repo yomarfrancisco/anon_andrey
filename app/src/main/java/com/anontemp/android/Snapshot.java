@@ -1,22 +1,27 @@
 package com.anontemp.android;
 
+import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Rect;
 import android.location.Location;
-import android.location.LocationListener;
 import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.IBinder;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
@@ -31,6 +36,8 @@ import com.anontemp.android.misc.BubbleDrawable;
 import com.anontemp.android.misc.ChildEventAdapter;
 import com.anontemp.android.misc.GeoRegion;
 import com.anontemp.android.misc.Helper;
+import com.anontemp.android.misc.LocationReceiver;
+import com.anontemp.android.misc.OnLocationReceivedListener;
 import com.anontemp.android.model.Capital;
 import com.anontemp.android.model.Region;
 import com.anontemp.android.model.Tweet;
@@ -67,7 +74,7 @@ import java.util.Map;
 
 import static com.anontemp.android.misc.Helper.isShowableTweet;
 
-public class Snapshot extends FullscreenMapController implements OnMapReadyCallback, LocationListener, View.OnClickListener, ActionsListener {
+public class Snapshot extends FullscreenMapController implements OnMapReadyCallback, View.OnClickListener, ActionsListener, OnLocationReceivedListener {
 
     public static final LatLng CENTER = new LatLng(-26.190160, 28.028817);
     public static final String SPACE = " ";
@@ -190,6 +197,38 @@ public class Snapshot extends FullscreenMapController implements OnMapReadyCallb
         }
 
     };
+    private LocationService locationService;
+    private ServiceConnection locationConnection = new ServiceConnection() {
+        public void onServiceConnected(ComponentName className, IBinder service) {
+            locationService = ((LocationService.LocationBinder) service).getService();
+            mLocation = locationService.getLocation();
+
+        }
+
+        public void onServiceDisconnected(ComponentName className) {
+            locationService = null;
+        }
+    };
+    private LocationReceiver locationReceiver = new LocationReceiver(this);
+    private BroadcastReceiver geofenceChangeReceiver = new BroadcastReceiver() {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            switch (intent.getAction()) {
+                case GeofenceTransitionsIntentService.ACTION_ENTERED:
+                    String geofenceId = intent.getStringExtra(Constants.GEOFENCE_ID);
+                    break;
+//                case GeofenceTransitionsIntentService.ACTION_EXIT:
+//                    tvLocation.setText(R.string.location_default);
+//                    break;
+
+
+            }
+
+
+        }
+    };
+    private boolean mIsBound;
 
     private void setTime(Tweet tweet) {
         tweet.setRealDate(Helper.getRealDate(tweet.getDate()));
@@ -467,7 +506,6 @@ public class Snapshot extends FullscreenMapController implements OnMapReadyCallb
         }, REPEAT_SECONDS);
     }
 
-
     protected void onShowKeyboard() {
 
     }
@@ -505,9 +543,8 @@ public class Snapshot extends FullscreenMapController implements OnMapReadyCallb
         inputMethodManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
         if (!checkPermissions()) {
             requestPermissions();
-        } else {
-            getMyLocation();
         }
+        doBindService();
         findViewById(R.id.pin_link).setOnClickListener(this);
         activeTweet = getIntent().getSerializableExtra(MessageBoard.TWEET_EXTRA) != null ?
                 (Tweet) getIntent().getSerializableExtra(MessageBoard.TWEET_EXTRA) : null;
@@ -520,8 +557,13 @@ public class Snapshot extends FullscreenMapController implements OnMapReadyCallb
     protected void onResume() {
         super.onResume();
         setUpMapIfNeeded();
+        IntentFilter intentFilter = new IntentFilter(GeofenceTransitionsIntentService.ACTION_ENTERED);
+        intentFilter.addAction(GeofenceTransitionsIntentService.ACTION_EXIT);
         mDatabase.getReference("Tweets").addChildEventListener(mTweetsListener);
         mDatabase.getReference("Regions").addChildEventListener(mRegionsListener);
+        LocalBroadcastManager.getInstance(this).registerReceiver(locationReceiver, new IntentFilter(LocationService.ARG_LOCATION_ACTION));
+        LocalBroadcastManager.getInstance(this).registerReceiver(geofenceChangeReceiver,
+                intentFilter);
 
 
     }
@@ -537,6 +579,20 @@ public class Snapshot extends FullscreenMapController implements OnMapReadyCallb
         }
     }
 
+    void doBindService() {
+        bindService(new Intent(Snapshot.this,
+                LocationService.class), locationConnection, Context.BIND_AUTO_CREATE);
+        mIsBound = true;
+    }
+
+    void doUnbindService() {
+        if (mIsBound) {
+            // Detach our existing connection.
+            unbindService(locationConnection);
+            mIsBound = false;
+        }
+    }
+
     @Override
     @SuppressWarnings("MissingPermission")
     protected void onPause() {
@@ -544,14 +600,16 @@ public class Snapshot extends FullscreenMapController implements OnMapReadyCallb
         mMap.setMyLocationEnabled(false);
         mDatabase.getReference("Regions").removeEventListener(mRegionsListener);
         mDatabase.getReference("Tweets").removeEventListener(mTweetsListener);
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(geofenceChangeReceiver);
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(locationReceiver);
 
     }
 
     @Override
     protected void onDestroy() {
-        if (mLocationManager != null)
-            mLocationManager.removeUpdates(this);
         super.onDestroy();
+        doUnbindService();
+
         if (keyboardListenersAttached) {
             rootLayout.getViewTreeObserver().removeGlobalOnLayoutListener(keyboardLayoutListener);
         }
@@ -632,21 +690,6 @@ public class Snapshot extends FullscreenMapController implements OnMapReadyCallb
 
     }
 
-    private void getMyLocation() {
-        mLocationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-        mLocation = mLocationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
-        if (mLocationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-
-            if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
-                    ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                return;
-            }
-            mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 30000, 10, this);
-        } else if (mLocationManager.isProviderEnabled(LocationManager.PASSIVE_PROVIDER)) {
-
-            mLocationManager.requestLocationUpdates(LocationManager.PASSIVE_PROVIDER, 30000, 10, this);
-        }
-    }
 
     @Override
     protected void onStart() {
@@ -659,29 +702,6 @@ public class Snapshot extends FullscreenMapController implements OnMapReadyCallb
 
     }
 
-
-    @Override
-    public void onLocationChanged(Location location) {
-        if (location != null) {
-            Log.v("Location Changed", location.getLatitude() + " and " + location.getLongitude());
-            mLocation = location;
-        }
-    }
-
-    @Override
-    public void onStatusChanged(String s, int i, Bundle bundle) {
-
-    }
-
-    @Override
-    public void onProviderEnabled(String s) {
-
-    }
-
-    @Override
-    public void onProviderDisabled(String s) {
-
-    }
 
     private boolean checkPermissions() {
         int permissionState = ActivityCompat.checkSelfPermission(this,
@@ -733,7 +753,7 @@ public class Snapshot extends FullscreenMapController implements OnMapReadyCallb
                 Log.i(Helper.TAG, "User interaction was cancelled.");
             } else if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 Log.i(Helper.TAG, "Permission granted.");
-                getMyLocation();
+
 
             } else {
                 showSnackbar(R.string.permission_denied_explanation, R.string.settings,
@@ -783,6 +803,11 @@ public class Snapshot extends FullscreenMapController implements OnMapReadyCallb
     @Override
     public void onCommentClick(Tweet tweet) {
 
+    }
+
+    @Override
+    public void onReceive(Location location) {
+        this.mLocation = location;
     }
 
     class AnonInfoWindowAdapter implements GoogleMap.InfoWindowAdapter {

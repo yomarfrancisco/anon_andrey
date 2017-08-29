@@ -349,7 +349,6 @@ public class DashBoard extends FullscreenController implements View.OnClickListe
     @Override
     public void onStop() {
         super.onStop();
-        super.onStop();
         if (mRecorder != null) {
             mRecorder.release();
             mRecorder = null;
