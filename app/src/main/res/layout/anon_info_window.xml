@@ -2,16 +2,16 @@
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
               android:id="@+id/window_layout"
-              android:layout_width="wrap_content"
-              android:layout_height="wrap_content"
+              android:layout_width="180dp"
+              android:layout_height="80dp"
+              android:background="@drawable/balloon_unfocused"
               android:orientation="horizontal"
-              android:padding="8dp">
+              android:padding="10dp">
 
 
     <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
+        android:layout_width="130dp"
+        android:layout_height="40dp"
         android:orientation="vertical">
 
         <com.anontemp.android.view.AnonTView
@@ -33,18 +33,19 @@
             android:maxLines="1"
             android:text="wetewsdgsdgsgsdgsdg"
             android:textColor="#ff7f7f7f"
-            android:textSize="14dp"
+            android:textSize="11dp"
             />
+
     </LinearLayout>
 
     <ImageView
         android:id="@+id/badge"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        android:layout_gravity="end|center_vertical"
-        android:layout_marginRight="5dp"
-        android:adjustViewBounds="true"
-        android:src="@drawable/ic_disclor">
-    </ImageView>
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_gravity="center_vertical"
+        android:layout_marginBottom="10dp"
+        android:scaleType="fitXY"
+        android:src="@drawable/ic_disclor"/>
+
 
 </LinearLayout>

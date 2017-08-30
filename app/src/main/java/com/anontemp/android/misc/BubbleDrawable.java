@@ -16,7 +16,7 @@ import android.support.annotation.Nullable;
  */
 
 public class BubbleDrawable extends Drawable {
-    private static final int OFFSET = 15;
+    private static final int OFFSET = 25;
     Paint whitePaint = new android.graphics.Paint();
 
     @Override

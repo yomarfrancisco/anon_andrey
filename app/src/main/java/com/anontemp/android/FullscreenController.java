@@ -96,7 +96,7 @@ public abstract class FullscreenController extends AppCompatActivity {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
                     currentUser = dataSnapshot.getValue(User.class);
-                    if (currentUser == null) {
+                    if (currentUser == null && !user.isAnonymous()) {
                         AuthCredential credential = Helper.getAuthCredential();
 
                         user.reauthenticate(credential)
@@ -109,6 +109,15 @@ public abstract class FullscreenController extends AppCompatActivity {
                                 });
 
                         return;
+                    } else {
+                        user.delete().addOnCompleteListener(new OnCompleteListener<Void>() {
+                            @Override
+                            public void onComplete(@NonNull Task<Void> task) {
+                                user = null;
+                                return;
+                            }
+                        });
+
                     }
                     onAuthDone();
                 }

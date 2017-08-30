@@ -28,11 +28,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.LinearLayout;
 
 import com.anontemp.android.misc.ActionsDialog;
 import com.anontemp.android.misc.ActionsListener;
-import com.anontemp.android.misc.BubbleDrawable;
 import com.anontemp.android.misc.ChildEventAdapter;
 import com.anontemp.android.misc.GeoRegion;
 import com.anontemp.android.misc.Helper;
@@ -825,8 +823,6 @@ public class Snapshot extends FullscreenMapController implements OnMapReadyCallb
             Snapshot.this.mMarker = marker;
 
             final String title = marker.getTitle();
-            final LinearLayout layout = mView.findViewById(R.id.window_layout);
-            layout.setBackground(new BubbleDrawable());
             final AnonTView titleUi = mView.findViewById(R.id.title);
             if (title != null) {
                 titleUi.setText(title);
@@ -842,7 +838,6 @@ public class Snapshot extends FullscreenMapController implements OnMapReadyCallb
             } else {
                 snippetUi.setText("");
             }
-
             return mView;
 
 
@@ -855,7 +850,9 @@ public class Snapshot extends FullscreenMapController implements OnMapReadyCallb
                 Snapshot.this.mMarker.hideInfoWindow();
                 Snapshot.this.mMarker.showInfoWindow();
             }
+
             return null;
+
         }
     }
 

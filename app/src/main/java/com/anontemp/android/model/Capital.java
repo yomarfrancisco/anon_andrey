@@ -19,7 +19,7 @@ public class Capital {
         Capital capital = new Capital();
         MarkerOptions markerOptions = new MarkerOptions();
         markerOptions.title(title).snippet(subtitle).position(coordinates);
-        markerOptions.icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_pin_red));
+        markerOptions.icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_pin_1));
         markerOptions.infoWindowAnchor(0.5f, 0.5f).draggable(false);
         capital.setOptions(markerOptions);
         capital.setInfo(info);

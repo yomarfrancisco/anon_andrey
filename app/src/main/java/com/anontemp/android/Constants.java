@@ -90,7 +90,7 @@ public final class Constants {
             if (region.getTitle().equals(WITS_UNIVERSITY))
                 continue;
             LOCAL_CIRCLES.add(getCircleOptions().center(region.getLatLng()).radius(region.getRadius()).
-                    fillColor(0x40505050).strokeWidth(15).strokeColor(region.getColor()));
+                    fillColor(0x40505050).strokeWidth(10).strokeColor(region.getColor()));
         }
 
 
