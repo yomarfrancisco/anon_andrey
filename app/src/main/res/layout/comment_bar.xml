@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="match_parent"
+              android:layout_height="40dp"
+              android:background="@color/light_gray"
+              android:orientation="horizontal"
+    >
+
+    <com.anontemp.android.view.AnonTEdit
+        android:id="@+id/comment_input"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_gravity="center"
+        android:layout_margin="5dp"
+        android:background="@drawable/comment_border"
+        android:ellipsize="end"
+        android:hint="@string/comment_input_hint"
+        android:imeActionLabel="@string/send"
+        android:imeOptions="actionSend"
+        android:inputType="text|textAutoComplete|textAutoCorrect"
+        android:maxLines="1"
+        android:padding="5dp"
+        android:textAppearance="@style/TextAppearance.Design.Snackbar.Message"
+        android:textColorHint="@color/light_gray"
+        />
+
+
+</LinearLayout>

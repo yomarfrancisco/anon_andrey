@@ -7,12 +7,12 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
+import android.content.res.ColorStateList;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Rect;
 import android.location.Location;
-import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -21,13 +21,19 @@ import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.Gravity;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
+import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import com.anontemp.android.misc.ActionsDialog;
 import com.anontemp.android.misc.ActionsListener;
@@ -40,6 +46,8 @@ import com.anontemp.android.model.Capital;
 import com.anontemp.android.model.Region;
 import com.anontemp.android.model.Tweet;
 import com.anontemp.android.model.UserLocation;
+import com.anontemp.android.view.AnonSnackbar;
+import com.anontemp.android.view.AnonTEdit;
 import com.anontemp.android.view.AnonTView;
 import com.firebase.geofire.GeoFire;
 import com.firebase.geofire.GeoLocation;
@@ -53,10 +61,10 @@ import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.GroundOverlay;
+import com.google.android.gms.maps.model.GroundOverlayOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.Marker;
-import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
@@ -75,23 +83,18 @@ import static com.anontemp.android.misc.Helper.isShowableTweet;
 public class Snapshot extends FullscreenMapController implements OnMapReadyCallback, View.OnClickListener, ActionsListener, OnLocationReceivedListener {
 
     public static final LatLng CENTER = new LatLng(-26.190160, 28.028817);
-    public static final String SPACE = " ";
     private static final int REQUEST_PERMISSIONS_REQUEST_CODE = 3;
     private final static int MAX_COUNT_SHOWABLE = 5;
     public static int intMarkerNumber = 1;
     public final int REPEAT_SECONDS = 91;
-    LocationManager mLocationManager;
     Location mLocation;
     Marker lastOpenned = null;
     List<GroundOverlay> mOverlays = new ArrayList<>();
-    List<Marker> mMarkers = new ArrayList<>();
     FirebaseAuth mAuth;
     Map<Marker, Capital> mMarkerCapitalMap = new HashMap<>();
     Handler handler = new Handler();
     private GoogleMap mMap;
     private List<Tweet> mTweetList = new ArrayList<>();
-    private List<Region> mRegionList = new ArrayList<>();
-    private FirebaseAuth.AuthStateListener mAuthListener;
     private List<UserLocation> trackUsersList = new ArrayList<>();
     private int voteValue = 0;
     private FirebaseDatabase mDatabase;
@@ -106,9 +109,51 @@ public class Snapshot extends FullscreenMapController implements OnMapReadyCallb
 
     };
     private Tweet activeTweet;
-    private boolean isUserCommented = false;
     private ViewGroup rootLayout;
-    private boolean keyboardListenersAttached, onceScrolled = false;
+    private boolean keyboardListenersAttached, isUserCommented = false;
+    private InputMethodManager inputMethodManager;
+    private Marker mMarker;
+    private BitmapDescriptor frame0;
+    private BitmapDescriptor frame1;
+    private BitmapDescriptor frame2;
+    private BitmapDescriptor frame3;
+    private BitmapDescriptor frame4;
+    private BitmapDescriptor frame5;
+    private BitmapDescriptor frame6;
+    private BitmapDescriptor frame7;
+    private LocationService locationService;
+    private ServiceConnection locationConnection = new ServiceConnection() {
+        public void onServiceConnected(ComponentName className, IBinder service) {
+            locationService = ((LocationService.LocationBinder) service).getService();
+            mLocation = locationService.getLocation();
+
+        }
+
+        public void onServiceDisconnected(ComponentName className) {
+            locationService = null;
+        }
+    };
+    private LocationReceiver locationReceiver = new LocationReceiver(this);
+    private BroadcastReceiver geofenceChangeReceiver = new BroadcastReceiver() {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            switch (intent.getAction()) {
+                case GeofenceTransitionsIntentService.ACTION_ENTERED:
+                    String geofenceId = intent.getStringExtra(Constants.GEOFENCE_ID);
+                    break;
+//                case GeofenceTransitionsIntentService.ACTION_EXIT:
+//                    tvLocation.setText(R.string.location_default);
+//                    break;
+
+
+            }
+
+
+        }
+    };
+    private boolean mIsBound;
+    private AnonSnackbar snackbar;
     private ViewTreeObserver.OnGlobalLayoutListener keyboardLayoutListener = new ViewTreeObserver.OnGlobalLayoutListener() {
         @Override
         public void onGlobalLayout() {
@@ -126,16 +171,8 @@ public class Snapshot extends FullscreenMapController implements OnMapReadyCallb
             }
         }
     };
-    private InputMethodManager inputMethodManager;
-    private Marker mMarker;
-    private BitmapDescriptor frame0;
-    private BitmapDescriptor frame1;
-    private BitmapDescriptor frame2;
-    private BitmapDescriptor frame3;
-    private BitmapDescriptor frame4;
-    private BitmapDescriptor frame5;
-    private BitmapDescriptor frame6;
-    private BitmapDescriptor frame7;
+    private String userComment;
+    private ActionsDialog mActionsDialog;
     private ChildEventListener mTweetsListener = new ChildEventAdapter() {
 
 
@@ -195,38 +232,6 @@ public class Snapshot extends FullscreenMapController implements OnMapReadyCallb
         }
 
     };
-    private LocationService locationService;
-    private ServiceConnection locationConnection = new ServiceConnection() {
-        public void onServiceConnected(ComponentName className, IBinder service) {
-            locationService = ((LocationService.LocationBinder) service).getService();
-            mLocation = locationService.getLocation();
-
-        }
-
-        public void onServiceDisconnected(ComponentName className) {
-            locationService = null;
-        }
-    };
-    private LocationReceiver locationReceiver = new LocationReceiver(this);
-    private BroadcastReceiver geofenceChangeReceiver = new BroadcastReceiver() {
-
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            switch (intent.getAction()) {
-                case GeofenceTransitionsIntentService.ACTION_ENTERED:
-                    String geofenceId = intent.getStringExtra(Constants.GEOFENCE_ID);
-                    break;
-//                case GeofenceTransitionsIntentService.ACTION_EXIT:
-//                    tvLocation.setText(R.string.location_default);
-//                    break;
-
-
-            }
-
-
-        }
-    };
-    private boolean mIsBound;
 
     private void setTime(Tweet tweet) {
         tweet.setRealDate(Helper.getRealDate(tweet.getDate()));
@@ -252,6 +257,7 @@ public class Snapshot extends FullscreenMapController implements OnMapReadyCallb
                 continue;
 
             if (oldComments == null || oldComments.isEmpty()) {
+                emitComment(newComment, color);
                 //Todo ammit comment
                 return;
             }
@@ -260,6 +266,7 @@ public class Snapshot extends FullscreenMapController implements OnMapReadyCallb
 
             if (TextUtils.isEmpty(oldComment) || !newComment.equals(oldComment)) {
                 //Todo ammit comment
+                emitComment(newComment, color);
                 return;
             }
 
@@ -268,10 +275,10 @@ public class Snapshot extends FullscreenMapController implements OnMapReadyCallb
         if (isUserCommented && activeTweet != null) {
             color = Helper.getColorWithRegionName(activeTweet.getRegionName());
             //Todo ammit comment
+            emitComment(userComment, color);
             isUserCommented = false;
 
         }
-
 
     }
 
@@ -373,9 +380,8 @@ public class Snapshot extends FullscreenMapController implements OnMapReadyCallb
     private void clearMap() {
         for (GroundOverlay overlay : mOverlays)
             overlay.remove();
+        mOverlays.clear();
         handler.removeCallbacksAndMessages(null);
-        for (Marker marker : mMarkers)
-            marker.remove();
 
         for (Marker marker : mMarkerCapitalMap.keySet())
             marker.remove();
@@ -391,9 +397,9 @@ public class Snapshot extends FullscreenMapController implements OnMapReadyCallb
             Tweet tweet = mTweetList.get(i);
             if (Helper.isShowableTweet(tweet) && tweet.getAllowComment()) {
                 GeoRegion localRegion = Helper.getLocalRegion(tweet);
-                String[] words = tweet.getDate().split(SPACE);
-                String tweetTime = words != null && words.length > 2 ? words[0] + SPACE + words[1] + ": " : "";
 
+
+                String tweetTime = Helper.getVisibleDate(tweet.getRealDate());
                 Capital annotation = Capital.newInstance("@" + tweet.getRegionName(), tweetTime + "'" + tweet.getTweetText() + "'", localRegion.getLatLng(), tweet);
                 Marker marker = mMap.addMarker(annotation.getOptions());
                 mMarkerCapitalMap.put(marker, annotation);
@@ -407,20 +413,58 @@ public class Snapshot extends FullscreenMapController implements OnMapReadyCallb
         }
 
         for (UserLocation userLocation : trackUsersList) {
-            MarkerOptions markerOptions = new MarkerOptions().draggable(false).position(new LatLng(userLocation.getLat(), userLocation.getLng()));
-            Marker marker = mMap.addMarker(markerOptions);
-            markerAnimation(marker);
-            mMarkers.add(marker);
+
+            GroundOverlayOptions options = new GroundOverlayOptions().position(new LatLng(userLocation.getLat(), userLocation.getLng()), 70f, 70f).image(frame0);
+            GroundOverlay overlay = mMap.addGroundOverlay(options);
+            mOverlays.add(overlay);
+            markerAnimation(overlay);
 
 
         }
 
     }
 
+    private int dp(int px) {
+        final float scale = getResources().getDisplayMetrics().density;
+        return (int) (px * scale + 0.5f);
+    }
+
+    private void emitComment(String comment, int color) {
+
+        AnonTView ecView = new AnonTView(Snapshot.this);
+        ecView.setBackgroundDrawable(ContextCompat.getDrawable(this, R.drawable.emit_border));
+        ecView.setText(comment);
+        ecView.setTextSize(12f);
+        ecView.setTextColor(ContextCompat.getColor(Snapshot.this, R.color.white_alfa));
+        int five = dp(5);
+        ecView.setPadding(five, five, five, five);
+
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(dp(200), dp(24));
+        params.setMargins(dp(20), dp(40), 0, 0);
+        ecView.setGravity(Gravity.CENTER_VERTICAL);
+        ecView.setLayoutParams(params);
+        ColorStateList stateList = new ColorStateList(new int[][]{
+                new int[]{}},
+                new int[]{color
+                });
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+//            ecView.setBackgroundTintList(stateList);
+//        } else {
+        ecView.setSupportBackgroundTintList(stateList);
+//        }
+        LinearLayout ll = findViewById(R.id.main_layout);
+        ll.addView(ecView);
+        ll.invalidate();
+        ll.requestLayout();
+
+//        ecView.animate().alphaBy(1.0f).alpha(0.0f).translationY(-ecView.getWidth()).setDuration(20000).setInterpolator(new AccelerateInterpolator()).start();
+
+    }
+
     private void showActionWithTweet(Tweet tweet) {
         activeTweet = tweet;
-        ActionsDialog dialog = ActionsDialog.newInstance(tweet);
-        dialog.show(getSupportFragmentManager(), null);
+        mActionsDialog = ActionsDialog.newInstance(tweet);
+        mActionsDialog.show(getSupportFragmentManager(), null);
 
 
     }
@@ -432,7 +476,7 @@ public class Snapshot extends FullscreenMapController implements OnMapReadyCallb
         return Bitmap.createScaledBitmap(b, side, side, false);
     }
 
-    public void markerAnimation(final Marker marker) {
+    public void markerAnimation(final GroundOverlay marker) {
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
@@ -446,43 +490,43 @@ public class Snapshot extends FullscreenMapController implements OnMapReadyCallb
                         case 1:
                             if (frame0 == null)
                                 break;
-                            marker.setIcon(frame0);
+                            marker.setImage(frame0);
                             ++intMarkerNumber;
                             break;
                         case 2:
                             if (frame1 == null)
                                 break;
-                            marker.setIcon(frame1);
+                            marker.setImage(frame1);
                             ++intMarkerNumber;
                             break;
                         case 3:
                             if (frame2 == null)
                                 break;
-                            marker.setIcon(frame2);
+                            marker.setImage(frame2);
                             ++intMarkerNumber;
                             break;
                         case 4:
                             if (frame3 == null)
                                 break;
-                            marker.setIcon(frame3);
+                            marker.setImage(frame3);
                             ++intMarkerNumber;
                             break;
                         case 5:
                             if (frame4 == null)
                                 break;
-                            marker.setIcon(frame4);
+                            marker.setImage(frame4);
                             ++intMarkerNumber;
                             break;
                         case 6:
                             if (frame5 == null)
                                 break;
-                            marker.setIcon(frame5);
+                            marker.setImage(frame5);
                             ++intMarkerNumber;
                             break;
                         case 7:
                             if (frame6 == null)
                                 break;
-                            marker.setIcon(frame6);
+                            marker.setImage(frame6);
                             ++intMarkerNumber;
                             break;
                         default:
@@ -490,7 +534,7 @@ public class Snapshot extends FullscreenMapController implements OnMapReadyCallb
                                 intMarkerNumber = 1;
                                 break;
                             }
-                            marker.setIcon(frame7);
+                            marker.setImage(frame7);
                             intMarkerNumber = 1;
                             break;
                     }
@@ -509,6 +553,9 @@ public class Snapshot extends FullscreenMapController implements OnMapReadyCallb
     }
 
     protected void onHideKeyboard() {
+//        if (snackbar != null && snackbar.isShowing()) {
+//            snackbar.dismiss();
+//        }
     }
 
     protected void attachKeyboardListeners() {
@@ -516,7 +563,6 @@ public class Snapshot extends FullscreenMapController implements OnMapReadyCallb
             return;
         }
 
-        rootLayout = findViewById(R.id.rootLayout);
         rootLayout.getViewTreeObserver().addOnGlobalLayoutListener(keyboardLayoutListener);
 
         keyboardListenersAttached = true;
@@ -537,6 +583,7 @@ public class Snapshot extends FullscreenMapController implements OnMapReadyCallb
         frame6 = BitmapDescriptorFactory.fromBitmap(resizeMarker(R.drawable.frame_6));
         frame7 = BitmapDescriptorFactory.fromBitmap(resizeMarker(R.drawable.frame_7));
         mDatabase = FirebaseDatabase.getInstance();
+        rootLayout = findViewById(R.id.rootLayout);
         attachKeyboardListeners();
         inputMethodManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
         if (!checkPermissions()) {
@@ -544,6 +591,9 @@ public class Snapshot extends FullscreenMapController implements OnMapReadyCallb
         }
         doBindService();
         findViewById(R.id.pin_link).setOnClickListener(this);
+        findViewById(R.id.board_link).setOnClickListener(this);
+        findViewById(R.id.create_account).setOnClickListener(this);
+
         activeTweet = getIntent().getSerializableExtra(MessageBoard.TWEET_EXTRA) != null ?
                 (Tweet) getIntent().getSerializableExtra(MessageBoard.TWEET_EXTRA) : null;
         trackUsersWithWits();
@@ -601,6 +651,12 @@ public class Snapshot extends FullscreenMapController implements OnMapReadyCallb
         LocalBroadcastManager.getInstance(this).unregisterReceiver(geofenceChangeReceiver);
         LocalBroadcastManager.getInstance(this).unregisterReceiver(locationReceiver);
 
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        handler.removeCallbacksAndMessages(null);
     }
 
     @Override
@@ -688,7 +744,6 @@ public class Snapshot extends FullscreenMapController implements OnMapReadyCallb
 
     }
 
-
     @Override
     protected void onStart() {
         super.onStart();
@@ -699,7 +754,6 @@ public class Snapshot extends FullscreenMapController implements OnMapReadyCallb
 
 
     }
-
 
     private boolean checkPermissions() {
         int permissionState = ActivityCompat.checkSelfPermission(this,
@@ -778,15 +832,15 @@ public class Snapshot extends FullscreenMapController implements OnMapReadyCallb
         switch (v.getId()) {
             case R.id.pin_link:
                 Intent intent = new Intent(Snapshot.this, DashBoard.class);
-                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 startActivity(intent);
-                Helper.downToUpTransition(Snapshot.this);
                 break;
             case R.id.board_link:
                 intent = new Intent(Snapshot.this, MessageBoard.class);
-                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 startActivity(intent);
-                Helper.downToUpTransition(Snapshot.this);
+                break;
+            case R.id.create_account:
+                intent = new Intent(Snapshot.this, CreateAccount.class);
+                startActivity(intent);
                 break;
         }
 
@@ -800,12 +854,70 @@ public class Snapshot extends FullscreenMapController implements OnMapReadyCallb
 
     @Override
     public void onCommentClick(Tweet tweet) {
-
+        mActionsDialog.dismiss();
+        showSnackbar();
     }
 
     @Override
     public void onReceive(Location location) {
         this.mLocation = location;
+    }
+
+    private void addComment(String comment) {
+        if (activeTweet == null)
+            return;
+
+        String userId = currentUser.getUserId();
+
+        if (userId != null) {
+            comment = userId + ": " + comment;
+        }
+
+        DatabaseReference ref = mDatabase.getReference().child("Tweets").child(activeTweet.getTweetId()).child("comments");
+
+        if (activeTweet.getComments() == null) {
+            Map<String, String> map = new HashMap<>();
+            map.put(currentUser.getUid(), comment);
+            ref.setValue(map);
+        } else {
+            isUserCommented = true;
+            userComment = comment;
+            activeTweet.getComments().put(currentUser.getUid(), comment);
+            ref.setValue(activeTweet.getComments());
+
+        }
+
+    }
+
+    private void showSnackbar() {
+        View container = findViewById(android.R.id.content);
+        if (container != null && snackbar == null) {
+
+            snackbar = AnonSnackbar.Builder(Snapshot.this)
+                    .layout(R.layout.comment_bar)
+                    .duration(AnonSnackbar.LENGTH.INDEFINITE)
+                    .swipe(false)
+                    .build(container);
+
+            View snackbarView = snackbar.getContentView();
+            final AnonTEdit tEdit = snackbarView.findViewById(R.id.comment_input);
+
+            tEdit.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+                @Override
+                public boolean onEditorAction(TextView textView, int i, KeyEvent keyEvent) {
+                    if (i == EditorInfo.IME_ACTION_SEND) {
+                        addComment(textView.getText().toString());
+                        snackbar.dismiss();
+
+                    }
+                    return false;
+                }
+            });
+
+            snackbar.show();
+        } else if (snackbar != null && !snackbar.isShowing()) {
+            snackbar.show();
+        }
     }
 
     class AnonInfoWindowAdapter implements GoogleMap.InfoWindowAdapter {

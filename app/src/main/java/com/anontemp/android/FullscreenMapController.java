@@ -264,6 +264,7 @@ public abstract class FullscreenMapController extends FragmentActivity {
 
     @Override
     public void startActivity(Intent intent) {
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         super.startActivity(intent);
         Helper.downToUpTransition(this);
     }

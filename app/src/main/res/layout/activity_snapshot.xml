@@ -4,7 +4,10 @@
              android:id="@+id/rootLayout"
              android:layout_width="fill_parent"
              android:layout_height="match_parent"
-             tools:context="com.anontemp.android.MapsActivity">
+             android:animateLayoutChanges="true"
+             android:fitsSystemWindows="false"
+             tools:context="com.anontemp.android.MapsActivity"
+    >
 
     <fragment
 
@@ -16,9 +19,10 @@
         android:layout_height="match_parent"
         android:layout_marginBottom="8dp"
         android:layout_marginTop="8dp"
-        tools:context="com.anontemp.android.MapsActivity" />
+        tools:context="com.anontemp.android.MapsActivity"/>
 
     <LinearLayout
+        android:id="@+id/main_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical">
@@ -121,6 +125,7 @@
             android:layout_marginTop="260dp"
             android:src="@drawable/black_splash1"
             />
+
 
     </LinearLayout>
 
