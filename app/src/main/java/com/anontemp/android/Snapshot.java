@@ -30,6 +30,7 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
+import android.view.animation.DecelerateInterpolator;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.LinearLayout;
@@ -443,21 +444,23 @@ public class Snapshot extends FullscreenMapController implements OnMapReadyCallb
         params.setMargins(dp(20), dp(40), 0, 0);
         ecView.setGravity(Gravity.CENTER_VERTICAL);
         ecView.setLayoutParams(params);
-        ColorStateList stateList = new ColorStateList(new int[][]{
-                new int[]{}},
-                new int[]{color
-                });
+
+
+//        ColorStateList stateList = new ColorStateList(new int[][]{
+//                new int[]{}},
+//                new int[]{Color.valueOf(color)
+//                });
 //        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
 //            ecView.setBackgroundTintList(stateList);
 //        } else {
-        ecView.setSupportBackgroundTintList(stateList);
+        ecView.setSupportBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(this, Constants.REGION_COLORS.get(color))));
 //        }
         LinearLayout ll = findViewById(R.id.main_layout);
         ll.addView(ecView);
-        ll.invalidate();
-        ll.requestLayout();
+//        ll.invalidate();
+//        ll.requestLayout();
 
-//        ecView.animate().alphaBy(1.0f).alpha(0.0f).translationY(-ecView.getWidth()).setDuration(20000).setInterpolator(new AccelerateInterpolator()).start();
+        ecView.animate().alphaBy(1.0f).alpha(0.0f).translationY(-dp(200)).setDuration(20000).setInterpolator(new DecelerateInterpolator()).start();
 
     }
 
@@ -905,7 +908,7 @@ public class Snapshot extends FullscreenMapController implements OnMapReadyCallb
             tEdit.setOnEditorActionListener(new TextView.OnEditorActionListener() {
                 @Override
                 public boolean onEditorAction(TextView textView, int i, KeyEvent keyEvent) {
-                    if (i == EditorInfo.IME_ACTION_SEND) {
+                    if (i == EditorInfo.IME_ACTION_SEND || i == EditorInfo.IME_ACTION_UNSPECIFIED) {
                         addComment(textView.getText().toString());
                         snackbar.dismiss();
 

@@ -179,7 +179,7 @@ public class Helper {
                 return region.getColor();
             }
         }
-        return android.R.color.black;
+        return Constants.WITS_COLOR;
     }
 
     public static boolean isShowableTweet(Tweet tweet) {
