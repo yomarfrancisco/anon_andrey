@@ -15,7 +15,6 @@ import android.widget.ImageView;
 
 import com.anontemp.android.misc.FontCache;
 import com.anontemp.android.misc.Helper;
-import com.anontemp.android.model.User;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
@@ -180,8 +179,10 @@ public class CreateAccount extends FullscreenController implements View.OnClickL
 
 
                         //TODO region identifier
-                        currentUser = new User(username, email, user.getUid(), "Wits", user.getUid());
-                        DatabaseReference userRef = dbRef.child(user.getUid());
+                        currentUser.setEmail(email);
+                        currentUser.setUsername(username);
+                        currentUser.setFirstName("Wits");
+                        DatabaseReference userRef = dbRef.child(currentUser.getUid());
                         userRef.setValue(currentUser);
 
 

@@ -1,5 +1,6 @@
 package com.anontemp.android;
 
+import android.animation.Animator;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
@@ -50,6 +51,7 @@ import com.anontemp.android.model.Tweet;
 import com.anontemp.android.model.UserLocation;
 import com.anontemp.android.view.AnonSnackbar;
 import com.anontemp.android.view.AnonTEdit;
+import com.anontemp.android.view.AnonTVSpecial;
 import com.anontemp.android.view.AnonTView;
 import com.firebase.geofire.GeoFire;
 import com.firebase.geofire.GeoLocation;
@@ -67,6 +69,8 @@ import com.google.android.gms.maps.model.GroundOverlayOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
@@ -178,6 +182,7 @@ public class Snapshot extends FullscreenMapController implements OnMapReadyCallb
     private ActionsDialog mActionsDialog;
     private LinearLayout commentLayout;
     private LinearLayout likeLayout;
+    private AnonTVSpecial mVotesText;
     private ChildEventListener mTweetsListener = new ChildEventAdapter() {
 
 
@@ -229,7 +234,8 @@ public class Snapshot extends FullscreenMapController implements OnMapReadyCallb
             if (updatedTweet.getLoves() != null && activeTweet != null
                     && updatedTweet.getTweetId().equals(activeTweet.getTweetId())
                     && (activeTweet.getLoves() == null || updatedTweet.getLoves().size() != activeTweet.getLoves().size())) {
-                voteValue = updatedTweet.getLoves().size();
+
+                setVoteValue(updatedTweet.getLoves().size());
                 emitLike();
 
             }
@@ -237,6 +243,7 @@ public class Snapshot extends FullscreenMapController implements OnMapReadyCallb
         }
 
     };
+    private AnonTEdit tEdit;
 
     private void setTime(Tweet tweet) {
         tweet.setRealDate(Helper.getRealDate(tweet.getDate()));
@@ -584,6 +591,7 @@ public class Snapshot extends FullscreenMapController implements OnMapReadyCallb
         mapFragment.getMapAsync(this);
         commentLayout = findViewById(R.id.comment_layout);
         likeLayout = findViewById(R.id.like_layout);
+        mVotesText = findViewById(R.id.votes_text);
         frame0 = BitmapDescriptorFactory.fromBitmap(resizeMarker(R.drawable.frame_0));
         frame1 = BitmapDescriptorFactory.fromBitmap(resizeMarker(R.drawable.frame_1));
         frame2 = BitmapDescriptorFactory.fromBitmap(resizeMarker(R.drawable.frame_2));
@@ -682,6 +690,11 @@ public class Snapshot extends FullscreenMapController implements OnMapReadyCallb
         clearMap();
     }
 
+    private void dismissSnack() {
+        if (snackbar != null && snackbar.isShowing())
+            snackbar.dismiss();
+    }
+
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
@@ -719,6 +732,8 @@ public class Snapshot extends FullscreenMapController implements OnMapReadyCallb
         mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
             public boolean onMarkerClick(Marker marker) {
 
+                dismissSnack();
+
                 if (mMarkerCapitalMap.isEmpty() || !mMarkerCapitalMap.containsKey(marker)) {
                     return true;
                 }
@@ -747,6 +762,8 @@ public class Snapshot extends FullscreenMapController implements OnMapReadyCallb
         mMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
             @Override
             public void onInfoWindowClick(Marker marker) {
+                dismissSnack();
+
                 if (!mMarkerCapitalMap.isEmpty() && mMarkerCapitalMap.containsKey(marker)) {
                     showActionWithTweet(mMarkerCapitalMap.get(marker).getInfo());
                 }
@@ -869,7 +886,7 @@ public class Snapshot extends FullscreenMapController implements OnMapReadyCallb
         mActionsDialog.dismiss();
 
         if (activeTweet != null && activeTweet.getLoves() != null) {
-            voteValue = activeTweet.getLoves().size();
+            setVoteValue(activeTweet.getLoves().size());
         }
 
         String uid = currentUser.getUid();
@@ -883,7 +900,18 @@ public class Snapshot extends FullscreenMapController implements OnMapReadyCallb
 
         } else {
             activeTweet.getLoves().put(uid, username);
-            ref.setValue(activeTweet.getLoves());
+            ref.setValue(activeTweet.getLoves()).addOnSuccessListener(new OnSuccessListener<Void>() {
+                @Override
+                public void onSuccess(Void aVoid) {
+
+                }
+            }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+
+                    Log.d(LOG_TAG, e.getLocalizedMessage());
+                }
+            });
         }
 
     }
@@ -892,6 +920,34 @@ public class Snapshot extends FullscreenMapController implements OnMapReadyCallb
     public void onCommentClick(Tweet tweet) {
         mActionsDialog.dismiss();
         showSnackbar();
+    }
+
+    private void setVoteValue(int value) {
+        voteValue = value;
+        mVotesText.setText(getString(R.string.votes_count, voteValue));
+        mVotesText.setVisibility(View.VISIBLE);
+        mVotesText.animate().alphaBy(1.0f).alpha(0.0f).setDuration(20000).setListener(new Animator.AnimatorListener() {
+            @Override
+            public void onAnimationStart(Animator animator) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animator animator) {
+                mVotesText.setVisibility(View.INVISIBLE);
+            }
+
+            @Override
+            public void onAnimationCancel(Animator animator) {
+
+            }
+
+            @Override
+            public void onAnimationRepeat(Animator animator) {
+
+            }
+        }).start();
+
     }
 
     @Override
@@ -936,14 +992,13 @@ public class Snapshot extends FullscreenMapController implements OnMapReadyCallb
                     .build(container);
 
             View snackbarView = snackbar.getContentView();
-            final AnonTEdit tEdit = snackbarView.findViewById(R.id.comment_input);
+            tEdit = snackbarView.findViewById(R.id.comment_input);
 
             tEdit.setOnEditorActionListener(new TextView.OnEditorActionListener() {
                 @Override
                 public boolean onEditorAction(TextView textView, int i, KeyEvent keyEvent) {
                     if (i == EditorInfo.IME_ACTION_SEND || i == EditorInfo.IME_ACTION_UNSPECIFIED) {
                         addComment(textView.getText().toString());
-                        tEdit.setText(R.string.empty);
                         snackbar.dismiss();
 
                     }
@@ -953,6 +1008,7 @@ public class Snapshot extends FullscreenMapController implements OnMapReadyCallb
 
             snackbar.show();
         } else if (snackbar != null && !snackbar.isShowing()) {
+            tEdit.setText("");
             snackbar.show();
         }
     }

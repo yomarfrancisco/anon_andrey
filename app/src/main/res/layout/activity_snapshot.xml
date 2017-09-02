@@ -5,6 +5,7 @@
              android:layout_width="fill_parent"
              android:layout_height="match_parent"
              android:animateLayoutChanges="true"
+             android:clipChildren="false"
              android:fitsSystemWindows="false"
              tools:context="com.anontemp.android.MapsActivity"
     >
@@ -25,6 +26,7 @@
         android:id="@+id/main_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:clipChildren="false"
         android:orientation="vertical">
 
 
@@ -129,14 +131,16 @@
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="40dp"
             android:layout_marginTop="30dp"
+            android:clipChildren="false"
             android:orientation="horizontal">
 
             <LinearLayout
                 android:id="@+id/comment_layout"
                 android:layout_width="220dp"
-                android:layout_height="100dp"
+                android:layout_height="match_parent"
+                android:clipChildren="false"
                 android:orientation="vertical"
 
                 />
@@ -144,11 +148,21 @@
             <LinearLayout
                 android:id="@+id/like_layout"
                 android:layout_width="match_parent"
-                android:layout_height="100dp"
+                android:layout_height="match_parent"
+                android:clipChildren="false"
                 android:orientation="vertical"
 
                 />
         </LinearLayout>
+
+        <com.anontemp.android.view.AnonTVSpecial
+            android:id="@+id/votes_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="30dp"
+            android:layout_marginTop="10dp"
+            android:textSize="10sp"
+            android:visibility="invisible"/>
 
     </LinearLayout>
 
