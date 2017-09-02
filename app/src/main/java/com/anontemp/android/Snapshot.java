@@ -33,6 +33,7 @@ import android.view.ViewTreeObserver;
 import android.view.animation.DecelerateInterpolator;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -84,6 +85,7 @@ import static com.anontemp.android.misc.Helper.isShowableTweet;
 public class Snapshot extends FullscreenMapController implements OnMapReadyCallback, View.OnClickListener, ActionsListener, OnLocationReceivedListener {
 
     public static final LatLng CENTER = new LatLng(-26.190160, 28.028817);
+    public static final String EMIT_COMMENT = "emit_comment";
     private static final int REQUEST_PERMISSIONS_REQUEST_CODE = 3;
     private final static int MAX_COUNT_SHOWABLE = 5;
     public static int intMarkerNumber = 1;
@@ -174,6 +176,8 @@ public class Snapshot extends FullscreenMapController implements OnMapReadyCallb
     };
     private String userComment;
     private ActionsDialog mActionsDialog;
+    private LinearLayout commentLayout;
+    private LinearLayout likeLayout;
     private ChildEventListener mTweetsListener = new ChildEventAdapter() {
 
 
@@ -226,7 +230,7 @@ public class Snapshot extends FullscreenMapController implements OnMapReadyCallb
                     && updatedTweet.getTweetId().equals(activeTweet.getTweetId())
                     && (activeTweet.getLoves() == null || updatedTweet.getLoves().size() != activeTweet.getLoves().size())) {
                 voteValue = updatedTweet.getLoves().size();
-                //TODO emitloveeffect
+                emitLike();
 
             }
 
@@ -259,14 +263,12 @@ public class Snapshot extends FullscreenMapController implements OnMapReadyCallb
 
             if (oldComments == null || oldComments.isEmpty()) {
                 emitComment(newComment, color);
-                //Todo ammit comment
                 return;
             }
 
             String oldComment = oldComments.get(uid);
 
             if (TextUtils.isEmpty(oldComment) || !newComment.equals(oldComment)) {
-                //Todo ammit comment
                 emitComment(newComment, color);
                 return;
             }
@@ -275,7 +277,6 @@ public class Snapshot extends FullscreenMapController implements OnMapReadyCallb
         }
         if (isUserCommented && activeTweet != null) {
             color = Helper.getColorWithRegionName(activeTweet.getRegionName());
-            //Todo ammit comment
             emitComment(userComment, color);
             isUserCommented = false;
 
@@ -432,6 +433,8 @@ public class Snapshot extends FullscreenMapController implements OnMapReadyCallb
 
     private void emitComment(String comment, int color) {
 
+        commentLayout.removeAllViews();
+
         AnonTView ecView = new AnonTView(Snapshot.this);
         ecView.setBackgroundDrawable(ContextCompat.getDrawable(this, R.drawable.emit_border));
         ecView.setText(comment);
@@ -441,26 +444,28 @@ public class Snapshot extends FullscreenMapController implements OnMapReadyCallb
         ecView.setPadding(five, five, five, five);
 
         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(dp(200), dp(24));
-        params.setMargins(dp(20), dp(40), 0, 0);
+        params.setMargins(0, dp(40), 0, 0);
         ecView.setGravity(Gravity.CENTER_VERTICAL);
         ecView.setLayoutParams(params);
 
-
-//        ColorStateList stateList = new ColorStateList(new int[][]{
-//                new int[]{}},
-//                new int[]{Color.valueOf(color)
-//                });
-//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-//            ecView.setBackgroundTintList(stateList);
-//        } else {
         ecView.setSupportBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(this, Constants.REGION_COLORS.get(color))));
-//        }
-        LinearLayout ll = findViewById(R.id.main_layout);
-        ll.addView(ecView);
-//        ll.invalidate();
-//        ll.requestLayout();
+
+        commentLayout.addView(ecView);
 
         ecView.animate().alphaBy(1.0f).alpha(0.0f).translationY(-dp(200)).setDuration(20000).setInterpolator(new DecelerateInterpolator()).start();
+
+    }
+
+    private void emitLike() {
+
+        ImageView likeView = new ImageView(Snapshot.this);
+        likeView.setImageDrawable(ContextCompat.getDrawable(Snapshot.this, R.drawable.ic_smile));
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        params.setMargins(0, dp(40), 0, 0);
+        likeView.setLayoutParams(params);
+        likeLayout.addView(likeView);
+        likeView.animate().alphaBy(1.0f).alpha(0.0f).translationY(-dp(200)).setDuration(20000).setInterpolator(new DecelerateInterpolator()).start();
+
 
     }
 
@@ -577,6 +582,8 @@ public class Snapshot extends FullscreenMapController implements OnMapReadyCallb
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+        commentLayout = findViewById(R.id.comment_layout);
+        likeLayout = findViewById(R.id.like_layout);
         frame0 = BitmapDescriptorFactory.fromBitmap(resizeMarker(R.drawable.frame_0));
         frame1 = BitmapDescriptorFactory.fromBitmap(resizeMarker(R.drawable.frame_1));
         frame2 = BitmapDescriptorFactory.fromBitmap(resizeMarker(R.drawable.frame_2));
@@ -587,6 +594,7 @@ public class Snapshot extends FullscreenMapController implements OnMapReadyCallb
         frame7 = BitmapDescriptorFactory.fromBitmap(resizeMarker(R.drawable.frame_7));
         mDatabase = FirebaseDatabase.getInstance();
         rootLayout = findViewById(R.id.rootLayout);
+        rootLayout.setOnClickListener(this);
         attachKeyboardListeners();
         inputMethodManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
         if (!checkPermissions()) {
@@ -600,6 +608,7 @@ public class Snapshot extends FullscreenMapController implements OnMapReadyCallb
         activeTweet = getIntent().getSerializableExtra(MessageBoard.TWEET_EXTRA) != null ?
                 (Tweet) getIntent().getSerializableExtra(MessageBoard.TWEET_EXTRA) : null;
         trackUsersWithWits();
+
 
     }
 
@@ -845,6 +854,11 @@ public class Snapshot extends FullscreenMapController implements OnMapReadyCallb
                 intent = new Intent(Snapshot.this, CreateAccount.class);
                 startActivity(intent);
                 break;
+            default:
+                if (snackbar != null && snackbar.isShowing()) {
+                    snackbar.dismiss();
+                }
+                break;
         }
 
 
@@ -852,6 +866,25 @@ public class Snapshot extends FullscreenMapController implements OnMapReadyCallb
 
     @Override
     public void onLikeClick(Tweet tweet) {
+        mActionsDialog.dismiss();
+
+        if (activeTweet != null && activeTweet.getLoves() != null) {
+            voteValue = activeTweet.getLoves().size();
+        }
+
+        String uid = currentUser.getUid();
+        String username = currentUser.getFirstName();
+        DatabaseReference ref = mDatabase.getReference().child("Tweets").child(activeTweet.getTweetId()).child("loves");
+
+        if (activeTweet.getLoves() == null) {
+            Map<String, String> map = new HashMap<>();
+            map.put(uid, username);
+            ref.setValue(map);
+
+        } else {
+            activeTweet.getLoves().put(uid, username);
+            ref.setValue(activeTweet.getLoves());
+        }
 
     }
 
@@ -910,6 +943,7 @@ public class Snapshot extends FullscreenMapController implements OnMapReadyCallb
                 public boolean onEditorAction(TextView textView, int i, KeyEvent keyEvent) {
                     if (i == EditorInfo.IME_ACTION_SEND || i == EditorInfo.IME_ACTION_UNSPECIFIED) {
                         addComment(textView.getText().toString());
+                        tEdit.setText(R.string.empty);
                         snackbar.dismiss();
 
                     }
