@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context="com.anontemp.android.WhiteSplash">
+                                             xmlns:app="http://schemas.android.com/apk/res-auto"
+                                             xmlns:tools="http://schemas.android.com/tools"
+                                             android:layout_width="match_parent"
+                                             android:layout_height="match_parent"
+                                             android:background="@drawable/opening_2"
+                                             tools:context="com.anontemp.android.WhiteSplash">
 
     <android.support.constraint.Guideline
         android:id="@+id/leftIcon_guideline"
@@ -18,7 +19,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        app:layout_constraintGuide_percent=".12" />
+        app:layout_constraintGuide_percent=".1"/>
 
     <android.support.constraint.Guideline
         android:id="@+id/topIcon_guideline"
@@ -32,7 +33,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintGuide_percent=".25" />
+        app:layout_constraintGuide_percent=".45"/>
 
     <ImageView
         android:layout_width="wrap_content"
@@ -41,32 +42,21 @@
         app:layout_constraintLeft_toLeftOf="@id/leftIcon_guideline"
         app:layout_constraintTop_toTopOf="@id/topIcon_guideline" />
 
-    <com.anontemp.android.view.AnonTView
-        android:id="@+id/tvLogo"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:fontFamily="sans-serif"
-        android:text="@string/app_title"
-        android:textSize="90sp"
-        android:transitionName="title"
-        app:layout_constraintLeft_toLeftOf="@+id/leftText_guideline"
-        app:layout_constraintTop_toTopOf="@+id/topText_guideline" />
-
-    <com.anontemp.android.view.AnonTView
+    <com.anontemp.android.view.AnonTVSpecial
         android:id="@+id/tvDesc"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:fontFamily="sans-serif"
         android:text="@string/welcome_text"
+        android:textColor="@android:color/white"
         android:textSize="20sp"
         app:layout_constraintLeft_toLeftOf="@+id/leftText_guideline"
-        app:layout_constraintTop_toBottomOf="@id/tvLogo" />
+        app:layout_constraintTop_toTopOf="@+id/topText_guideline"/>
 
     <ImageView
         android:id="@+id/imageView"
         android:layout_width="220dp"
         android:layout_height="wrap_content"
-        android:paddingTop="40dp"
+        android:paddingTop="50dp"
         android:src="@drawable/icon_set"
         app:layout_constraintBaseline_toBaselineOf="@id/tvDesc"
         app:layout_constraintLeft_toLeftOf="@+id/leftText_guideline" />
@@ -85,6 +75,24 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         app:layout_constraintGuide_percent=".8" />
+
+    <android.support.constraint.Guideline
+        android:id="@+id/bottomText_guideline"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent=".9"/>
+
+    <com.anontemp.android.view.AnonTView
+        android:id="@+id/tvDesc2"
+        android:layout_width="250dp"
+        android:layout_height="wrap_content"
+        android:maxLines="2"
+        android:text="@string/landing_text"
+        android:textSize="19sp"
+        android:textStyle="bold"
+        app:layout_constraintLeft_toLeftOf="@+id/leftText_guideline"
+        app:layout_constraintTop_toTopOf="@+id/bottomText_guideline"/>
 
     <ImageView
         android:id="@+id/ivHand"

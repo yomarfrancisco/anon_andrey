@@ -29,7 +29,6 @@
         android:fontFamily="sans-serif"
         android:text="@string/app_title"
         android:textSize="90sp"
-        android:transitionName="title"
         app:layout_constraintLeft_toLeftOf="@+id/left_guideline"
         app:layout_constraintTop_toTopOf="@+id/top_guideline" />
 
