@@ -468,7 +468,7 @@ public class Snapshot extends FullscreenMapController implements OnMapReadyCallb
         ImageView likeView = new ImageView(Snapshot.this);
         likeView.setImageDrawable(ContextCompat.getDrawable(Snapshot.this, R.drawable.ic_smile));
         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-        params.setMargins(0, dp(40), 0, 0);
+        params.setMargins(0, dp(10), 0, 0);
         likeView.setLayoutParams(params);
         likeLayout.addView(likeView);
         likeView.animate().alphaBy(1.0f).alpha(0.0f).translationY(-dp(200)).setDuration(20000).setInterpolator(new DecelerateInterpolator()).start();

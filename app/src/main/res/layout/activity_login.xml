@@ -95,7 +95,7 @@
 
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="130dp"
+        android:layout_marginBottom="133dp"
         android:textAlignment="center"
         app:hintEnabled="false"
         app:hintTextAppearance="@style/RedHint"
@@ -125,7 +125,7 @@
     <View
         android:layout_width="0dp"
         android:layout_height="1dp"
-        android:layout_marginBottom="120dp"
+        android:layout_marginBottom="123dp"
         android:background="#000000"
         app:layout_constraintBottom_toTopOf="@+id/bottom_main_guide"
         app:layout_constraintLeft_toLeftOf="@+id/left_main_guide"
@@ -135,7 +135,7 @@
 
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="80dp"
+        android:layout_marginBottom="83dp"
         app:hintAnimationEnabled="false"
         app:hintEnabled="false"
         app:hintTextAppearance="@style/RedHint"
@@ -166,7 +166,7 @@
     <View
         android:layout_width="0dp"
         android:layout_height="1dp"
-        android:layout_marginBottom="70dp"
+        android:layout_marginBottom="73dp"
         android:background="#000000"
         app:layout_constraintBottom_toTopOf="@+id/bottom_main_guide"
         app:layout_constraintLeft_toLeftOf="@+id/left_main_guide"
@@ -176,8 +176,8 @@
     <com.anontemp.android.view.AnonTButton
         android:id="@+id/authenticate_button"
         android:layout_width="0dp"
-        android:layout_height="35dp"
-        android:layout_marginBottom="27dp"
+        android:layout_height="40dp"
+        android:layout_marginBottom="30dp"
         android:background="@drawable/bg_round_rect"
         android:text="@string/log_in"
         android:textColor="@android:color/holo_green_dark"
@@ -188,7 +188,7 @@
     <com.anontemp.android.view.AnonTButton
         android:id="@+id/temp_login_button"
         android:layout_width="0dp"
-        android:layout_height="35dp"
+        android:layout_height="40dp"
         android:layout_marginBottom="15dp"
         android:background="@drawable/bg_round_rect_black"
         android:text="@string/login_auth"

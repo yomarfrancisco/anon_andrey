@@ -36,8 +36,7 @@ import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.view.ViewParent;
 import android.view.WindowManager;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
+import android.view.animation.DecelerateInterpolator;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -614,11 +613,16 @@ public class MapsActivity extends FullscreenMapController implements OnMapReadyC
                 break;
             case R.id.ivKey:
                 transitToLogin();
-                Animation gone = AnimationUtils.loadAnimation(MapsActivity.this, R.anim.rotate_and_gone);
-                ivKey.startAnimation(gone);
+                ivKey.animate().setDuration(1000).scaleX(100).scaleY(100).alphaBy(1.0f).alpha(0.4f).translationY(dp(200)).
+                        translationX(dp(400)).rotation(180f).setInterpolator(new DecelerateInterpolator()).start();
                 break;
         }
 
+    }
+
+    private int dp(int px) {
+        final float scale = getResources().getDisplayMetrics().density;
+        return (int) (px * scale + 0.5f);
     }
 
     public void transitToLogin() {
@@ -631,7 +635,7 @@ public class MapsActivity extends FullscreenMapController implements OnMapReadyC
             intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_NO_HISTORY);
 
         }
-        intent.putExtra(REGION_NAME, Constants.WITS_UNIVERSITY_LOWCASE);
+        intent.putExtra(REGION_NAME, regionName);
         startActivity(intent);
     }
 
